@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "experimentalDecorators": true,
+    "lib": ["es6", "dom", "es2017"],
+    "module": "commonjs",
+    "target": "es5",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "sourceMap": false,
+    "declaration": true,
+    "outDir": "dist",
+    "removeComments": false,
+    "types": [
+      "@types/node"
+    ],
+    "typeRoots": [
+      "node_modules/@types",
+      "src/types"
+    ]
+  },
+  "files": [
+    "src/index.ts"
+  ],
+  "include": ["src/**/*.ts", "src/**/*.json"],
+  "exclude": [
+    "node_modules",
+    "src/**/*.test.ts"
+  ]
+}
