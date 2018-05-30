@@ -10,21 +10,27 @@ export class Web3 {
     _simpleStorage
     _isInit
 
+
     constructor(web3) {
         const contract = require('truffle-contract')
         
         this._web3 = web3
-        console.log(DatastoreContract.contractName)
         this._simpleStorage = contract(DatastoreContract)
-        console.log('done')
+
         this._simpleStorage.setProvider(web3.currentProvider)
 
         this._isInit = this.initialize()
+
     }
 
     private getAccounts() {
         return new Promise((res, rej) => {
-            this._web3.eth.getAccounts((err, accounts) => res(accounts))
+            this._web3.eth.getAccounts((err, accounts) => {
+                if (err) 
+                    rej(err)
+                
+                res(accounts)
+            })
         })
     }
 

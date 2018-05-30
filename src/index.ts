@@ -53,6 +53,8 @@ export class Datastore {
     }
 
     async getFile(fileId: number) {
+        await this.initialize()
+
         const fileInfo = await this.getFileInfo(fileId)
         const fileContent = await this._storage.getFile(fileInfo.storageRef)
 
@@ -60,12 +62,24 @@ export class Datastore {
     }
 
     async getFileInfo(fileId: number) {
+        await this.initialize()
+
         const fileTuple = await this._contract.getFile(fileId)
         return { id: fileId, ...createFileFromTuple(fileTuple) }
     }
 
     async listFiles() {
-        //const lastFileId = await this._contract.call('lastFileId', { from: this._contract.accounts[0] }
+        await this.initialize()
+
+        const lastFileId = await this._contract.lastFileId()
+        let files = []
+        
+        // TODO: Optimize this code
+        for (let i = 1; i <= lastFileId; i++) {
+            files[i] = await this._contract.getFile(i)
+        }
+
+        return files
     }
 
 }

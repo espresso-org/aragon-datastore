@@ -14,7 +14,7 @@ contract Datastore {
 
     uint storedData;
 
-    uint private lastFileId = 0;
+    uint public lastFileId = 0;
 
     mapping (uint => File) files;
 

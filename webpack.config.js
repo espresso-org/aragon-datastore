@@ -46,7 +46,7 @@ var percentage_handler = function handler(percentage, msg) {
   if ( 0 === percentage ) {
     /* Build Started */
     outputCleanup(libPath());
-    console.log('Build started... Good luck!');
+    console.log('Build started...');
   } else if ( 1.0 === percentage ) {
     // TODO: No Error detection. :(
     create_browser_version(webpack_opts.output.filename);

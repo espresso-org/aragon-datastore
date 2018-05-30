@@ -11,6 +11,7 @@
     "dist/index.js": "./dist/index.browser.js"
   },
   "scripts": {
+    "start": "webpack -w",
     "build": "webpack",
     "truffle:migrate": "truffle compile --network development && truffle migrate --network development && run-s truffle:copy-contracts",
     "test": "jest",
@@ -23,6 +24,7 @@
   "keywords": [],
   "license": "MIT",
   "devDependencies": {
+    "@types/jasmine": "^2.8.7",
     "@types/jest": "^20.0.7",
     "@types/node": "^8.0.24",
     "browserify": "^14.4.0",
@@ -45,7 +47,8 @@
     "dotenv": "^2.0.0",
     "ipfs-api": "^21.0.0",
     "rxjs": "^5.5.6",
-    "truffle-contract": "^3.0.5"
+    "truffle-contract": "^3.0.5",
+    "web3": "0.20.1"
   },
   "jest": {
     "transform": {
@@ -60,7 +63,7 @@
       "/node_modules/"
     ],
     "testEnvironment": "node",
-    "testRegex": "__tests__/.*\\.spec\\.ts$",
+    "testRegex": "src/.*\\.spec\\.ts$",
     "moduleFileExtensions": [
       "ts",
       "js",
