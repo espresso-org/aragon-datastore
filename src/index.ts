@@ -76,7 +76,7 @@ export class Datastore {
         
         // TODO: Optimize this code
         for (let i = 1; i <= lastFileId; i++) {
-            files[i] = await this._contract.getFile(i)
+            files[i] = await this.getFileInfo(i)
         }
 
         return files
