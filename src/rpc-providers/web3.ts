@@ -7,7 +7,7 @@ import * as DatastoreContract from '../build-contracts/Datastore.json'
 export class Web3 {
 
     _web3
-    _simpleStorage
+    _contract
     _isInit
 
 
@@ -15,9 +15,12 @@ export class Web3 {
         const contract = require('truffle-contract')
         
         this._web3 = web3
-        this._simpleStorage = contract(DatastoreContract)
+        this._contract = contract(DatastoreContract)
+        this._contract.defaults({
+            gas:3000000
+        })
 
-        this._simpleStorage.setProvider(web3.currentProvider)
+        this._contract.setProvider(web3.currentProvider)
 
         this._isInit = this.initialize()
 
@@ -27,7 +30,7 @@ export class Web3 {
         return new Promise((res, rej) => {
             this._web3.eth.getAccounts((err, accounts) => {
                 if (err) 
-                    rej(err)
+                    return rej(err)                
                 
                 res(accounts)
             })
@@ -38,7 +41,7 @@ export class Web3 {
         // Initialize only once
         if (!this._isInit) {
             const accounts = await this.getAccounts()
-            this._simpleStorage.web3.eth.defaultAccount = accounts[0]
+            this._contract.web3.eth.defaultAccount = accounts[0]
         }
         else
             return this._isInit
@@ -48,7 +51,7 @@ export class Web3 {
     async getContract() {
         await this.initialize()
 
-        let contractInstance = await this._simpleStorage.deployed()
+        let contractInstance = await this._contract.deployed()
         return contractInstance
     }
 }

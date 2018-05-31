@@ -12,23 +12,22 @@ describe('Datastore', async () => {
     const datastore = new Datastore({
       encryptionProvider: new providers.encryption.Aes(),
       rpcProvider: new providers.rpc.Web3(web3),
-      storageProvider: new providers.storage.Ipfs(null as any)
+      storageProvider: new providers.storage.Ipfs()
     })
 
     const files = await datastore.listFiles()
     
-    //console.log('files: ', files)
 
   })
 
-  it('adds file', async () => {      
+  xit('adds file', async () => {      
 
     const web3 = new Web3(new Web3.providers.HttpProvider(WEB3_HOST)) 
 
     const datastore = new Datastore({
       encryptionProvider: new providers.encryption.Aes(),
       rpcProvider: new providers.rpc.Web3(web3),
-      storageProvider: new providers.storage.Ipfs(null as any)
+      storageProvider: new providers.storage.Ipfs()
     })
 
     const fileId = await datastore.addFile(new ArrayBuffer(40))
