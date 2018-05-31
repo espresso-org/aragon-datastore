@@ -11,7 +11,7 @@ export class IpfsOptions {
 export class Ipfs {
     private _ipfs
 
-    constructor(opts: IpfsOptions) {
+    constructor(opts?: IpfsOptions) {
         opts = Object.assign(new IpfsOptions, opts)
         this._ipfs = new ipfsAPI(opts)
     }
