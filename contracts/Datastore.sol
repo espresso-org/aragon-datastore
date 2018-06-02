@@ -12,8 +12,6 @@ contract Datastore {
         bool isDeleted;
     }
 
-    uint storedData;
-
     uint public lastFileId = 0;
 
     mapping (uint => File) files;
@@ -46,14 +44,7 @@ contract Datastore {
     }
 
     function deleteFile(uint fileId) external {
-
+        files[fileId].isDeleted = true;
     }
 
-    function set(uint x) public {
-        storedData = x;
-    } 
-
-    function get() public view returns (uint) {
-        return storedData;
-    }
 }
