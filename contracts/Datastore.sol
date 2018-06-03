@@ -6,6 +6,7 @@ contract Datastore {
 
     struct File {
         string storageRef;
+        string name;
         uint fileSize;
         string keepRef;
         bool isPublic;
@@ -16,9 +17,9 @@ contract Datastore {
 
     mapping (uint => File) files;
 
-    function addFile(string storageRef, uint fileSize, bool isPublic) external returns (uint fileId) {
+    function addFile(string storageRef, string name, uint fileSize, bool isPublic) external returns (uint fileId) {
         lastFileId++;
-        files[lastFileId] = File({ storageRef: storageRef, fileSize: fileSize, keepRef: "", isPublic: isPublic, isDeleted: false });
+        files[lastFileId] = File({ storageRef: storageRef, name: name, fileSize: fileSize, keepRef: "", isPublic: isPublic, isDeleted: false });
         return lastFileId;
     }
 
@@ -27,6 +28,7 @@ contract Datastore {
         view 
         returns (
             string storageRef,
+            string name,
             uint fileSize,
             string keepRef,
             bool isPublic,
@@ -36,6 +38,7 @@ contract Datastore {
         File storage file = files[fileId];
 
         storageRef = file.storageRef;
+        name = file.name;
         fileSize = file.fileSize;
         keepRef = file.keepRef;
         isPublic = file.isPublic;

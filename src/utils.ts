@@ -1,9 +1,10 @@
 export function createFileFromTuple(tuple: any[]) {
     return {
         storageRef: tuple[0],
-        fileSize: tuple[1],
-        keepRef: tuple[2],
-        isPublic: tuple[3],
-        isDeleted: tuple[4]
+        name: tuple[1],
+        fileSize: tuple[2],
+        keepRef: tuple[3],
+        isPublic: tuple[4],
+        isDeleted: tuple[5]
     }
 }

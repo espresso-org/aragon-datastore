@@ -44,11 +44,11 @@ export class Datastore {
         }
     }
 
-    async addFile(file: ArrayBuffer) {
+    async addFile(name: string, file: ArrayBuffer) {
         await this.initialize()
 
         const storageId = await this._storage.addFile(file)
-        const fileId = await this._contract.addFile(storageId, file.byteLength, true)
+        const fileId = await this._contract.addFile(storageId, name, file.byteLength, true)
         return fileId
     }
 
@@ -71,7 +71,7 @@ export class Datastore {
     async listFiles() {
         await this.initialize()
 
-        const lastFileId = await this._contract.lastFileId()
+        const lastFileId = (await this._contract.lastFileId()).toNumber()
         let files = []
         
         // TODO: Optimize this code
