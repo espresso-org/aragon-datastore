@@ -12,6 +12,7 @@ contract Datastore {
         bool isPublic;
         bool isDeleted;
         address owner;
+        uint lastModification;
         mapping (address => Permission) permissions;
     }
 
@@ -34,7 +35,8 @@ contract Datastore {
             keepRef: "",
             isPublic: _isPublic,
             isDeleted: false,
-            owner: msg.sender 
+            owner: msg.sender,
+            lastModification: now
         });
         return lastFileId;
     }
@@ -49,7 +51,8 @@ contract Datastore {
             string keepRef,
             bool isPublic,
             bool isDeleted,
-            address owner
+            address owner,
+            uint lastModification
         ) 
     {
         File storage file = files[_fileId];
@@ -61,6 +64,7 @@ contract Datastore {
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
         owner = file.owner;
+        lastModification = file.lastModification
     }
 
     function deleteFile(uint _fileId) public {
