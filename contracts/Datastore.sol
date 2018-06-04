@@ -11,6 +11,7 @@ contract Datastore {
         string keepRef;
         bool isPublic;
         bool isDeleted;
+        address owner;
         mapping (address => Permission) permissions;
     }
 
@@ -32,7 +33,8 @@ contract Datastore {
             fileSize: _fileSize,
             keepRef: "",
             isPublic: _isPublic,
-            isDeleted: false 
+            isDeleted: false,
+            owner: msg.sender 
         });
         return lastFileId;
     }
@@ -46,7 +48,8 @@ contract Datastore {
             uint fileSize,
             string keepRef,
             bool isPublic,
-            bool isDeleted
+            bool isDeleted,
+            address owner
         ) 
     {
         File storage file = files[_fileId];
@@ -57,7 +60,7 @@ contract Datastore {
         keepRef = file.keepRef;
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
-    
+        owner = file.owner;
     }
 
     function deleteFile(uint _fileId) external {
@@ -67,5 +70,6 @@ contract Datastore {
     function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external {
         files[_fileId].permissions[_entity].write = _hasPermission;
     }
+
 
 }
