@@ -63,15 +63,19 @@ contract Datastore {
         owner = file.owner;
     }
 
-    function deleteFile(uint _fileId) external {
+    function deleteFile(uint _fileId) public {
+        require(isOwner(_fileId, msg.sender));
+
         files[_fileId].isDeleted = true;
     }
 
     function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external {
+        require(isOwner(_fileId, msg.sender));
+
         files[_fileId].permissions[_entity].write = _hasPermission;
     }
 
-    function isOwner(uint _fileId, address _entity) external view returns (bool) {
+    function isOwner(uint _fileId, address _entity) public view returns (bool) {
         return files[_fileId].owner == _entity;
     }
 }
