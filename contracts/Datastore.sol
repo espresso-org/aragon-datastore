@@ -11,11 +11,18 @@ contract Datastore {
         string keepRef;
         bool isPublic;
         bool isDeleted;
+        mapping (address => Permission) permissions;
+    }
+
+    struct Permission {
+        bool write;
+        bool read;
     }
 
     uint public lastFileId = 0;
 
-    mapping (uint => File) files;
+    mapping (uint => File) private files;
+    
 
     function addFile(string storageRef, string name, uint fileSize, bool isPublic) external returns (uint fileId) {
         lastFileId++;
@@ -48,6 +55,10 @@ contract Datastore {
 
     function deleteFile(uint fileId) external {
         files[fileId].isDeleted = true;
+    }
+
+    function setWritePermission(uint fileId, address entity, bool hasPermission) external {
+        files[fileId].permissions[entity].write = hasPermission;
     }
 
 }
