@@ -24,13 +24,20 @@ contract Datastore {
     mapping (uint => File) private files;
     
 
-    function addFile(string storageRef, string name, uint fileSize, bool isPublic) external returns (uint fileId) {
+    function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external returns (uint fileId) {
         lastFileId++;
-        files[lastFileId] = File({ storageRef: storageRef, name: name, fileSize: fileSize, keepRef: "", isPublic: isPublic, isDeleted: false });
+        files[lastFileId] = File({ 
+            storageRef: _storageRef,
+            name: _name,
+            fileSize: _fileSize,
+            keepRef: "",
+            isPublic: _isPublic,
+            isDeleted: false 
+        });
         return lastFileId;
     }
 
-    function getFile(uint fileId) 
+    function getFile(uint _fileId) 
         external
         view 
         returns (
@@ -42,7 +49,7 @@ contract Datastore {
             bool isDeleted
         ) 
     {
-        File storage file = files[fileId];
+        File storage file = files[_fileId];
 
         storageRef = file.storageRef;
         name = file.name;
@@ -53,12 +60,12 @@ contract Datastore {
     
     }
 
-    function deleteFile(uint fileId) external {
-        files[fileId].isDeleted = true;
+    function deleteFile(uint _fileId) external {
+        files[_fileId].isDeleted = true;
     }
 
-    function setWritePermission(uint fileId, address entity, bool hasPermission) external {
-        files[fileId].permissions[entity].write = hasPermission;
+    function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external {
+        files[_fileId].permissions[_entity].write = _hasPermission;
     }
 
 }
