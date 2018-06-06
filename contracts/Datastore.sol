@@ -64,7 +64,7 @@ contract Datastore {
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
         owner = file.owner;
-        lastModification = file.lastModification
+        lastModification = file.lastModification;
     }
 
     function deleteFile(uint _fileId) public {
