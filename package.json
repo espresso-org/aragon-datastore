@@ -45,6 +45,7 @@
   "dependencies": {
     "@aragon/os": "^3.1.9",
     "async": "^2.6.1",
+    "bignumber.js": "^7.2.1",
     "dotenv": "^2.0.0",
     "ipfs-api": "^21.0.0",
     "rxjs": "^5.5.6",
