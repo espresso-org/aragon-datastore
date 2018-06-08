@@ -42,10 +42,14 @@ contract Datastore {
     }
 
     function renameFile(uint _fileId, string _newName) external {
+        require(isOwner(_fileId, msg.sender));
+
         files[_fileId].name = _newName;
     }
 
     function updateContent(uint _fileId, string _storageRef, uint _fileSize) external {
+        require(hasWriteAccess(_fileId, msg.sender));
+
         files[_fileId].storageRef = _storageRef;
         files[_fileId].fileSize = _fileSize;
     }
@@ -90,5 +94,13 @@ contract Datastore {
 
     function isOwner(uint _fileId, address _entity) public view returns (bool) {
         return files[_fileId].owner == _entity;
+    }
+
+    function hasReadAccess(uint _fileId, address _entity) public return (bool) {
+        return files[_fileId].permissions[_entity].read;
+    }
+
+    function hasWriteAccess(uint _fileId, address _entity) public return (bool) {
+        return files[_fileId].permissions[_entity].write;
     }
 }
