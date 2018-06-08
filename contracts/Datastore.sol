@@ -41,6 +41,15 @@ contract Datastore {
         return lastFileId;
     }
 
+    function renameFile(uint _fileId, string _newName) external {
+        files[_fileId].name = _newName;
+    }
+
+    function updateContent(uint _fileId, string _storageRef, uint _fileSize) external {
+        files[_fileId].storageRef = _storageRef;
+        files[_fileId].fileSize = _fileSize;
+    }
+
     function getFile(uint _fileId) 
         external
         view 
