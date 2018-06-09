@@ -7,6 +7,7 @@ export function createFileFromTuple(tuple: any[]) {
         isPublic: tuple[4],
         isDeleted: tuple[5],
         owner: tuple[6],
-        lastModification: tuple[7]
+        lastModification: tuple[7],
+        permissionAddresses: tuple[8]
     }
 }

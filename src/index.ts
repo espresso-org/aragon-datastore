@@ -4,7 +4,6 @@ import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 
 import { createFileFromTuple } from './utils'
-import * as getWeb3 from './utils/getWeb3'
 
 
 
@@ -80,6 +79,21 @@ export class Datastore {
         }
 
         return files
+    }
+
+ 
+    async setFileContent(fileId: number, file: ArrayBuffer) {
+        await this.initialize()
+        const storageId = await this._storage.addFile(file)
+        await this._contract.setFileContent(fileId, storageId, file.byteLength)
+
+    }
+
+    async setFilename(fileId, newName) {
+        await this.initialize()
+
+        await this._contract.setFilename(fileId, newName)
+
     }
 
 }

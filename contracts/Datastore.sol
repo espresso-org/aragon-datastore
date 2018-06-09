@@ -54,7 +54,8 @@ contract Datastore {
             bool isPublic,
             bool isDeleted,
             address owner,
-            uint lastModification
+            uint lastModification,
+            address[] permissionAddresses
         ) 
     {
         File storage file = files[_fileId];
@@ -67,6 +68,7 @@ contract Datastore {
         isDeleted = file.isDeleted;
         owner = file.owner;
         lastModification = file.lastModification;
+        permissionAddresses = file.permissionAddresses;
     }
 
     function deleteFile(uint _fileId) public {
@@ -75,13 +77,14 @@ contract Datastore {
         files[_fileId].isDeleted = true;
     }
 
-    function renameFile(uint _fileId, string _newName) external {
+    function setFilename(uint _fileId, string _newName) external {
         require(isOwner(_fileId, msg.sender));
 
         files[_fileId].name = _newName;
     }
 
-    function updateContent(uint _fileId, string _storageRef, uint _fileSize) external {
+
+    function setFileContent(uint _fileId, string _storageRef, uint _fileSize) external {
         require(hasWriteAccess(_fileId, msg.sender));
 
         files[_fileId].storageRef = _storageRef;
@@ -112,6 +115,6 @@ contract Datastore {
     }
 
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
-        return files[_fileId].permissions[_entity].write;
+        return isOwner(_fileId, _entity) || files[_fileId].permissions[_entity].write;
     }
 }
