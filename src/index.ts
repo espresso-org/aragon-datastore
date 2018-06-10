@@ -61,9 +61,10 @@ export class Datastore {
     }
 
     async getFileInfo(fileId: number) {
-        await this.initialize()
+        await this.initialize() 
 
         const fileTuple = await this._contract.getFile(fileId)
+        console.log('contract: ', this._contract)
         return { id: fileId, ...createFileFromTuple(fileTuple) }
     }
 
@@ -105,12 +106,10 @@ export class Datastore {
         await this.initialize()
 
         // TODO: Support Aragon provider
-        console.log('Add event handler')
+        // TODO: Use RxJs
         this._contract.allEvents((err, result) => {
-            console.log('new event', result)
-
             if (err)
-              return console.log('event err:', err)
+              return console.log('event error:', err)
             
             cb(result)
         })

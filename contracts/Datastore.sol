@@ -57,12 +57,13 @@ contract Datastore {
             string storageRef,
             string name,
             uint fileSize,
-            string keepRef,
             bool isPublic,
             bool isDeleted,
             address owner,
+            bool isOwner,
             uint lastModification,
-            address[] permissionAddresses
+            address[] permissionAddresses,
+            bool writeAccess
         ) 
     {
         File storage file = files[_fileId];
@@ -70,12 +71,13 @@ contract Datastore {
         storageRef = file.storageRef;
         name = file.name;
         fileSize = file.fileSize;
-        keepRef = file.keepRef;
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
         owner = file.owner;
+        isOwner = this.isOwner(_fileId, msg.sender);
         lastModification = file.lastModification;
         permissionAddresses = file.permissionAddresses;
+        writeAccess = hasWriteAccess(_fileId, msg.sender);
     }
 
     function deleteFile(uint _fileId) public {
@@ -85,7 +87,7 @@ contract Datastore {
     }
 
     function setFilename(uint _fileId, string _newName) external {
-        require(isOwner(_fileId, msg.sender));
+        require(hasWriteAccess(_fileId, msg.sender));
 
         files[_fileId].name = _newName;
         FileRename(msg.sender, lastFileId);

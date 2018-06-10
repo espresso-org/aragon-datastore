@@ -3,11 +3,15 @@ export function createFileFromTuple(tuple: any[]) {
         storageRef: tuple[0],
         name: tuple[1],
         fileSize: tuple[2],
-        keepRef: tuple[3],
-        isPublic: tuple[4],
-        isDeleted: tuple[5],
-        owner: tuple[6],
+        isPublic: tuple[3],
+        isDeleted: tuple[4],
+        owner: tuple[5],
+        isOwner: tuple[6],
         lastModification: tuple[7],
-        permissionAddresses: tuple[8]
+        permissionAddresses: tuple[8],
+        permissions: {
+            write: tuple[9],
+            read: true // TODO
+        }
     }
 }
