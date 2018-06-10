@@ -89,11 +89,31 @@ export class Datastore {
 
     }
 
-    async setFilename(fileId, newName) {
+    async setWritePermission(fileId: number, entity: string, hasPermission: boolean) {
+        await this.initialize()
+        await this._contract.setWritePermission(fileId, entity, hasPermission)
+    }
+
+    async setFilename(fileId: number, newName: string) {
         await this.initialize()
 
         await this._contract.setFilename(fileId, newName)
 
+    }
+
+    async events(cb: Function) {
+        await this.initialize()
+
+        // TODO: Support Aragon provider
+        console.log('Add event handler')
+        this._contract.allEvents((err, result) => {
+            console.log('new event', result)
+
+            if (err)
+              return console.log('event err:', err)
+            
+            cb(result)
+        })
     }
 
 }

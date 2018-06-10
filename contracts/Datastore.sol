@@ -3,6 +3,12 @@ pragma solidity ^0.4.18;
 
 contract Datastore {
 
+    event FileRename(address indexed entity, uint fileId);
+    event FileContentUpdate(address indexed entity, uint fileId);
+    event NewFile(address indexed entity, uint fileId);
+    event NewWritePermission(address indexed entity, uint fileId);
+    event NewReadPermission(address indexed entity, uint fileId);
+
     struct File {
         string storageRef;
         string name;
@@ -40,6 +46,7 @@ contract Datastore {
             lastModification: now,
             permissionAddresses: new address[](0)
         });
+        NewFile(msg.sender, lastFileId);
         return lastFileId;
     }
 
@@ -81,6 +88,7 @@ contract Datastore {
         require(isOwner(_fileId, msg.sender));
 
         files[_fileId].name = _newName;
+        FileRename(msg.sender, lastFileId);
     }
 
 
@@ -89,6 +97,7 @@ contract Datastore {
 
         files[_fileId].storageRef = _storageRef;
         files[_fileId].fileSize = _fileSize;
+        FileContentUpdate(msg.sender, lastFileId);
     }
 
     function getPermissionAddresses(uint _fileId) external view returns (address[] addresses) {
@@ -104,6 +113,7 @@ contract Datastore {
         }
 
         files[_fileId].permissions[_entity].write = _hasPermission;
+        NewWritePermission(msg.sender, lastFileId);
     }
 
     function isOwner(uint _fileId, address _entity) public view returns (bool) {
