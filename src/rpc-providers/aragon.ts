@@ -37,9 +37,22 @@ export class AragonContract {
     }   
     
     async lastFileId() {
-        return new Promise((res, rej) => {
-            this._aragonApp.call('lastFileId')
-                .subscribe(result => res(new BigNumber(result)))
-        })
+        const lastFileIdStr = await convertCallToPromise(this._aragonApp, 'lastFileId')
+        return new BigNumber(lastFileIdStr)
     }
+}
+
+
+function convertCallToPromise(aragonApp, methodName, ...args): Promise<any> {
+    return new Promise((resolve, rej) => {
+        aragonApp.call(methodName, ...args)
+            .subscribe(resolve)
+    })    
+}
+
+function convertTransactionToPromise(aragonApp, methodName, ...args) {
+    return new Promise((resolve, rej) => {
+        aragonApp[methodName](...args)
+            .subscribe(resolve)
+    })    
 }
