@@ -1,8 +1,9 @@
-import * as rxjs from 'rxjs'
+//import * as rxjs from 'rxjs'
 
 //import contract from 'truffle-contract'
 //import * as DatastoreContract from '../../build-contracts/Datastore'
 import * as DatastoreContract from '../build-contracts/Datastore.json'
+import { Observable } from 'rxjs'
 
 export class Web3 {
 
@@ -52,7 +53,11 @@ export class Web3 {
         await this.initialize()
 
         let contractInstance = await this._contract.deployed()
+
+        contractInstance.events = Observable.bindCallback(contractInstance.allEvents, contractInstance)
+
         return contractInstance
     }
+
 }
 

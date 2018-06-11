@@ -32,7 +32,10 @@ export class AragonContract {
   }
 
   async getFile(fileId) {
-    return convertCallToPromise(this._aragonApp, 'getFile', fileId)
+    let fileTuple = await convertCallToPromise(this._aragonApp, 'getFile', fileId)
+    fileTuple[2] = new BigNumber(fileTuple[2])
+    fileTuple[7] = new BigNumber(fileTuple[7])
+    return fileTuple
   }
 
   async deleteFile(fileId) {
@@ -55,8 +58,8 @@ export class AragonContract {
     return convertTransactionToPromise(this._aragonApp, 'setWritePermission', fileId, entity, hasWritePermission)
   }  
 
-  allEvents() {
-    throw 'Now implemented'
+  events(...args) {
+    return this._aragonApp.events(...args)
   }
 
 }

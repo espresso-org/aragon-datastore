@@ -102,17 +102,10 @@ export class Datastore {
 
     }
 
-    async events(cb: Function) {
+    async events(...args) {
         await this.initialize()
 
-        // TODO: Support Aragon provider
-        // TODO: Use RxJs
-        this._contract.allEvents((err, result) => {
-            if (err)
-              return console.log('event error:', err)
-            
-            cb(result)
-        })
+        return this._contract.events(...args)
     }
 
 }
