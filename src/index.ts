@@ -37,10 +37,10 @@ export class Datastore {
         this._storage = opts.storageProvider
         this._encryption = opts.encryptionProvider
         this._rpc = opts.rpcProvider
-        this._isInit = this.initialize()
+        this._isInit = this._initialize()
     }
 
-    async initialize() {
+    private async _initialize() {
         // Initialize only once
         if (!this._isInit) {
             this._contract = await this._rpc.getContract()
@@ -56,7 +56,7 @@ export class Datastore {
      * @param {ArrayBuffer} file - File content
      */
     async addFile(name: string, file: ArrayBuffer) {
-        await this.initialize()
+        await this._initialize()
 
         const storageId = await this._storage.addFile(file)
         const fileId = await this._contract.addFile(storageId, name, file.byteLength, true)
@@ -69,7 +69,7 @@ export class Datastore {
      * @returns {Promise<File>}
      */
     async getFile(fileId: number) {
-        await this.initialize()
+        await this._initialize()
 
         const fileInfo = await this.getFileInfo(fileId)
         const fileContent = await this._storage.getFile(fileInfo.storageRef)
@@ -82,7 +82,7 @@ export class Datastore {
      * @param {number} fileId 
      */
     async getFileInfo(fileId: number) {
-        await this.initialize() 
+        await this._initialize() 
 
         const fileTuple = await this._contract.getFile(fileId)
         return { id: fileId, ...createFileFromTuple(fileTuple) }
@@ -92,7 +92,7 @@ export class Datastore {
      * 
      */
     async listFiles() {
-        await this.initialize()
+        await this._initialize()
 
         const lastFileId = (await this._contract.lastFileId()).toNumber()
         let files = []
@@ -107,26 +107,26 @@ export class Datastore {
 
  
     async setFileContent(fileId: number, file: ArrayBuffer) {
-        await this.initialize()
+        await this._initialize()
         const storageId = await this._storage.addFile(file)
         await this._contract.setFileContent(fileId, storageId, file.byteLength)
 
     }
 
     async setWritePermission(fileId: number, entity: string, hasPermission: boolean) {
-        await this.initialize()
+        await this._initialize()
         await this._contract.setWritePermission(fileId, entity, hasPermission)
     }
 
     async setFilename(fileId: number, newName: string) {
-        await this.initialize()
+        await this._initialize()
 
         await this._contract.setFilename(fileId, newName)
 
     }
 
     async events(...args) {
-        await this.initialize()
+        await this._initialize()
 
         return this._contract.events(...args)
     }
