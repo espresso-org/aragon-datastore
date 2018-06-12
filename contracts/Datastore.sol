@@ -1,9 +1,10 @@
 pragma solidity ^0.4.18;
 
+import '@aragon/os/contracts/apps/AragonApp.sol';
 import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
 
-contract Datastore {
+contract Datastore is AragonApp {
     using SafeMath for uint256;
 
     event FileRename(address indexed entity, uint fileId);
