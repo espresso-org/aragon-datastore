@@ -1,5 +1,3 @@
-//const { assertRevert, assertInvalidOpcode } = require('@aragon/test-helpers/assertThrow')
-//const getBalance = require('@aragon/test-helpers/balance')(web3)
 const _ = require('lodash')
 
 const Datastore = artifacts.require('Datastore')
