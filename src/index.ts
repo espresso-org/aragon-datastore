@@ -24,6 +24,13 @@ export class Datastore {
     private _contract
     private _isInit
 
+    /**
+     * Creates a new Datastore instance
+     * 
+     * @param {Object} opts.storageProvider - Storage provider (IPFS, Swarm, Filecoin)
+     * @param {Object} opts.rpcProvider - RPC provider (Web3, Aragon)
+     * @param {Object} opts.encryptionProvider - Encryption provider for file encryption
+     */
     constructor(opts?: DatastoreOptions) {
         opts = Object.assign(new DatastoreOptions(), opts || {})
 
@@ -43,6 +50,11 @@ export class Datastore {
         }
     }
 
+    /**
+     * Add a new file to the Datastore
+     * @param {string} name - File name
+     * @param {ArrayBuffer} file - File content
+     */
     async addFile(name: string, file: ArrayBuffer) {
         await this.initialize()
 
@@ -51,6 +63,11 @@ export class Datastore {
         return fileId
     }
 
+    /**
+     * Returns a file and its content from its Id
+     * @param {number} fileId 
+     * @returns {Promise<File>}
+     */
     async getFile(fileId: number) {
         await this.initialize()
 
@@ -60,14 +77,20 @@ export class Datastore {
         return { ...fileInfo, content: fileContent }
     }
 
+    /**
+     * Returns the file information without the content
+     * @param {number} fileId 
+     */
     async getFileInfo(fileId: number) {
         await this.initialize() 
 
         const fileTuple = await this._contract.getFile(fileId)
-        console.log('contract: ', this._contract)
         return { id: fileId, ...createFileFromTuple(fileTuple) }
     }
 
+    /**
+     * 
+     */
     async listFiles() {
         await this.initialize()
 
