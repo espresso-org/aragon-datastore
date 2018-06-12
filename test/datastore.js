@@ -75,12 +75,30 @@ contract('Datastore ', accounts => {
         assert.equal(file[2], newFileSize)
     })    
 
-    it('throws when setFilename is called by account with no write access', async () => {
+
+    it('throws when setFilename is called with no write access', async () => {
         await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, { from: accounts[0] })
 
         await assertThrow(async () => datastore.setFilename(1, 'new file name', { from: accounts[1] }))
 
     }) 
+
+
+    it('changes filename when setFilename is called with write access', async () => {
+        const newFilename = 'new file name'
+
+        await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, { from: accounts[0] })
+        await datastore.setWritePermission(1, accounts[1], true)
+
+        await datastore.setFilename(1, newFilename, { from: accounts[1] })
+        
+        const file = await datastore.getFile(1)
+
+        assert.equal(file[1], newFilename)
+    })
+
+
+    
 
 })
 
