@@ -1,7 +1,10 @@
 pragma solidity ^0.4.18;
 
+import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
+
 
 contract Datastore {
+    using SafeMath for uint256;
 
     event FileRename(address indexed entity, uint fileId);
     event FileContentUpdate(address indexed entity, uint fileId);
@@ -52,7 +55,8 @@ contract Datastore {
      * @param _isPublic Is file readable by anyone
      */
     function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external returns (uint fileId) {
-        lastFileId++;
+        lastFileId = lastFileId.add(1);
+
         files[lastFileId] = File({ 
             storageRef: _storageRef,
             name: _name,

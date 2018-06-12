@@ -48,6 +48,7 @@
     "bignumber.js": "^7.2.1",
     "dotenv": "^2.0.0",
     "ipfs-api": "^21.0.0",
+    "openzeppelin-solidity": "^1.10.0",
     "rxjs": "^5.5.6",
     "truffle-contract": "^3.0.5",
     "web3": "0.20.1"
