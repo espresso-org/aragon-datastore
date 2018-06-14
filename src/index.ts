@@ -89,7 +89,7 @@ export class Datastore {
     }
 
     /**
-     * 
+     * Returns files information
      */
     async listFiles() {
         await this._initialize()
@@ -105,7 +105,11 @@ export class Datastore {
         return files
     }
 
- 
+    /**
+     * Replace content for a specific file
+     * @param {number} fileId File Id
+     * @param {ArrayBuffer} file File content
+     */
     async setFileContent(fileId: number, file: ArrayBuffer) {
         await this._initialize()
         const storageId = await this._storage.addFile(file)
@@ -113,11 +117,24 @@ export class Datastore {
 
     }
 
+    /**
+     * Add/Remove write permission to an entity for
+     * a specific file
+     * 
+     * @param {number} fileId File Id
+     * @param {string} entity Entity address
+     * @param {boolean} hasPermission Write permission
+     */
     async setWritePermission(fileId: number, entity: string, hasPermission: boolean) {
         await this._initialize()
         await this._contract.setWritePermission(fileId, entity, hasPermission)
     }
 
+    /**
+     * Changes name of a file for `newName`
+     * @param {number} fileId File Id
+     * @param {string} newName New file name
+     */
     async setFilename(fileId: number, newName: string) {
         await this._initialize()
 
@@ -125,7 +142,12 @@ export class Datastore {
 
     }
 
+    /**
+     * Datastore events
+     * 
+     */
     async events(...args) {
+        // TODO: Return an Observable without async
         await this._initialize()
 
         return this._contract.events(...args)
