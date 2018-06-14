@@ -1,4 +1,5 @@
 *
 !dist/**/*
+!contracts/
 !package.json
 !*.md

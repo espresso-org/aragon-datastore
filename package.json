@@ -1,5 +1,5 @@
 {
-  "name": "datastore",
+  "name": "aragon-datastore",
   "version": "0.0.1",
   "description": "Datastore based on AragonOS",
   "main": "dist/index.js",
