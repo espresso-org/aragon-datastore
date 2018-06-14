@@ -1,10 +1,10 @@
 pragma solidity ^0.4.18;
 
 import '@aragon/os/contracts/apps/AragonApp.sol';
-import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
+import '@aragon/os/contracts/lib/zeppelin/math/SafeMath.sol';
 
 
-contract Datastore is AragonApp {
+contract Datastore {
     using SafeMath for uint256;
 
     event FileRename(address indexed entity, uint fileId);
@@ -118,7 +118,7 @@ contract Datastore is AragonApp {
     }
 
     /**
-     * @notice Change name of file `_fileId` to `_newName`
+     * @notice Changes name of file `_fileId` to `_newName`
      * @param _fileId File Id
      * @param _newName New file name
      */
@@ -156,6 +156,9 @@ contract Datastore is AragonApp {
 
     /**
      * @notice Set write permission to `_hasPermission` for `_entity` on file `_fileId`
+     * @param _fileId File Id
+     * @param _entity Entity address
+     * @param _hasPermission Write permission
      */
     function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external {
         require(isOwner(_fileId, msg.sender));
@@ -169,14 +172,29 @@ contract Datastore is AragonApp {
         NewWritePermission(msg.sender, lastFileId);
     }
 
+    /**
+     * @notice Returns true if `_entity` is owner of file `_fileId`
+     * @param _fileId File Id
+     * @param _entity Entity address
+     */
     function isOwner(uint _fileId, address _entity) public view returns (bool) {
         return files[_fileId].owner == _entity;
     }
 
+    /**
+     * @notice Returns true if `_entity` has read access on file `_fileId`
+     * @param _fileId File Id
+     * @param _entity Entity address     
+     */
     function hasReadAccess(uint _fileId, address _entity) public view returns (bool) {
         return files[_fileId].permissions[_entity].read;
     }
 
+    /**
+     * @notice Returns true if `_entity` has write access on file `_fileId`
+     * @param _fileId File Id
+     * @param _entity Entity address     
+     */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
         return isOwner(_fileId, _entity) || files[_fileId].permissions[_entity].write;
     }
