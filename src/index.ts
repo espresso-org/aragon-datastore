@@ -88,6 +88,16 @@ export class Datastore {
         return { id: fileId, ...createFileFromTuple(fileTuple) }
     }
 
+
+    async getFilePermissions(fileId: number) {
+        await this._initialize()
+
+        const entitiesAddress = await this._contract.getPermissionAddresses(fileId)
+
+        return Promise.all(
+                entitiesAddress.map(entity => this._contract.getPermission(fileId, entity)))
+    }
+
     /**
      * 
      */

@@ -54,10 +54,25 @@ export class Web3 {
 
         let contractInstance = await this._contract.deployed()
 
-        contractInstance.events = Observable.bindCallback(contractInstance.allEvents, contractInstance)
+        contractInstance.events = fromCallback(contractInstance.allEvents.bind(contractInstance))
 
         return contractInstance
     }
 
 }
 
+
+function fromCallback(cb) {
+    return () => {
+        return Observable.create(observer => {
+
+            cb((e, value) => {
+                if (e)
+                    return observer.error(e)
+                else
+                    return observer.next(value)
+            })
+
+        })
+    }
+ }

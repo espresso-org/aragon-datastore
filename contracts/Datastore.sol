@@ -4,7 +4,7 @@ import '@aragon/os/contracts/apps/AragonApp.sol';
 import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
 
-contract Datastore is AragonApp {
+contract Datastore {
     using SafeMath for uint256;
 
     event FileRename(address indexed entity, uint fileId);
@@ -40,7 +40,7 @@ contract Datastore is AragonApp {
     }
 
     /**
-     * @notice Id of the last file added to the datastore. 
+     * Id of the last file added to the datastore. 
      * Also represents the total number of files stored.
      */
     uint public lastFileId = 0;
@@ -152,6 +152,13 @@ contract Datastore is AragonApp {
      */
     function getPermissionAddresses(uint _fileId) external view returns (address[] addresses) {
         return files[_fileId].permissionAddresses;
+    }
+
+    function getPermission(uint _fileId, address _entity) external view returns (bool write, bool read) {
+        Permission storage permission = files[_fileId].permissions[_entity];
+
+        write = permission.write;
+        read = permission.read;
     }
 
     /**
