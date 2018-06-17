@@ -156,8 +156,8 @@ contract Datastore {
 
     /**
      * @notice Get write and read permissions for entity `_entity` on file `_fileId`
-     * @param _fileId
-     * @param _entity
+     * @param _fileId File Id
+     * @param _entity Entity address
      */
     function getPermission(uint _fileId, address _entity) external view returns (bool write, bool read) {
         Permission storage permission = files[_fileId].permissions[_entity];
