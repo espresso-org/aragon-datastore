@@ -3,7 +3,7 @@ import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 
-import { createFileFromTuple } from './utils'
+import { createFileFromTuple, createPermissionFromTuple } from './utils'
 
 
 
@@ -86,6 +86,20 @@ export class Datastore {
 
         const fileTuple = await this._contract.getFile(fileId)
         return { id: fileId, ...createFileFromTuple(fileTuple) }
+    }
+
+
+    async getFilePermissions(fileId: number) {
+        await this._initialize()
+
+        const entitiesAddress = await this._contract.getPermissionAddresses(fileId)
+
+        return Promise.all(
+            entitiesAddress.map(async entity => ({
+                entity,
+                ...createPermissionFromTuple(await this._contract.getPermission(fileId, entity))
+            })) 
+        )
     }
 
     /**

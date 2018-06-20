@@ -54,6 +54,10 @@ export class AragonContract {
     return convertCallToPromise(this._aragonApp, 'getPermissionAddresses', fileId)
   }
 
+  async getPermission(fileId, entity) {
+    return convertCallToPromise(this._aragonApp, 'getPermission', fileId, entity)
+  }
+
   async setWritePermission(fileId, entity, hasWritePermission) {
     return convertTransactionToPromise(this._aragonApp, 'setWritePermission', fileId, entity, hasWritePermission)
   }  

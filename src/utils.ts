@@ -15,3 +15,10 @@ export function createFileFromTuple(tuple: any[]) {
         }
     }
 }
+
+export function createPermissionFromTuple(tuple: boolean[]) {
+    return {
+        write: tuple[0],
+        read: tuple[1]
+    }
+}

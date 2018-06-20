@@ -40,7 +40,7 @@ contract Datastore {
     }
 
     /**
-     * @notice Id of the last file added to the datastore. 
+     * Id of the last file added to the datastore. 
      * Also represents the total number of files stored.
      */
     uint public lastFileId = 0;
@@ -152,6 +152,18 @@ contract Datastore {
      */
     function getPermissionAddresses(uint _fileId) external view returns (address[] addresses) {
         return files[_fileId].permissionAddresses;
+    }
+
+    /**
+     * @notice Get write and read permissions for entity `_entity` on file `_fileId`
+     * @param _fileId File Id
+     * @param _entity Entity address
+     */
+    function getPermission(uint _fileId, address _entity) external view returns (bool write, bool read) {
+        Permission storage permission = files[_fileId].permissions[_entity];
+
+        write = permission.write;
+        read = permission.read;
     }
 
     /**
