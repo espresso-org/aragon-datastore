@@ -115,6 +115,7 @@ contract Datastore {
         require(isOwner(_fileId, msg.sender));
 
         files[_fileId].isDeleted = true;
+        files[_fileId].lastModification = now;
     }
 
     /**
@@ -126,6 +127,7 @@ contract Datastore {
         require(hasWriteAccess(_fileId, msg.sender));
 
         files[_fileId].name = _newName;
+        files[_fileId].lastModification = now;
         FileRename(msg.sender, lastFileId);
     }
 
@@ -142,6 +144,7 @@ contract Datastore {
 
         files[_fileId].storageRef = _storageRef;
         files[_fileId].fileSize = _fileSize;
+        files[_fileId].lastModification = now;
         FileContentUpdate(msg.sender, lastFileId);
     }
 
