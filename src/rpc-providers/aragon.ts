@@ -9,7 +9,10 @@ export class Aragon {
   }
 
   async getContract() {
-    return new AragonContract(this._aragonApp)
+    return new Promise((res, rej) => {
+      this._aragonApp.accounts()
+      .subscribe(accounts => res(new AragonContract(this._aragonApp, accounts)))
+    })
   }
 }
 
@@ -17,9 +20,12 @@ export class Aragon {
 export class AragonContract {
 
   private _aragonApp
+  private _ethAccounts
 
-  constructor(aragonApp) {
+  constructor(aragonApp, accounts) {
+    aragonApp.ethAccounts = accounts
     this._aragonApp = aragonApp
+    this._ethAccounts = accounts
   }
 
   async lastFileId() {
@@ -71,7 +77,7 @@ export class AragonContract {
 
 function convertCallToPromise(aragonApp, methodName, ...args): Promise<any> {
   return new Promise((resolve, rej) => {
-    aragonApp.call(methodName, ...args)
+    aragonApp.call(methodName, ...args, { from: aragonApp.ethAccounts[0] })
       .subscribe(resolve)
   })
 }
