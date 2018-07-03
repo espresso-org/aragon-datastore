@@ -9,7 +9,10 @@ export class Aragon {
   }
 
   async getContract() {
-    return new AragonContract(this._aragonApp)
+    return new Promise((res, rej) => {
+      this._aragonApp.accounts()
+      .subscribe(accounts => res(new AragonContract(this._aragonApp, accounts)))
+    })
   }
 }
 
@@ -17,9 +20,11 @@ export class Aragon {
 export class AragonContract {
 
   private _aragonApp
+  private _ethAccounts
 
-  constructor(aragonApp) {
+  constructor(aragonApp, accounts) {
     this._aragonApp = aragonApp
+    this._ethAccounts = accounts
   }
 
   async lastFileId() {
@@ -32,7 +37,8 @@ export class AragonContract {
   }
 
   async getFile(fileId) {
-    let fileTuple = await convertCallToPromise(this._aragonApp, 'getFile', fileId)
+    console.log('Calling convertCallToPromise ', this._ethAccounts[0])
+    let fileTuple = await convertCallToPromise(this._aragonApp, 'getFileAsCaller', fileId, this._ethAccounts[0])
     fileTuple[2] = new BigNumber(fileTuple[2])
     fileTuple[7] = new BigNumber(fileTuple[7])
     return fileTuple

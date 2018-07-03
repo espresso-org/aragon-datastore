@@ -108,6 +108,41 @@ contract Datastore {
     }
 
     /**
+     * @notice Returns the file with Id `_fileId`
+     * @param _fileId File id
+     * @param _caller Caller address
+     */
+    function getFileAsCaller(uint _fileId, address _caller) 
+        external
+        view 
+        returns (
+            string storageRef,
+            string name,
+            uint fileSize,
+            bool isPublic,
+            bool isDeleted,
+            address owner,
+            bool isOwner,
+            uint lastModification,
+            address[] permissionAddresses,
+            bool writeAccess
+        ) 
+    {
+        File storage file = files[_fileId];
+
+        storageRef = file.storageRef;
+        name = file.name;
+        fileSize = file.fileSize;
+        isPublic = file.isPublic;
+        isDeleted = file.isDeleted;
+        owner = file.owner;
+        isOwner = this.isOwner(_fileId, _caller);
+        lastModification = file.lastModification;
+        permissionAddresses = file.permissionAddresses;
+        writeAccess = hasWriteAccess(_fileId, _caller);
+    }    
+
+    /**
      * @notice Delete file with Id `_fileId`
      * @param _fileId File Id
      */
