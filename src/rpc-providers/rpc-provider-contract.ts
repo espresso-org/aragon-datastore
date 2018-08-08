@@ -1,5 +1,5 @@
 import { BigNumber } from 'bignumber.js'
-import { Observable } from 'rxjs'
+
 
 export interface RpcProviderContract {
     
@@ -12,5 +12,5 @@ export interface RpcProviderContract {
     getPermissionAddresses(fileId: number): Promise<string[]>
     getPermission(fileId: number, entity: string): Promise<any>
     setWritePermission(fileId: number, entity: string, hasWritePermission: boolean): Promise<{}>
-    events(...args): Promise<Observable<any>>
+    events(...args): any
 }
