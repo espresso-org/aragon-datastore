@@ -1,4 +1,6 @@
 import { BigNumber } from 'bignumber.js'
+import { RpcProviderContract } from './rpc-provider-contract'
+
 
 export class Aragon {
 
@@ -8,16 +10,17 @@ export class Aragon {
     this._aragonApp = aragonApp
   }
 
-  async getContract() {
+  getContract(): Promise<RpcProviderContract> {
     return new Promise((res, rej) => {
       this._aragonApp.accounts()
       .subscribe(accounts => res(new AragonContract(this._aragonApp, accounts)))
     })
   }
+
 }
 
 
-export class AragonContract {
+export class AragonContract implements RpcProviderContract {
 
   private _aragonApp
   private _ethAccounts
