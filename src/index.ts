@@ -21,7 +21,7 @@ export class Datastore {
     private _storage
     private _encryption
     private _rpc
-    private _contract
+    private _contract: rpc.RpcProviderContract
     private _isInit
 
     /**
