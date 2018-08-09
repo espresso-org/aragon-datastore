@@ -114,6 +114,17 @@ export class Datastore {
     }
 
     /**
+     * Fetch the datastore settings
+     */
+    async getSettings() {
+        await this._initialize()
+
+        const settingsTuple = await this._contract.settings()
+
+        // TODO: Convert tuple to settings
+    }
+
+    /**
      * Returns files information
      */
     async listFiles() {
