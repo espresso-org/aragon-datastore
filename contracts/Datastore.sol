@@ -71,6 +71,8 @@ contract Datastore {
     uint public lastFileId = 0;
 
     mapping (uint => File) private files;
+
+    Settings public settings;
     
 
     /**
