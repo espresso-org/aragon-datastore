@@ -208,7 +208,7 @@ contract Datastore {
      * @notice Set read permission to `_hasPermission` for `_entity` on file `_fileId`
      * @param _fileId File Id
      * @param _entity Entity address
-     * @param _hasPermission Write permission
+     * @param _hasPermission Read permission
      */
     function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external {
         require(isOwner(_fileId, msg.sender));
