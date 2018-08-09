@@ -12,7 +12,8 @@
   },
   "scripts": {
     "start": "webpack -w",
-    "build": "webpack",
+    "build": "run-s truffle:compile && webpack",
+    "truffle:compile": "truffle compile && run-s truffle:copy-contracts",
     "truffle:migrate": "truffle compile --network development && truffle migrate --network development && run-s truffle:copy-contracts",
     "test": "jest",
     "test:watch": "npm test -- --watch",

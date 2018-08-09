@@ -21,7 +21,7 @@ export class Datastore {
     private _storage
     private _encryption
     private _rpc
-    private _contract
+    private _contract: rpc.RpcProviderContract
     private _isInit
 
     /**
@@ -86,6 +86,17 @@ export class Datastore {
 
         const fileTuple = await this._contract.getFile(fileId)
         return { id: fileId, ...createFileFromTuple(fileTuple) }
+    }
+
+
+    /**
+     * Delete the specified file
+     * @param {number} fileId 
+     */
+    async deleteFile(fileId: number) {
+        await this._initialize() 
+
+        await this._contract.deleteFile(fileId)
     }
 
 

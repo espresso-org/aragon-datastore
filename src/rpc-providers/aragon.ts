@@ -1,4 +1,6 @@
 import { BigNumber } from 'bignumber.js'
+import { RpcProviderContract } from './rpc-provider-contract'
+
 
 export class Aragon {
 
@@ -8,16 +10,17 @@ export class Aragon {
     this._aragonApp = aragonApp
   }
 
-  async getContract() {
+  getContract(): Promise<RpcProviderContract> {
     return new Promise((res, rej) => {
       this._aragonApp.accounts()
       .subscribe(accounts => res(new AragonContract(this._aragonApp, accounts)))
     })
   }
+
 }
 
 
-export class AragonContract {
+export class AragonContract implements RpcProviderContract {
 
   private _aragonApp
   private _ethAccounts
@@ -37,7 +40,6 @@ export class AragonContract {
   }
 
   async getFile(fileId) {
-    console.log('Calling convertCallToPromise ', this._ethAccounts[0])
     let fileTuple = await convertCallToPromise(this._aragonApp, 'getFileAsCaller', fileId, this._ethAccounts[0])
     fileTuple[2] = new BigNumber(fileTuple[2])
     fileTuple[7] = new BigNumber(fileTuple[7])
