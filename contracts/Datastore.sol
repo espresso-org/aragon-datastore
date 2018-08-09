@@ -15,6 +15,24 @@ contract Datastore {
 
 
     /**
+     * Datastore settings
+     */
+
+    enum StorageProvider { Unknown, Ipfs, Filecoin, Swarm }
+    enum EncryptionType { Unknown, Aes }
+
+
+    struct Settings {
+        StorageProvider storageProvider;
+        EncryptionType encryption;
+    }
+
+    
+
+
+
+
+    /**
      * File stored in the 
      */
     struct File {
