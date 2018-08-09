@@ -249,6 +249,32 @@ contract Datastore {
         NewWritePermission(msg.sender, lastFileId);
     }
 
+
+    /**
+     * Settings related methods
+     */
+
+    
+    /**
+     * Sets IPFS as the storage provider for the datastore.
+     * Since switching between storage providers is not supported,
+     * the method can only be called once.
+     */
+    function setIpfsAsStorageProvider(string host, uint16 port, string protocol) public {
+        require(settings.storageProvider == StorageProvider.None);
+
+        settings.ipfs = IpfsSettings({
+            host: host,
+            port: port,
+            protocol: protocol
+        });
+
+        settings.storageProvider = StorageProvider.Ipfs;
+    }
+
+
+
+
     /**
      * @notice Returns true if `_entity` is owner of file `_fileId`
      * @param _fileId File Id
