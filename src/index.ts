@@ -15,9 +15,7 @@ export class DatastoreOptions {
     rpcProvider: any
 }
 
-
 export class Datastore {
-
     private _storage
     private _encryption
     private _rpc

@@ -12,7 +12,7 @@ contract Datastore {
     event NewFile(address indexed entity, uint fileId);
     event NewWritePermission(address indexed entity, uint fileId);
     event NewReadPermission(address indexed entity, uint fileId);
-
+    event DeleteFile(address indexed entity, uint fileId);
 
     /**
      * File stored in the 
@@ -46,7 +46,6 @@ contract Datastore {
     uint public lastFileId = 0;
 
     mapping (uint => File) private files;
-    
 
     /**
      * @notice Add a file to the datastore
@@ -151,6 +150,7 @@ contract Datastore {
 
         files[_fileId].isDeleted = true;
         files[_fileId].lastModification = now;
+        DeleteFile(msg.sender, lastFileId);
     }
 
     /**
