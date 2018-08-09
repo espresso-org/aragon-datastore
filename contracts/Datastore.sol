@@ -25,10 +25,14 @@ contract Datastore {
     struct Settings {
         StorageProvider storageProvider;
         EncryptionType encryption;
+
+        IpfsSettings ipfs;
     }
 
     struct IpfsSettings {
-
+        string host;
+        uint16 port;
+        string protocol;        
     }
     
 
