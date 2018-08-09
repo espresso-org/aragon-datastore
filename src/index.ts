@@ -141,6 +141,19 @@ export class Datastore {
     }
 
     /**
+     * Add/Remove read permission to an entity for
+     * a specific file
+     * 
+     * @param {number} fileId File Id
+     * @param {string} entity Entity address
+     * @param {boolean} hasPermission Write permission
+     */
+    async setReadPermission(fileId: number, entity: string, hasPermission: boolean) {
+        await this._initialize()
+        await this._contract.setReadPermission(fileId, entity, hasPermission)
+    }
+
+    /**
      * Add/Remove write permission to an entity for
      * a specific file
      * 
