@@ -18,8 +18,8 @@ contract Datastore {
      * Datastore settings
      */
 
-    enum StorageProvider { Unknown, Ipfs, Filecoin, Swarm }
-    enum EncryptionType { Unknown, Aes }
+    enum StorageProvider { None, Ipfs, Filecoin, Swarm }
+    enum EncryptionType { None, Aes }
 
 
     struct Settings {
@@ -27,6 +27,9 @@ contract Datastore {
         EncryptionType encryption;
     }
 
+    struct IpfsSettings {
+
+    }
     
 
 
