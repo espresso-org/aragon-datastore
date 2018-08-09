@@ -89,6 +89,17 @@ export class Datastore {
     }
 
 
+    /**
+     * Delete the specified file
+     * @param {number} fileId 
+     */
+    async deleteFile(fileId: number) {
+        await this._initialize() 
+
+        await this._contract.deleteFile(fileId)
+    }
+
+
     async getFilePermissions(fileId: number) {
         await this._initialize()
 
