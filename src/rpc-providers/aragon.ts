@@ -74,6 +74,9 @@ export class AragonContract implements RpcProviderContract {
     return this._aragonApp.events(...args)
   }
 
+  async settings() {
+    return convertTransactionToPromise(this._aragonApp, 'settings')
+  }
 }
 
 
@@ -84,7 +87,7 @@ function convertCallToPromise(aragonApp, methodName, ...args): Promise<any> {
   })
 }
 
-function convertTransactionToPromise(aragonApp, methodName, ...args) {
+function convertTransactionToPromise(aragonApp, methodName, ...args): Promise<any> {
   return new Promise((resolve, rej) => {
     aragonApp[methodName](...args)
       .subscribe(resolve)

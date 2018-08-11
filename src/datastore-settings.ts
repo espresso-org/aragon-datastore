@@ -1,7 +1,8 @@
 export class DatastoreSettings {
     storageProvider: StorageProvider
-    enctryptionType: EncryptionType
+    encryptionType: EncryptionType
 
+    ipfs: IpfsSettings
 }
 
 export enum StorageProvider { None, Ipfs, Filecoin, Swarm }

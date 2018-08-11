@@ -1,3 +1,5 @@
+import { DatastoreSettings, EncryptionType, StorageProvider } from './datastore-settings'
+
 export function createFileFromTuple(tuple: any[]) {
     return {
         storageRef: tuple[0],
@@ -20,5 +22,19 @@ export function createPermissionFromTuple(tuple: boolean[]) {
     return {
         write: tuple[0],
         read: tuple[1]
+    }
+}
+
+
+export function createSettingsFromTuple(tuple: any[]): DatastoreSettings {
+    return {
+        storageProvider: tuple[0],
+        encryptionType: tuple[1],
+
+        ipfs: {
+            host: tuple[2],
+            port: tuple[3],
+            protocol: tuple[4]
+        }
     }
 }

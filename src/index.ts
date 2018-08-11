@@ -120,6 +120,7 @@ export class Datastore {
         await this._initialize()
 
         const settingsTuple = await this._contract.settings()
+        console.log('settings: ', settingsTuple)
 
         // TODO: Convert tuple to settings
     }
