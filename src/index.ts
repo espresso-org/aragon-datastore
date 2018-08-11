@@ -15,9 +15,7 @@ export class DatastoreOptions {
     rpcProvider: any
 }
 
-
 export class Datastore {
-
     private _storage
     private _encryption
     private _rpc
@@ -149,9 +147,23 @@ export class Datastore {
      */
     async setFileContent(fileId: number, file: ArrayBuffer) {
         await this._initialize()
+
         const storageId = await this._storage.addFile(file)
         await this._contract.setFileContent(fileId, storageId, file.byteLength)
+    }
 
+    /**
+     * Add/Remove read permission to an entity for
+     * a specific file
+     * 
+     * @param {number} fileId File Id
+     * @param {string} entity Entity address
+     * @param {boolean} hasPermission Write permission
+     */
+    async setReadPermission(fileId: number, entity: string, hasPermission: boolean) {
+        await this._initialize()
+
+        await this._contract.setReadPermission(fileId, entity, hasPermission)
     }
 
     /**
@@ -164,6 +176,7 @@ export class Datastore {
      */
     async setWritePermission(fileId: number, entity: string, hasPermission: boolean) {
         await this._initialize()
+
         await this._contract.setWritePermission(fileId, entity, hasPermission)
     }
 
@@ -176,7 +189,6 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.setFilename(fileId, newName)
-
     }
 
     /**
@@ -186,7 +198,7 @@ export class Datastore {
     async events(...args) {
         // TODO: Return an Observable without async
         await this._initialize()
-
+        
         return this._contract.events(...args)
     }
 

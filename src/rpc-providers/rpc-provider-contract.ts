@@ -13,6 +13,7 @@ export interface RpcProviderContract {
     getPermissionAddresses(fileId: number): Promise<string[]>
     getPermission(fileId: number, entity: string): Promise<any>
     setWritePermission(fileId: number, entity: string, hasWritePermission: boolean): Promise<{}>
+    setReadPermission(fileId: number, entity: string, hasReadPermission: boolean): Promise<{}>
     settings(): Promise<any[]>
     events(...args): any
 }

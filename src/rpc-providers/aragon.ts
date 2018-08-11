@@ -68,7 +68,11 @@ export class AragonContract implements RpcProviderContract {
 
   async setWritePermission(fileId, entity, hasWritePermission) {
     return convertTransactionToPromise(this._aragonApp, 'setWritePermission', fileId, entity, hasWritePermission)
-  }  
+  }
+  
+  async setReadPermission(fileId, entity, hasReadPermission) {
+    return convertTransactionToPromise(this._aragonApp, 'setReadPermission', fileId, entity, hasReadPermission)
+  }
 
   events(...args) {
     return this._aragonApp.events(...args)

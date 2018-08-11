@@ -12,7 +12,7 @@ contract Datastore {
     event NewFile(address indexed entity, uint fileId);
     event NewWritePermission(address indexed entity, uint fileId);
     event NewReadPermission(address indexed entity, uint fileId);
-
+    event DeleteFile(address indexed entity, uint fileId);
 
     /**
      * Datastore settings
@@ -178,6 +178,7 @@ contract Datastore {
 
         files[_fileId].isDeleted = true;
         files[_fileId].lastModification = now;
+        DeleteFile(msg.sender, lastFileId);
     }
 
     /**
@@ -229,6 +230,24 @@ contract Datastore {
 
         write = permission.write;
         read = permission.read;
+    }
+
+    /**
+     * @notice Set read permission to `_hasPermission` for `_entity` on file `_fileId`
+     * @param _fileId File Id
+     * @param _entity Entity address
+     * @param _hasPermission Read permission
+     */
+    function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external {
+        require(isOwner(_fileId, msg.sender));
+
+        if (!files[_fileId].permissions[_entity].exists) {
+            files[_fileId].permissionAddresses.push(_entity);
+            files[_fileId].permissions[_entity].exists = true;
+        }
+
+        files[_fileId].permissions[_entity].read = _hasPermission;
+        NewReadPermission(msg.sender, lastFileId);
     }
 
     /**
