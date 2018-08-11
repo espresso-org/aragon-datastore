@@ -79,8 +79,12 @@ export class AragonContract implements RpcProviderContract {
   }
 
   async settings() {
-    return convertTransactionToPromise(this._aragonApp, 'settings')
+    return convertCallToPromise(this._aragonApp, 'settings')
   }
+
+  async setIpfsStorageSettings(host: string, port: number, protocol: string) {
+    return convertTransactionToPromise(this._aragonApp, 'setIpfsStorageSettings', host, port, protocol)
+  }  
 }
 
 

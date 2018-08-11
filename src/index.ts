@@ -3,7 +3,11 @@ import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 
-import { createFileFromTuple, createPermissionFromTuple } from './utils'
+import { 
+    createFileFromTuple, 
+    createPermissionFromTuple, 
+    createSettingsFromTuple } from './utils'
+import { DatastoreSettings } from './datastore-settings';
 
 
 
@@ -114,13 +118,12 @@ export class Datastore {
     /**
      * Fetch the datastore settings
      */
-    async getSettings() {
+    async getSettings(): Promise<DatastoreSettings> {
         await this._initialize()
 
         const settingsTuple = await this._contract.settings()
-        console.log('settings: ', settingsTuple)
 
-        // TODO: Convert tuple to settings
+        return createSettingsFromTuple(settingsTuple)
     }
 
     /**

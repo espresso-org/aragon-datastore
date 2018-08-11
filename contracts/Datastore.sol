@@ -26,9 +26,14 @@ contract Datastore {
         StorageProvider storageProvider;
         EncryptionType encryption;
 
-        IpfsSettings ipfs;
+        string ipfsHost;
+        uint16 ipfsPort;
+        string ipfsProtocol;
     }
 
+    /** TODO: Use IpfsSettings inside Settings
+     *  when aragon supports nested structs
+     */
     struct IpfsSettings {
         string host;
         uint16 port;
@@ -277,16 +282,20 @@ contract Datastore {
     /**
      * Sets IPFS as the storage provider for the datastore.
      * Since switching between storage providers is not supported,
-     * the method can only be called once.
+     * the method can only be called if storage isn't set or already IPFS
      */
-    function setIpfsAsStorageProvider(string host, uint16 port, string protocol) public {
-        require(settings.storageProvider == StorageProvider.None);
+    function setIpfsStorageSettings(string host, uint16 port, string protocol) public {
+        require(settings.storageProvider == StorageProvider.None || settings.storageProvider == StorageProvider.Ipfs);
 
+        settings.ipfsHost = host;
+        settings.ipfsPort = port;
+        settings.ipfsProtocol = protocol;
+        /*
         settings.ipfs = IpfsSettings({
             host: host,
             port: port,
             protocol: protocol
-        });
+        });*/
 
         settings.storageProvider = StorageProvider.Ipfs;
     }
