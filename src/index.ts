@@ -126,6 +126,13 @@ export class Datastore {
         return createSettingsFromTuple(settingsTuple)
     }
 
+
+    async setIpfsStorageSettings(host: string, port: number, protocol: string) {
+        await this._initialize()
+
+        await this._contract.setIpfsStorageSettings(host, port, protocol)
+    }
+
     /**
      * Returns files information
      */
