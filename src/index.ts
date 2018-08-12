@@ -14,8 +14,6 @@ import { DatastoreSettings } from './datastore-settings';
 export const providers = { storage, encryption, rpc }
 
 export class DatastoreOptions {
-    storageProvider = new providers.storage.Ipfs(null as any)
-    encryptionProvider = new providers.encryption.Aes()
     rpcProvider: any
 }
 
@@ -24,20 +22,17 @@ export class Datastore {
     private _encryption
     private _rpc
     private _contract: rpc.RpcProviderContract
+    private _settings: DatastoreSettings
     private _isInit
 
     /**
      * Creates a new Datastore instance
      * 
-     * @param {Object} opts.storageProvider - Storage provider (IPFS, Swarm, Filecoin)
      * @param {Object} opts.rpcProvider - RPC provider (Web3, Aragon)
-     * @param {Object} opts.encryptionProvider - Encryption provider for file encryption
      */
     constructor(opts?: DatastoreOptions) {
         opts = Object.assign(new DatastoreOptions(), opts || {})
 
-        this._storage = opts.storageProvider
-        this._encryption = opts.encryptionProvider
         this._rpc = opts.rpcProvider
         this._isInit = this._initialize()
     }
@@ -46,10 +41,17 @@ export class Datastore {
         // Initialize only once
         if (!this._isInit) {
             this._contract = await this._rpc.getContract()
+            await this._refreshSettings()
         }
         else {
             return this._isInit
         }
+    }
+
+    private async _refreshSettings() {
+        this._settings = createSettingsFromTuple(await this._contract.settings())
+        this._storage = storage.getStorageProviderFromSettings(this._settings)
+        this._encryption = new providers.encryption.Aes()
     }
 
     /**
@@ -121,9 +123,7 @@ export class Datastore {
     async getSettings(): Promise<DatastoreSettings> {
         await this._initialize()
 
-        const settingsTuple = await this._contract.settings()
-
-        return createSettingsFromTuple(settingsTuple)
+        return this._settings
     }
 
 
@@ -131,6 +131,7 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.setIpfsStorageSettings(host, port, protocol)
+        await this._refreshSettings()
     }
 
     /**
