@@ -78,6 +78,18 @@ export class AragonContract implements RpcProviderContract {
     return this._aragonApp.events(...args)
   }
 
+  async settings() {
+    const settingsTuple = await convertCallToPromise(this._aragonApp, 'settings')
+    
+    return {
+      ...settingsTuple,
+      3: new BigNumber(settingsTuple[3])
+    }
+  }
+
+  async setIpfsStorageSettings(host: string, port: number, protocol: string) {
+    return convertTransactionToPromise(this._aragonApp, 'setIpfsStorageSettings', host, port, protocol)
+  }  
 }
 
 
@@ -88,7 +100,7 @@ function convertCallToPromise(aragonApp, methodName, ...args): Promise<any> {
   })
 }
 
-function convertTransactionToPromise(aragonApp, methodName, ...args) {
+function convertTransactionToPromise(aragonApp, methodName, ...args): Promise<any> {
   return new Promise((resolve, rej) => {
     aragonApp[methodName](...args)
       .subscribe(resolve)

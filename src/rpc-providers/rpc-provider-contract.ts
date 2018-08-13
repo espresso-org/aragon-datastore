@@ -1,4 +1,5 @@
 import { BigNumber } from 'bignumber.js'
+import { settings } from 'cluster';
 
 
 export interface RpcProviderContract {
@@ -13,5 +14,7 @@ export interface RpcProviderContract {
     getPermission(fileId: number, entity: string): Promise<any>
     setWritePermission(fileId: number, entity: string, hasWritePermission: boolean): Promise<{}>
     setReadPermission(fileId: number, entity: string, hasReadPermission: boolean): Promise<{}>
+    settings(): Promise<any[]>
+    setIpfsStorageSettings(host: string, port: number, protocol: string): Promise<{}>
     events(...args): any
 }

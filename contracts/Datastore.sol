@@ -15,6 +15,36 @@ contract Datastore {
     event DeleteFile(address indexed entity, uint fileId);
 
     /**
+     * Datastore settings
+     */
+
+    enum StorageProvider { None, Ipfs, Filecoin, Swarm }
+    enum EncryptionType { None, Aes }
+
+
+    struct Settings {
+        StorageProvider storageProvider;
+        EncryptionType encryption;
+
+        string ipfsHost;
+        uint16 ipfsPort;
+        string ipfsProtocol;
+    }
+
+    /** TODO: Use IpfsSettings inside Settings
+     *  when aragon supports nested structs
+     */
+    struct IpfsSettings {
+        string host;
+        uint16 port;
+        string protocol;        
+    }
+    
+
+
+
+
+    /**
      * File stored in the 
      */
     struct File {
@@ -46,6 +76,9 @@ contract Datastore {
     uint public lastFileId = 0;
 
     mapping (uint => File) private files;
+
+    Settings public settings;
+    
 
     /**
      * @notice Add a file to the datastore
@@ -239,6 +272,36 @@ contract Datastore {
         files[_fileId].permissions[_entity].write = _hasPermission;
         NewWritePermission(msg.sender, lastFileId);
     }
+
+
+    /**
+     * Settings related methods
+     */
+
+    
+    /**
+     * Sets IPFS as the storage provider for the datastore.
+     * Since switching between storage providers is not supported,
+     * the method can only be called if storage isn't set or already IPFS
+     */
+    function setIpfsStorageSettings(string host, uint16 port, string protocol) public {
+        require(settings.storageProvider == StorageProvider.None || settings.storageProvider == StorageProvider.Ipfs);
+
+        settings.ipfsHost = host;
+        settings.ipfsPort = port;
+        settings.ipfsProtocol = protocol;
+        /*
+        settings.ipfs = IpfsSettings({
+            host: host,
+            port: port,
+            protocol: protocol
+        });*/
+
+        settings.storageProvider = StorageProvider.Ipfs;
+    }
+
+
+
 
     /**
      * @notice Returns true if `_entity` is owner of file `_fileId`
