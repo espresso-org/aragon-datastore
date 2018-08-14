@@ -1,6 +1,5 @@
-export interface IStorageProvider {
-    files: IFileProvider,
-    data: IObjectProvider
+export interface StorageProvider {
+
 }
 
 
@@ -11,8 +10,3 @@ export interface IFileProvider {
     
 }
 
-export interface IObjectProvider {
-
-    
-
-}
