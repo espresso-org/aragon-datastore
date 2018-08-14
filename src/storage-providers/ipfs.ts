@@ -1,5 +1,5 @@
 import * as ipfsAPI from 'ipfs-api' 
-import { IStorageProvider } from './istorage-provider'
+import { StorageProvider } from './storage-provider'
 
 
 export class IpfsOptions {
@@ -8,7 +8,7 @@ export class IpfsOptions {
     protocol = 'http'
 }
 
-export class Ipfs {
+export class Ipfs implements StorageProvider {
     private _ipfs
 
     constructor(opts?: IpfsOptions) {
@@ -22,7 +22,7 @@ export class Ipfs {
         return result.length && result[0].content
     }
 
-    async addFile(file: Uint8Array) {
+    async addFile(file: ArrayBuffer) {
         let result = await this._ipfs.add(this._ipfs.Buffer.from(file))
 
         return result.length && result[0].hash

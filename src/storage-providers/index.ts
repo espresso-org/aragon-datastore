@@ -1,6 +1,7 @@
 import { Ipfs } from './ipfs'
 import { DatastoreSettings, StorageProvider } from '../datastore-settings'
 
+export { StorageProvider } from './storage-provider'
 export { Ipfs } from './ipfs'
 
 

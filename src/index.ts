@@ -18,7 +18,7 @@ export class DatastoreOptions {
 }
 
 export class Datastore {
-    private _storage
+    private _storage: storage.StorageProvider
     private _encryption
     private _rpc
     private _contract: rpc.RpcProviderContract

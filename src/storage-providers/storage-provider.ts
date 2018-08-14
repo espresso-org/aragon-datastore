@@ -1,12 +1,7 @@
 export interface StorageProvider {
-
+    addFile(file: ArrayBuffer): Promise<string>
+    getFile(fileId: string): Promise<Uint8Array>
 }
 
 
-export interface IFileProvider {
-    
-    add(file: ArrayBuffer): Promise<string>,
-    get(fileId: string): Promise<Uint8Array>
-    
-}
 
