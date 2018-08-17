@@ -5,8 +5,9 @@
 import * as DatastoreContract from '../build-contracts/Datastore.json'
 import { Observable } from 'rxjs'
 import { RpcProviderContract } from './rpc-provider-contract'
+import { RpcProvider } from './rpc-provider';
 
-export class Web3 {
+export class Web3 implements RpcProvider {
 
     _web3
     _contract

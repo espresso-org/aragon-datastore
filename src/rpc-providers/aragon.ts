@@ -1,8 +1,9 @@
 import { BigNumber } from 'bignumber.js'
 import { RpcProviderContract } from './rpc-provider-contract'
+import { RpcProvider } from './rpc-provider'
 
 
-export class Aragon {
+export class Aragon implements RpcProvider {
 
   private _aragonApp
 
