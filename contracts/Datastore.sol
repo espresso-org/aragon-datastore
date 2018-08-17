@@ -12,6 +12,36 @@ contract Datastore {
     event NewFile(address indexed entity, uint fileId);
     event NewWritePermission(address indexed entity, uint fileId);
     event NewReadPermission(address indexed entity, uint fileId);
+    event DeleteFile(address indexed entity, uint fileId);
+
+    /**
+     * Datastore settings
+     */
+
+    enum StorageProvider { None, Ipfs, Filecoin, Swarm }
+    enum EncryptionType { None, Aes }
+
+
+    struct Settings {
+        StorageProvider storageProvider;
+        EncryptionType encryption;
+
+        string ipfsHost;
+        uint16 ipfsPort;
+        string ipfsProtocol;
+    }
+
+    /** TODO: Use IpfsSettings inside Settings
+     *  when aragon supports nested structs
+     */
+    struct IpfsSettings {
+        string host;
+        uint16 port;
+        string protocol;        
+    }
+    
+
+
 
 
     /**
@@ -46,6 +76,8 @@ contract Datastore {
     uint public lastFileId = 0;
 
     mapping (uint => File) private files;
+
+    Settings public settings;
     
 
     /**
@@ -151,6 +183,7 @@ contract Datastore {
 
         files[_fileId].isDeleted = true;
         files[_fileId].lastModification = now;
+        DeleteFile(msg.sender, lastFileId);
     }
 
     /**
@@ -205,6 +238,24 @@ contract Datastore {
     }
 
     /**
+     * @notice Set read permission to `_hasPermission` for `_entity` on file `_fileId`
+     * @param _fileId File Id
+     * @param _entity Entity address
+     * @param _hasPermission Read permission
+     */
+    function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external {
+        require(isOwner(_fileId, msg.sender));
+
+        if (!files[_fileId].permissions[_entity].exists) {
+            files[_fileId].permissionAddresses.push(_entity);
+            files[_fileId].permissions[_entity].exists = true;
+        }
+
+        files[_fileId].permissions[_entity].read = _hasPermission;
+        NewReadPermission(msg.sender, lastFileId);
+    }
+
+    /**
      * @notice Set write permission to `_hasPermission` for `_entity` on file `_fileId`
      * @param _fileId File Id
      * @param _entity Entity address
@@ -221,6 +272,36 @@ contract Datastore {
         files[_fileId].permissions[_entity].write = _hasPermission;
         NewWritePermission(msg.sender, lastFileId);
     }
+
+
+    /**
+     * Settings related methods
+     */
+
+    
+    /**
+     * Sets IPFS as the storage provider for the datastore.
+     * Since switching between storage providers is not supported,
+     * the method can only be called if storage isn't set or already IPFS
+     */
+    function setIpfsStorageSettings(string host, uint16 port, string protocol) public {
+        require(settings.storageProvider == StorageProvider.None || settings.storageProvider == StorageProvider.Ipfs);
+
+        settings.ipfsHost = host;
+        settings.ipfsPort = port;
+        settings.ipfsProtocol = protocol;
+        /*
+        settings.ipfs = IpfsSettings({
+            host: host,
+            port: port,
+            protocol: protocol
+        });*/
+
+        settings.storageProvider = StorageProvider.Ipfs;
+    }
+
+
+
 
     /**
      * @notice Returns true if `_entity` is owner of file `_fileId`

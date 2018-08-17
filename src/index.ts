@@ -3,39 +3,36 @@ import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 
-import { createFileFromTuple, createPermissionFromTuple } from './utils'
+import { 
+    createFileFromTuple, 
+    createPermissionFromTuple, 
+    createSettingsFromTuple } from './utils'
+import { DatastoreSettings } from './datastore-settings';
 
 
 
 export const providers = { storage, encryption, rpc }
 
 export class DatastoreOptions {
-    storageProvider = new providers.storage.Ipfs(null as any)
-    encryptionProvider = new providers.encryption.Aes()
     rpcProvider: any
 }
 
-
 export class Datastore {
-
-    private _storage
+    private _storage: storage.StorageProvider
     private _encryption
     private _rpc
-    private _contract
+    private _contract: rpc.RpcProviderContract
+    private _settings: DatastoreSettings
     private _isInit
 
     /**
      * Creates a new Datastore instance
      * 
-     * @param {Object} opts.storageProvider - Storage provider (IPFS, Swarm, Filecoin)
      * @param {Object} opts.rpcProvider - RPC provider (Web3, Aragon)
-     * @param {Object} opts.encryptionProvider - Encryption provider for file encryption
      */
     constructor(opts?: DatastoreOptions) {
         opts = Object.assign(new DatastoreOptions(), opts || {})
 
-        this._storage = opts.storageProvider
-        this._encryption = opts.encryptionProvider
         this._rpc = opts.rpcProvider
         this._isInit = this._initialize()
     }
@@ -44,10 +41,17 @@ export class Datastore {
         // Initialize only once
         if (!this._isInit) {
             this._contract = await this._rpc.getContract()
+            await this._refreshSettings()
         }
         else {
             return this._isInit
         }
+    }
+
+    private async _refreshSettings() {
+        this._settings = createSettingsFromTuple(await this._contract.settings())
+        this._storage = storage.getStorageProviderFromSettings(this._settings)
+        this._encryption = new providers.encryption.Aes()
     }
 
     /**
@@ -89,6 +93,17 @@ export class Datastore {
     }
 
 
+    /**
+     * Delete the specified file
+     * @param {number} fileId 
+     */
+    async deleteFile(fileId: number) {
+        await this._initialize() 
+
+        await this._contract.deleteFile(fileId)
+    }
+
+
     async getFilePermissions(fileId: number) {
         await this._initialize()
 
@@ -100,6 +115,23 @@ export class Datastore {
                 ...createPermissionFromTuple(await this._contract.getPermission(fileId, entity))
             })) 
         )
+    }
+
+    /**
+     * Fetch the datastore settings
+     */
+    async getSettings(): Promise<DatastoreSettings> {
+        await this._initialize()
+
+        return this._settings
+    }
+
+
+    async setIpfsStorageSettings(host: string, port: number, protocol: string) {
+        await this._initialize()
+
+        await this._contract.setIpfsStorageSettings(host, port, protocol)
+        await this._refreshSettings()
     }
 
     /**
@@ -126,9 +158,23 @@ export class Datastore {
      */
     async setFileContent(fileId: number, file: ArrayBuffer) {
         await this._initialize()
+
         const storageId = await this._storage.addFile(file)
         await this._contract.setFileContent(fileId, storageId, file.byteLength)
+    }
 
+    /**
+     * Add/Remove read permission to an entity for
+     * a specific file
+     * 
+     * @param {number} fileId File Id
+     * @param {string} entity Entity address
+     * @param {boolean} hasPermission Write permission
+     */
+    async setReadPermission(fileId: number, entity: string, hasPermission: boolean) {
+        await this._initialize()
+
+        await this._contract.setReadPermission(fileId, entity, hasPermission)
     }
 
     /**
@@ -141,6 +187,7 @@ export class Datastore {
      */
     async setWritePermission(fileId: number, entity: string, hasPermission: boolean) {
         await this._initialize()
+
         await this._contract.setWritePermission(fileId, entity, hasPermission)
     }
 
@@ -153,7 +200,6 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.setFilename(fileId, newName)
-
     }
 
     /**
@@ -163,7 +209,7 @@ export class Datastore {
     async events(...args) {
         // TODO: Return an Observable without async
         await this._initialize()
-
+        
         return this._contract.events(...args)
     }
 

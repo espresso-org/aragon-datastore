@@ -4,6 +4,7 @@
 //import * as DatastoreContract from '../../build-contracts/Datastore'
 import * as DatastoreContract from '../build-contracts/Datastore.json'
 import { Observable } from 'rxjs'
+import { RpcProviderContract } from './rpc-provider-contract'
 
 export class Web3 {
 
@@ -49,7 +50,7 @@ export class Web3 {
     }
 
 
-    async getContract() {
+    async getContract(): Promise<RpcProviderContract> {
         await this.initialize()
 
         let contractInstance = await this._contract.deployed()
