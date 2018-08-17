@@ -8,6 +8,7 @@ import {
     createPermissionFromTuple, 
     createSettingsFromTuple } from './utils'
 import { DatastoreSettings } from './datastore-settings';
+import { RpcProvider } from './rpc-providers/rpc-provider';
 
 
 
@@ -20,7 +21,7 @@ export class DatastoreOptions {
 export class Datastore {
     private _storage: storage.StorageProvider
     private _encryption
-    private _rpc
+    private _rpc: RpcProvider
     private _contract: rpc.RpcProviderContract
     private _settings: DatastoreSettings
     private _isInit
