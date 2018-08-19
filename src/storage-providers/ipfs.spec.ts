@@ -1,6 +1,11 @@
 import { Ipfs } from './ipfs' 
 import * as ipfsAPI from 'ipfs-api' 
 
+/**
+ * The tests in this file needs an IPFS server to run.
+ * // TODO: Start a temporary IPFS server automatically to run the tests
+ */
+
 const IpfsConfig = {
     host: 'localhost', 
     port: '5001', 
