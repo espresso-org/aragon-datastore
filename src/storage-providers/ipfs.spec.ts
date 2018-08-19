@@ -25,16 +25,18 @@ describe('IPFS Provider', async () => {
             }, 30000)
         })
 
-        xit('get file', async () => {
+        describe('getFile', async () => {
+            it('returns the exact same file', async () => {
 
-            let ipfs = new Ipfs(IpfsConfig)
-            let fileId = await ipfs.addFile(new ArrayBuffer(40))
-            let file = await ipfs.addFile(fileId)
+                const fileContent = new ArrayBuffer(40)
+                let ipfs = new Ipfs(IpfsConfig)
+                let storageRef = await ipfs.addFile(fileContent)
+                let file = await ipfs.getFile(storageRef)
 
-            console.log('fileId: ', fileId)
-            console.log('file: ', file)
+                expect(file).toEqual(fileContent)
 
-        })        
+            }) 
+        })       
 
     })
  
