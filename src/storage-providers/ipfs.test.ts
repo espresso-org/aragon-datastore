@@ -1,5 +1,11 @@
 import { Ipfs } from './ipfs' 
 
+const IpfsConfig = {
+    host: 'localhost', 
+    port: '5001', 
+    protocol: 'http'
+}
+
 describe('IPFS Provider', async () => {
 
 
@@ -7,17 +13,17 @@ describe('IPFS Provider', async () => {
 
         it('add file', async () => {
 
-            let ipfs = new Ipfs({ host: 'localhost', port: '5001' })
-            let result = await ipfs.files.add(new ArrayBuffer(40))
+            let ipfs = new Ipfs(IpfsConfig)
+            let result = await ipfs.addFile(new ArrayBuffer(40))
             console.log('result: ', result)
 
         })
 
         it('get file', async () => {
 
-            let ipfs = new Ipfs({ host: 'localhost', port: '5001' })
-            let fileId = await ipfs.files.add(new ArrayBuffer(40))
-            let file = await ipfs.files.get(fileId)
+            let ipfs = new Ipfs(IpfsConfig)
+            let fileId = await ipfs.addFile(new ArrayBuffer(40))
+            let file = await ipfs.addFile(fileId)
 
             console.log('fileId: ', fileId)
             console.log('file: ', file)
