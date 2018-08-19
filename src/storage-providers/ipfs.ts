@@ -16,10 +16,10 @@ export class Ipfs implements StorageProvider {
         this._ipfs = new ipfsAPI(opts)
     }
 
-    async getFile(fileId: string): Promise<Uint8Array> {
+    async getFile(fileId: string): Promise<ArrayBuffer> {
         let result = await this._ipfs.get(fileId)
 
-        return result.length && result[0].content
+        return result.length && result[0].content.buffer
     }
 
     async addFile(file: ArrayBuffer) {
