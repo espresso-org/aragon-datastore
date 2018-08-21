@@ -18,7 +18,7 @@ describe('IPFS Provider', async () => {
     describe('files', async () => {
 
         describe('addFile', async () => {
-            it('pins file', async () => {
+            xit('pins file', async () => {
 
                 let ipfs = new Ipfs(IpfsConfig)
                 let result = await ipfs.addFile(new ArrayBuffer(40))
@@ -31,7 +31,7 @@ describe('IPFS Provider', async () => {
         })
 
         describe('getFile', async () => {
-            it('returns the exact same file', async () => {
+            xit('returns the exact same file', async () => {
 
                 const fileContent = new ArrayBuffer(40)
                 let ipfs = new Ipfs(IpfsConfig)
