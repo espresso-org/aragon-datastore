@@ -41,6 +41,8 @@ Explain the problem and include additional details to help maintainers reproduce
 Include details about your configuration and environment:
 
 * **What's the name and version of the OS you're using**?
-* **What's**
+* **Which version of Node are you using?** (`node -v`)
+* **What's the name and version of your browser**?
+* **What's the version of aragon-cli you're using**
 
 
