@@ -11,7 +11,6 @@ We will do our best to keep the master branch in good shape, with tests passing 
 ### Semantic Versioning
 The Datastore follows [semantic versioning](http://semver.org). We release patch versions for bugfixes, minor versions for new features, and major versions for any breaking changes. When we make breaking changes, we also introduce deprecation warnings in a minor version so that our users learn about the upcoming changes and migrate their code in advance.
 
-
 ### Reporting Bugs
 
 This section guides you through submitting a bug report. Following these guidelines helps maintainers and the community understand your report, reproduce the behavior, and find related reports.
@@ -46,3 +45,20 @@ Include details about your configuration and environment:
 * **What's the version of aragon-cli you're using**
 
 
+### Sending a Pull Request
+
+Working on your first Pull Request? You can learn how from this free video series:
+
+[How to Contribute to an Open Source Project on GitHub](https://egghead.io/series/how-to-contribute-to-an-open-source-project-on-github)
+
+To help you get your feet wet and get you familiar with our contribution process, we have a list of ["good first issues"](https://github.com/espresso-org/aragon-datastore/labels/good%20first%20issue) that contain bugs that have a relatively limited scope. This is a great place to get started.
+
+If somebody claims an issue but doesn’t follow up for more than two weeks, it’s fine to take it over but you should still leave a comment.
+
+### Before submitting a pull request, please make sure the following is done:
+
+1. Fork the repository and create your branch from master.
+2. Run `npm install` or `yarn install`
+3. If you’ve fixed a bug or added code that should be tested, add tests!
+4. Ensure the test suite passes (`npm test` or `yarn test`). 
+5. Make sure everything builds (`npm run build` or `yarn build`)
