@@ -2,6 +2,12 @@
 
 The following is a set of guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
 
+### Open Development
+All work on the Datastore happens directly on GitHub. Both core team members and external contributors send pull requests which go through the same review process.
+
+### Branch Organization
+We will do our best to keep the master branch in good shape, with tests passing at all times. But in order to move fast, we will make API changes that your application might not be compatible with. We recommend that you use the latest stable version of the Datastore. If you send a pull request, please do it against the master branch.
+
 
 ### Reporting Bugs
 
