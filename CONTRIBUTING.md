@@ -8,6 +8,9 @@ All work on the Datastore happens directly on GitHub. Both core team members and
 ### Branch Organization
 We will do our best to keep the master branch in good shape, with tests passing at all times. But in order to move fast, we will make API changes that your application might not be compatible with. We recommend that you use the latest stable version of the Datastore. If you send a pull request, please do it against the master branch.
 
+### Semantic Versioning
+The Datastore follows [semantic versioning](http://semver.org). We release patch versions for bugfixes, minor versions for new features, and major versions for any breaking changes. When we make breaking changes, we also introduce deprecation warnings in a minor version so that our users learn about the upcoming changes and migrate their code in advance.
+
 
 ### Reporting Bugs
 
@@ -34,4 +37,10 @@ Explain the problem and include additional details to help maintainers reproduce
 * **Provide specific examples to demonstrate the steps**. Include links to files or GitHub projects, or copy/pasteable snippets, which you use in those examples. If you're providing snippets in the issue, use [Markdown code blocks](https://help.github.com/articles/markdown-basics/#multiple-lines).
 * **Describe the behavior you observed after following the steps** and point out what exactly is the problem with that behavior.
 * **Explain which behavior you expected to see instead and why.**
+
+Include details about your configuration and environment:
+
+* **What's the name and version of the OS you're using**?
+* **What's**
+
 
