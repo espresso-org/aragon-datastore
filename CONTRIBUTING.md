@@ -62,3 +62,17 @@ If somebody claims an issue but doesn’t follow up for more than two weeks, it�
 3. If you’ve fixed a bug or added code that should be tested, add tests!
 4. Ensure the test suite passes (`npm test` or `yarn test`). 
 5. Make sure everything builds (`npm run build` or `yarn build`)
+
+
+### Styleguides
+
+#### Javascript
+
+1. Use `const` for all of your references; avoid using `var`. eslint: [`prefer-const`](https://eslint.org/docs/rules/prefer-const.html), [`no-const-assign`](https://eslint.org/docs/rules/no-const-assign.html)
+2. If you must reassign references, use `let` instead of `var`. eslint: [`no-var`](https://eslint.org/docs/rules/no-var.html)
+3. Use the literal syntax for object creation. eslint: [`no-new-object`](https://eslint.org/docs/rules/no-new-object.html)
+4. Use object method shorthand. eslint: [`object-shorthand`](https://eslint.org/docs/rules/object-shorthand.html)
+5. Prefer the object spread operator over [`Object.assign`](https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/Object/assign) to shallow-copy objects. Use the object rest operator to get a new object with certain properties omitted.
+6. Use the literal syntax for array creation. eslint: [`no-array-constructor`](https://eslint.org/docs/rules/no-array-constructor.html)
+7. Use array spreads `...` to copy arrays.
+
