@@ -13,8 +13,10 @@ export class Aragon implements RpcProvider {
 
   getContract(): Promise<RpcProviderContract> {
     return new Promise((res, rej) => {
-      this._aragonApp.accounts()
-      .subscribe(accounts => res(new AragonContract(this._aragonApp, accounts)))
+      setTimeout(() => {
+        this._aragonApp.accounts()
+        .subscribe(accounts => res(new AragonContract(this._aragonApp, accounts)))
+      }, 1000)
     })
   }
 
