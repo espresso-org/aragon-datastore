@@ -19,6 +19,10 @@ export interface RpcProviderContract {
     createGroup(groupName: string) : Promise<{}>
     deleteGroup(groupName: string) : Promise<{}>
     renameGroup(groupName: string, newGroupName: string) : Promise<{}>
+    getGroups() : Promise<{}>
+    getGroup(groupName: string) : Promise<{}>
+    getGroupEntity(groupName: string, entityIndex: number) : Promise<{}>
+    getGroupCount(groupName: string) : Promise<{}>
     addEntityToGroup(groupName: string, entity: string) : Promise<{}>
     removeEntityFromGroup(groupName: string, entity: string) : Promise<{}>
     events(...args): any

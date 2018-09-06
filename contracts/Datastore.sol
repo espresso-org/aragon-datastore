@@ -1,7 +1,8 @@
 pragma solidity ^0.4.18;
+pragma experimental ABIEncoderV2;
 
-import '@aragon/os/contracts/apps/AragonApp.sol';
-import '@aragon/os/contracts/lib/zeppelin/math/SafeMath.sol';
+import "@aragon/os/contracts/apps/AragonApp.sol";
+import "@aragon/os/contracts/lib/zeppelin/math/SafeMath.sol";
 
 contract Datastore {
     using SafeMath for uint256;
@@ -64,10 +65,13 @@ contract Datastore {
     }
 
     /**
-     * Entity address in a group    
+     * Represents a group and its entities within it   
      */
-    struct EntityInGroup {
-        mapping (address => uint) indexInGroup;
+    struct Group {
+        mapping (address => uint) entitiesWithIndex;
+        address[] entities;
+        uint groupIndex;
+        bool exists;    // Used internally to check if a group really exists
     }
 
     /**
@@ -80,7 +84,8 @@ contract Datastore {
 
     Settings public settings;
 
-    mapping (string => EntityInGroup) private groups;
+    string[] private groupList;
+    mapping (string => Group) private groups;
     
     /**
      * @notice Add a file to the datastore
@@ -103,7 +108,7 @@ contract Datastore {
             lastModification: now,
             permissionAddresses: new address[](0)
         });
-        NewFile(msg.sender, lastFileId);
+        emit NewFile(msg.sender, lastFileId);
         return lastFileId;
     }
 
@@ -181,11 +186,11 @@ contract Datastore {
      * @param _fileId File Id
      */
     function deleteFile(uint _fileId) public {
-        require(isOwner(_fileId, msg.sender));
+        require(isOwner(_fileId, msg.sender), "Must be file owner.");
 
         files[_fileId].isDeleted = true;
         files[_fileId].lastModification = now;
-        DeleteFile(msg.sender, lastFileId);
+        emit DeleteFile(msg.sender, lastFileId);
     }
 
     /**
@@ -194,11 +199,11 @@ contract Datastore {
      * @param _newName New file name
      */
     function setFilename(uint _fileId, string _newName) external {
-        require(hasWriteAccess(_fileId, msg.sender));
+        require(hasWriteAccess(_fileId, msg.sender), "Must have Write access.");
 
         files[_fileId].name = _newName;
         files[_fileId].lastModification = now;
-        FileRename(msg.sender, lastFileId);
+        emit FileRename(msg.sender, lastFileId);
     }
 
 
@@ -210,12 +215,12 @@ contract Datastore {
      * @param _fileSize File size in bytes
      */
     function setFileContent(uint _fileId, string _storageRef, uint _fileSize) external {
-        require(hasWriteAccess(_fileId, msg.sender));
+        require(hasWriteAccess(_fileId, msg.sender), "Must have Write access.");
 
         files[_fileId].storageRef = _storageRef;
         files[_fileId].fileSize = _fileSize;
         files[_fileId].lastModification = now;
-        FileContentUpdate(msg.sender, lastFileId);
+        emit FileContentUpdate(msg.sender, lastFileId);
     }
 
     /**
@@ -246,7 +251,7 @@ contract Datastore {
      * @param _hasPermission Read permission
      */
     function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external {
-        require(isOwner(_fileId, msg.sender));
+        require(isOwner(_fileId, msg.sender), "Must be file owner.");
 
         if (!files[_fileId].permissions[_entity].exists) {
             files[_fileId].permissionAddresses.push(_entity);
@@ -254,7 +259,7 @@ contract Datastore {
         }
 
         files[_fileId].permissions[_entity].read = _hasPermission;
-        NewReadPermission(msg.sender, lastFileId);
+        emit NewReadPermission(msg.sender, lastFileId);
     }
 
     /**
@@ -264,7 +269,7 @@ contract Datastore {
      * @param _hasPermission Write permission
      */
     function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external {
-        require(isOwner(_fileId, msg.sender));
+        require(isOwner(_fileId, msg.sender), "Must be file owner.");
 
         if (!files[_fileId].permissions[_entity].exists) {
             files[_fileId].permissionAddresses.push(_entity);
@@ -272,7 +277,7 @@ contract Datastore {
         }
 
         files[_fileId].permissions[_entity].write = _hasPermission;
-        NewWritePermission(msg.sender, lastFileId);
+        emit NewWritePermission(msg.sender, lastFileId);
     }
 
     /**
@@ -285,7 +290,7 @@ contract Datastore {
      * the method can only be called if storage isn't set or already IPFS
      */
     function setIpfsStorageSettings(string host, uint16 port, string protocol) public {
-        require(settings.storageProvider == StorageProvider.None || settings.storageProvider == StorageProvider.Ipfs);
+        require(settings.storageProvider == StorageProvider.None || settings.storageProvider == StorageProvider.Ipfs, "");
 
         settings.ipfsHost = host;
         settings.ipfsPort = port;
@@ -298,7 +303,7 @@ contract Datastore {
         });*/
 
         settings.storageProvider = StorageProvider.Ipfs;
-        SettingsChanged(msg.sender);
+        emit SettingsChanged(msg.sender);
     }
 
     /**
@@ -334,35 +339,56 @@ contract Datastore {
      * @param _entities Entity addresses that are part of the group
      */
     function createGroup(string _groupName) external returns(string) {
-        require(groups[_groupName] == 0);
-        groups[_groupName] = EntityInGroup();
+        require(groups[_groupName].exists == false, "Group must not exist.");
+        //groups[_groupName] = Group();
+        groups[_groupName].exists = true;
+        //groups[_groupName].entities = []; 
+        groups[_groupName].groupIndex = groupList.length;
         return _groupName;
     }
 
     function deleteGroup(string _groupName) public {
-        require(groups[_groupName != 0]);
+        require(groups[_groupName].exists == true, "Group must exist.");
+        delete groupList[groups[_groupName].groupIndex];
         delete groups[_groupName];
     }
 
     function renameGroup(string _groupName, string _newGroupName) external  {
-        require(groups[_groupName] != 0);
+        require(groups[_groupName].exists == true, "Group must exist.");
         groups[_newGroupName] = groups[_groupName];
         delete groups[_groupName];
     }
 
-    function getGroup(string _groupName) public view returns(address[] _groupEntities) {
-        require(groups[_groupName] != 0);
-        _groupEntities = 
+    function getGroups() external view returns(string[] _groupList){
+        _groupList = groupList;
     }
 
+    function getGroup(string _groupName) public view returns(address[] _groupEntities) {
+        require(groups[_groupName].exists == true, "Group must exist.");
+        return groups[_groupName].entities;
+    }
+
+    function getGroupEntity(string _groupName, uint entityIndex) public view returns(address _entity) {
+        require(groups[_groupName].exists == true, "Group must exist.");
+        return groups[_groupName].entities[entityIndex];
+    }
+
+    function getGroupCount(string _groupName) public view returns(uint groupLenght) {
+        require(groups[_groupName].exists == true, "Group must exist.");
+        return groups[_groupName].entities.length;
+    } 
+
     function addEntityToGroup(string _groupName, address _entity) public {
-        require(groups[_groupName] != 0);
-        groups[_groupName].indexInGroup[_entity] = groups[_groupName].length;
+        require(groups[_groupName].exists == true, "Group must exist.");
+        groups[_groupName].entitiesWithIndex[_entity] = groups[_groupName].entities.length;
+        groups[_groupName].entities.push(_entity);
     }
 
     function removeEntityFromGroup(string _groupName, address _entity) public {
-        require(groups[_groupName] != 0);
-        delete groups[_groupName].indexInGroup[_entity];
+        require(groups[_groupName].exists == true, "Group must exist.");
+        Group storage groupToRemoveIn = groups[_groupName];
+        delete groupToRemoveIn.entities[groupToRemoveIn.entitiesWithIndex[_entity]];
+        delete groupToRemoveIn.entitiesWithIndex[_entity];
     }
 
     function setGroupPermissions(uint _fileId, string _group, bool _read, bool _write) public {

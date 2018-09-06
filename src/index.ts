@@ -235,6 +235,46 @@ export class Datastore {
     }
 
     /**
+     * Returns a list of the group names
+     */
+    async getGroups() {
+        await this._initialize()
+
+        await this._contract.getGroups()
+    }
+
+    /**
+     * Returns the entities from a group
+     * @param groupName Group to get entities from
+     */
+    async getGroup(groupName: string) {
+        await this._initialize()
+
+        await this._contract.getGroup(groupName)
+    }
+
+    /**
+     * Returns an entity from the `entities` array 
+     * @param groupName Group to get entity from
+     * @param entityIndex Index of that entity in the `entities` array
+     */
+    async getGroupEntity(groupName: string, entityIndex: number) {
+        await this._initialize()
+
+        await this._contract.getGroupEntity(groupName, entityIndex)
+    }
+
+    /**
+     * Returns the number of entities in the specified group
+     * @param groupName Group to get count from
+     */
+    async getGroupCount(groupName: string) {
+        await this._initialize()
+
+        await this._contract.getGroupCount(groupName)
+    }
+
+    /**
      * Add an entity to a group
      * @param groupName Name of the group to insert the entity in
      * @param entity Entity to add in group

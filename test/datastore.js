@@ -145,7 +145,16 @@ contract('Datastore ', accounts => {
         await assertEvent(datastore, { event: 'NewWritePermission' })
     })    
 
+    /*it('createGroup creates a new group', async () => {
+        const groupName1 = 'My first group'
+        const groupName2 = 'My second group'
 
+        await datastore.createGroup(groupName1)
+        await datastore.createGroup(groupName2)
+
+        assert.equal((await datastore.getGroups())[0], groupName1)
+        assert.equal((await datastore.getGroups())[1], groupName2)
+    })*/
 })
 
 

@@ -106,6 +106,22 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'renameGroup', groupName, newGroupName)
   }
 
+  async getGroups() {
+    return convertTransactionToPromise(this._aragonApp, 'getGroups')
+  }
+
+  async getGroup(groupName: string) {
+    return convertTransactionToPromise(this._aragonApp, 'getGroup', groupName)
+  }
+
+  async getGroupCount(groupName: string) {
+    return convertTransactionToPromise(this._aragonApp, 'getGroupCount', groupName)
+  }
+
+  async getGroupEntity(groupName: string, entityIndex: number) {
+    return convertTransactionToPromise(this._aragonApp, 'getGroupEntity', groupName, entityIndex)
+  }
+
   async addEntityToGroup(groupName: string, entity: string) {
     return convertTransactionToPromise(this._aragonApp, 'addEntityToGroup', groupName, entity)
   }
