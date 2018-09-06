@@ -204,6 +204,59 @@ export class Datastore {
     }
 
     /**
+     * Creates a new group of entities
+     * @param groupName Name of the group
+     */
+    async createGroup(groupName: string) {
+        await this._initialize()
+
+        await this._contract.createGroup(groupName)
+    }
+
+    /**
+     * Deletes a group
+     * @param groupName Name of the group
+     */
+    async deleteGroup(groupName: string) {
+        await this._initialize()
+
+        await this._contract.deleteGroup(groupName)
+    }
+
+    /**
+     * Rename an existing group
+     * @param groupName Current group name
+     * @param newGroupName New group name
+     */
+    async renameGroup(groupName: string, newGroupName: string) {
+        await this._initialize()
+
+        await this._contract.renameGroup(groupName, newGroupName)
+    }
+
+    /**
+     * Add an entity to a group
+     * @param groupName Name of the group to insert the entity in
+     * @param entity Entity to add in group
+     */
+    async addEntityToGroup(groupName: string, entity: string) {
+        await this._initialize()
+
+        await this._contract.addEntityToGroup(groupName, entity)
+    }
+
+    /**
+     * Removes an entity from a group
+     * @param groupName Name of the group to remove the entity from
+     * @param entity Entity to remove from group
+     */
+    async removeEntityFromGroup(groupName: string, entity: string) {
+        await this._initialize()
+
+        await this._contract.removeEntityFromGroup(groupName, entity)
+    }
+
+    /**
      * Datastore events
      * 
      */

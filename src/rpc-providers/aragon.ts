@@ -93,6 +93,26 @@ export class AragonContract implements RpcProviderContract {
   async setIpfsStorageSettings(host: string, port: number, protocol: string) {
     return convertTransactionToPromise(this._aragonApp, 'setIpfsStorageSettings', host, port, protocol)
   }  
+
+  async createGroup(groupName: string) {
+    return convertTransactionToPromise(this._aragonApp, 'createGroup', groupName)
+  }
+
+  async deleteGroup(groupName: string) {
+    return convertTransactionToPromise(this._aragonApp, 'deleteGroup', groupName)
+  }
+
+  async renameGroup(groupName: string, newGroupName: string) {
+    return convertTransactionToPromise(this._aragonApp, 'renameGroup', groupName, newGroupName)
+  }
+
+  async addEntityToGroup(groupName: string, entity: string) {
+    return convertTransactionToPromise(this._aragonApp, 'addEntityToGroup', groupName, entity)
+  }
+
+  async removeEntityFromGroup(groupName: string, entity: string) {
+    return convertTransactionToPromise(this._aragonApp, 'removeEntityFromGroup', groupName, entity)
+  }
 }
 
 

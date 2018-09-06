@@ -3,7 +3,6 @@ pragma solidity ^0.4.18;
 import '@aragon/os/contracts/apps/AragonApp.sol';
 import '@aragon/os/contracts/lib/zeppelin/math/SafeMath.sol';
 
-
 contract Datastore {
     using SafeMath for uint256;
 
@@ -18,10 +17,8 @@ contract Datastore {
     /**
      * Datastore settings
      */
-
     enum StorageProvider { None, Ipfs, Filecoin, Swarm }
     enum EncryptionType { None, Aes }
-
 
     struct Settings {
         StorageProvider storageProvider;
@@ -41,10 +38,6 @@ contract Datastore {
         string protocol;        
     }
     
-
-
-
-
     /**
      * File stored in the 
      */
@@ -71,6 +64,13 @@ contract Datastore {
     }
 
     /**
+     * Entity address in a group    
+     */
+    struct EntityInGroup {
+        mapping (address => uint) indexInGroup;
+    }
+
+    /**
      * Id of the last file added to the datastore. 
      * Also represents the total number of files stored.
      */
@@ -79,8 +79,9 @@ contract Datastore {
     mapping (uint => File) private files;
 
     Settings public settings;
-    
 
+    mapping (string => EntityInGroup) private groups;
+    
     /**
      * @notice Add a file to the datastore
      * @param _storageRef Storage Id of the file (IPFS only for now)
@@ -274,11 +275,9 @@ contract Datastore {
         NewWritePermission(msg.sender, lastFileId);
     }
 
-
     /**
      * Settings related methods
      */
-
     
     /**
      * Sets IPFS as the storage provider for the datastore.
@@ -301,9 +300,6 @@ contract Datastore {
         settings.storageProvider = StorageProvider.Ipfs;
         SettingsChanged(msg.sender);
     }
-
-
-
 
     /**
      * @notice Returns true if `_entity` is owner of file `_fileId`
@@ -330,5 +326,50 @@ contract Datastore {
      */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
         return isOwner(_fileId, _entity) || files[_fileId].permissions[_entity].write;
+    }
+
+    /**
+     * @notice Add a group to the datastore
+     * @param _groupName Name of the group (names are unique)
+     * @param _entities Entity addresses that are part of the group
+     */
+    function createGroup(string _groupName) external returns(string) {
+        require(groups[_groupName] == 0);
+        groups[_groupName] = EntityInGroup();
+        return _groupName;
+    }
+
+    function deleteGroup(string _groupName) public {
+        require(groups[_groupName != 0]);
+        delete groups[_groupName];
+    }
+
+    function renameGroup(string _groupName, string _newGroupName) external  {
+        require(groups[_groupName] != 0);
+        groups[_newGroupName] = groups[_groupName];
+        delete groups[_groupName];
+    }
+
+    function getGroup(string _groupName) public view returns(address[] _groupEntities) {
+        require(groups[_groupName] != 0);
+        _groupEntities = 
+    }
+
+    function addEntityToGroup(string _groupName, address _entity) public {
+        require(groups[_groupName] != 0);
+        groups[_groupName].indexInGroup[_entity] = groups[_groupName].length;
+    }
+
+    function removeEntityFromGroup(string _groupName, address _entity) public {
+        require(groups[_groupName] != 0);
+        delete groups[_groupName].indexInGroup[_entity];
+    }
+
+    function setGroupPermissions(uint _fileId, string _group, bool _read, bool _write) public {
+
+    }
+
+    function removeGroupFromFile(uint _fileId, string _group) public {
+
     }
 }
