@@ -215,23 +215,23 @@ export class Datastore {
 
     /**
      * Deletes a group
-     * @param groupName Name of the group
+     * @param groupId Id of the group
      */
-    async deleteGroup(groupName: string) {
+    async deleteGroup(groupId: number) {
         await this._initialize()
 
-        await this._contract.deleteGroup(groupName)
+        await this._contract.deleteGroup(groupId)
     }
 
     /**
      * Rename an existing group
-     * @param groupName Current group name
+     * @param groupId Id of the group to rename
      * @param newGroupName New group name
      */
-    async renameGroup(groupName: string, newGroupName: string) {
+    async renameGroup(groupId: number, newGroupName: string) {
         await this._initialize()
 
-        await this._contract.renameGroup(groupName, newGroupName)
+        await this._contract.renameGroup(groupId, newGroupName)
     }
 
     /**
@@ -245,55 +245,55 @@ export class Datastore {
 
     /**
      * Returns the entities from a group
-     * @param groupName Group to get entities from
+     * @param groupId Id of the group to get entities from
      */
-    async getGroup(groupName: string) {
+    async getGroup(groupId: number) {
         await this._initialize()
 
-        await this._contract.getGroup(groupName)
+        await this._contract.getGroup(groupId)
     }
 
     /**
      * Returns an entity from the `entities` array 
-     * @param groupName Group to get entity from
+     * @param groupId Id of the group to get entity from
      * @param entityIndex Index of that entity in the `entities` array
      */
-    async getGroupEntity(groupName: string, entityIndex: number) {
+    async getGroupEntity(groupId: number, entityIndex: number) {
         await this._initialize()
 
-        await this._contract.getGroupEntity(groupName, entityIndex)
+        await this._contract.getGroupEntity(groupId, entityIndex)
     }
 
     /**
      * Returns the number of entities in the specified group
-     * @param groupName Group to get count from
+     * @param groupId Id of the group to get count from
      */
-    async getGroupCount(groupName: string) {
+    async getGroupCount(groupId: number) {
         await this._initialize()
 
-        await this._contract.getGroupCount(groupName)
+        await this._contract.getGroupCount(groupId)
     }
 
     /**
      * Add an entity to a group
-     * @param groupName Name of the group to insert the entity in
+     * @param groupId Id of the group to insert the entity in
      * @param entity Entity to add in group
      */
-    async addEntityToGroup(groupName: string, entity: string) {
+    async addEntityToGroup(groupId: number, entity: string) {
         await this._initialize()
 
-        await this._contract.addEntityToGroup(groupName, entity)
+        await this._contract.addEntityToGroup(groupId, entity)
     }
 
     /**
      * Removes an entity from a group
-     * @param groupName Name of the group to remove the entity from
+     * @param groupId Id of the group to remove the entity from
      * @param entity Entity to remove from group
      */
-    async removeEntityFromGroup(groupName: string, entity: string) {
+    async removeEntityFromGroup(groupId: number, entity: string) {
         await this._initialize()
 
-        await this._contract.removeEntityFromGroup(groupName, entity)
+        await this._contract.removeEntityFromGroup(groupId, entity)
     }
 
     /**

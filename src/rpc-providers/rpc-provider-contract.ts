@@ -1,7 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 import { settings } from 'cluster';
 
-
 export interface RpcProviderContract {
     
     lastFileId(): Promise<BigNumber>
@@ -17,13 +16,13 @@ export interface RpcProviderContract {
     settings(): Promise<any[]>
     setIpfsStorageSettings(host: string, port: number, protocol: string): Promise<{}>
     createGroup(groupName: string) : Promise<{}>
-    deleteGroup(groupName: string) : Promise<{}>
-    renameGroup(groupName: string, newGroupName: string) : Promise<{}>
+    deleteGroup(groupId: number) : Promise<{}>
+    renameGroup(groupId: number, newGroupName: string) : Promise<{}>
     getGroups() : Promise<{}>
-    getGroup(groupName: string) : Promise<{}>
-    getGroupEntity(groupName: string, entityIndex: number) : Promise<{}>
-    getGroupCount(groupName: string) : Promise<{}>
-    addEntityToGroup(groupName: string, entity: string) : Promise<{}>
-    removeEntityFromGroup(groupName: string, entity: string) : Promise<{}>
+    getGroup(groupId: number) : Promise<{}>
+    getGroupEntity(groupId: number, entityIndex: number) : Promise<{}>
+    getGroupCount(groupId: number) : Promise<{}>
+    addEntityToGroup(groupId: number, entity: string) : Promise<{}>
+    removeEntityFromGroup(groupId: number, entity: string) : Promise<{}>
     events(...args): any
 }

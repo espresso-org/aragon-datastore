@@ -98,36 +98,36 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'createGroup', groupName)
   }
 
-  async deleteGroup(groupName: string) {
-    return convertTransactionToPromise(this._aragonApp, 'deleteGroup', groupName)
+  async deleteGroup(groupId: number) {
+    return convertTransactionToPromise(this._aragonApp, 'deleteGroup', groupId)
   }
 
-  async renameGroup(groupName: string, newGroupName: string) {
-    return convertTransactionToPromise(this._aragonApp, 'renameGroup', groupName, newGroupName)
+  async renameGroup(groupId: number, newGroupName: string) {
+    return convertTransactionToPromise(this._aragonApp, 'renameGroup', groupId, newGroupName)
   }
 
   async getGroups() {
     return convertTransactionToPromise(this._aragonApp, 'getGroups')
   }
 
-  async getGroup(groupName: string) {
-    return convertTransactionToPromise(this._aragonApp, 'getGroup', groupName)
+  async getGroup(groupId: number) {
+    return convertTransactionToPromise(this._aragonApp, 'getGroup', groupId)
   }
 
-  async getGroupCount(groupName: string) {
-    return convertTransactionToPromise(this._aragonApp, 'getGroupCount', groupName)
+  async getGroupCount(groupId: number) {
+    return convertTransactionToPromise(this._aragonApp, 'getGroupCount', groupId)
   }
 
-  async getGroupEntity(groupName: string, entityIndex: number) {
-    return convertTransactionToPromise(this._aragonApp, 'getGroupEntity', groupName, entityIndex)
+  async getGroupEntity(groupId: number, entityIndex: number) {
+    return convertTransactionToPromise(this._aragonApp, 'getGroupEntity', groupId, entityIndex)
   }
 
-  async addEntityToGroup(groupName: string, entity: string) {
-    return convertTransactionToPromise(this._aragonApp, 'addEntityToGroup', groupName, entity)
+  async addEntityToGroup(groupId: number, entity: string) {
+    return convertTransactionToPromise(this._aragonApp, 'addEntityToGroup', groupId, entity)
   }
 
-  async removeEntityFromGroup(groupName: string, entity: string) {
-    return convertTransactionToPromise(this._aragonApp, 'removeEntityFromGroup', groupName, entity)
+  async removeEntityFromGroup(groupId: number, entity: string) {
+    return convertTransactionToPromise(this._aragonApp, 'removeEntityFromGroup', groupId, entity)
   }
 }
 
