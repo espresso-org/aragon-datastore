@@ -110,6 +110,10 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'getGroups')
   }
 
+  async getGroupsInfos() {
+    return convertTransactionToPromise(this._aragonApp, 'getAllGroups')
+  }
+
   async getGroup(groupId: number) {
     return convertTransactionToPromise(this._aragonApp, 'getGroup', groupId)
   }

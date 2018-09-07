@@ -388,7 +388,8 @@ contract Datastore {
      */
     function getGroupEntity(uint _groupId, uint _entityIndex) public view returns(address) {
         require(groups[_groupId].exists == true);
-        return groups[_groupId].entities[_entityIndex];
+        if(groups[_groupId].entities[_entityIndex] != 0)
+            return groups[_groupId].entities[_entityIndex];
     }
 
     /**

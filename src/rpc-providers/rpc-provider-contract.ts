@@ -18,11 +18,14 @@ export interface RpcProviderContract {
     createGroup(groupName: string) : Promise<{}>
     deleteGroup(groupId: number) : Promise<{}>
     renameGroup(groupId: number, newGroupName: string) : Promise<{}>
-    getGroups() : Promise<{}>
+    getGroups() : Promise<any[]>
+    getGroupsInfos() : Promise<{}>
     getGroup(groupId: number) : Promise<{}>
     getGroupEntity(groupId: number, entityIndex: number) : Promise<{}>
     getGroupCount(groupId: number) : Promise<{}>
     addEntityToGroup(groupId: number, entity: string) : Promise<{}>
     removeEntityFromGroup(groupId: number, entity: string) : Promise<{}>
+    setGroupPermissions(fileId: number, group: string, read: boolean, write: boolean) : Promise<{}>
+    removeGroupFromFile(fileId: number, group: string) : Promise<{}>
     events(...args): any
 }
