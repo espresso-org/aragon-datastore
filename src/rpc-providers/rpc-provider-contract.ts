@@ -25,7 +25,7 @@ export interface RpcProviderContract {
     getGroupCount(groupId: number) : Promise<{}>
     addEntityToGroup(groupId: number, entity: string) : Promise<{}>
     removeEntityFromGroup(groupId: number, entity: string) : Promise<{}>
-    setGroupPermissions(fileId: number, group: string, read: boolean, write: boolean) : Promise<{}>
-    removeGroupFromFile(fileId: number, group: string) : Promise<{}>
+    setGroupPermissions(fileId: number, groupId: number, read: boolean, write: boolean) : Promise<{}>
+    removeGroupFromFile(fileId: number, groupId: number) : Promise<{}>
     events(...args): any
 }

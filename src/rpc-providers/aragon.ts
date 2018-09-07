@@ -133,6 +133,10 @@ export class AragonContract implements RpcProviderContract {
   async removeEntityFromGroup(groupId: number, entity: string) {
     return convertTransactionToPromise(this._aragonApp, 'removeEntityFromGroup', groupId, entity)
   }
+
+  async setGroupPermissions(fileId: number, groupId: number, read: boolean, write: boolean) {
+    return convertTransactionToPromise(this._aragonApp, 'setGroupPermissions', fileId, groupId, read, write)
+  }
 }
 
 

@@ -235,15 +235,6 @@ export class Datastore {
     }
 
     /**
-     * Returns a list of the group names
-     */
-    async getGroups() {
-        await this._initialize()
-
-        await this._contract.getGroups()
-    }
-
-    /**
      * Returns an array of all the groups infos
      */
     async getGroupsInfos() {
@@ -258,7 +249,7 @@ export class Datastore {
                 name: getGroup[0],
                 entities: getGroup[1]
             }
-            if(group.name != 0)
+            if(group.name !== 0)
                 groups.push(group)
         }
         return groups
@@ -315,6 +306,19 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.removeEntityFromGroup(groupId, entity)
+    }
+
+    /**
+     * Sets read and write permissions on a file for a group
+     * @param fileId Id of the file
+     * @param groupId Id of the group
+     * @param read Read permission
+     * @param write Write permission
+     */
+    async setGroupPermissions(fileId: number, groupId: number, read: boolean, write: boolean) {
+        await this._initialize()
+
+        await this._contract.setGroupPermissions(fileId, groupId, read, write)
     }
 
     /**

@@ -338,7 +338,7 @@ contract Datastore {
      */
     function createGroup(string _groupName) external {
         uint id = groupList.length + 1;
-        require(groups[id].exists == false);
+        require(!groups[id].exists);
         groups[id].groupName = _groupName;
         groups[id].exists = true;
         groupList.push(id);
@@ -349,7 +349,7 @@ contract Datastore {
      * @param _groupId Id of the group to delete
      */
     function deleteGroup(uint _groupId) external {
-        require(groups[_groupId].exists == true);
+        require(groups[_groupId].exists);
         delete groups[_groupId];
         delete groupList[_groupId - 1];
     }
@@ -360,7 +360,7 @@ contract Datastore {
      * @param _newGroupName New name for the group
      */
     function renameGroup(uint _groupId, string _newGroupName) external  {
-        require(groups[_groupId].exists == true);
+        require(groups[_groupId].exists);
         groups[_groupId].groupName = _newGroupName;
     }
 
@@ -376,7 +376,7 @@ contract Datastore {
      * @param _groupId Id of the group to return
      */
     function getGroup(uint _groupId) public view returns(address[] _entities, string _groupName) {
-        require(groups[_groupId].exists == true);
+        require(groups[_groupId].exists);
         _entities = groups[_groupId].entities;
         _groupName = groups[_groupId].groupName;
     }
@@ -387,7 +387,7 @@ contract Datastore {
      * @param _entityIndex Index of the entity to retrieve from the group
      */
     function getGroupEntity(uint _groupId, uint _entityIndex) public view returns(address) {
-        require(groups[_groupId].exists == true);
+        require(groups[_groupId].exists);
         if(groups[_groupId].entities[_entityIndex] != 0)
             return groups[_groupId].entities[_entityIndex];
     }
@@ -397,7 +397,7 @@ contract Datastore {
      * @param _groupId Id of the group to get the count from
      */
     function getGroupCount(uint _groupId) public view returns(uint) {
-        require(groups[_groupId].exists == true);
+        require(groups[_groupId].exists);
         uint counter = 0;
         for(uint i = 0; i < groups[_groupId].entities.length; i++) {
             if(groups[_groupId].entities[i] != 0)
@@ -412,7 +412,7 @@ contract Datastore {
      * @param _entity Address of the entity
      */
     function addEntityToGroup(uint _groupId, address _entity) public {
-        require(groups[_groupId].exists == true);
+        require(groups[_groupId].exists);
         groups[_groupId].entitiesWithIndex[_entity] = groups[_groupId].entities.length + 1;
         groups[_groupId].entities.push(_entity);
     }
@@ -423,17 +423,34 @@ contract Datastore {
      * @param _entity Address of the entity
      */
     function removeEntityFromGroup(uint _groupId, address _entity) public {
-        require(groups[_groupId].exists == true);
+        require(groups[_groupId].exists);
         uint indexOfEntity = groups[_groupId].entitiesWithIndex[_entity] - 1;
         delete groups[_groupId].entities[indexOfEntity];
         delete groups[_groupId].entitiesWithIndex[_entity];
     }
 
-    function setGroupPermissions(uint _fileId, string _group, bool _read, bool _write) public {
+    /**
+     * @notice Set the read and write permissions on a file for a specified group
+     * @param _fileId Id of the file
+     * @param _groupId Id of the group
+     * @param _read Read permissionp
+     * @param _write Write permission
+     */
+    function setGroupPermissions(uint _fileId, uint _groupId, bool _read, bool _write) public {
+        require(isOwner(_fileId, msg.sender));
 
+        for(var i = 0; i < groups[_groupId].entities.length; i++) {
+            address entity = groups[_groupId].entities[i];
+            if (!files[_fileId].permissions[entity].exists) {
+                files[_fileId].permissionAddresses.push(entity);
+                files[_fileId].permissions[entity].exists = true;
+            }
+            files[_fileId].permissions[entity].read = _read;
+            files[_fileId].permissions[entity].write = _write;                
+        }
     }
 
-    function removeGroupFromFile(uint _fileId, string _group) public {
+    function removeGroupFromFile(uint _fileId, uint _groupId) public {
 
     }
 }
