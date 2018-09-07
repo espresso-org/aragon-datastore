@@ -145,18 +145,95 @@ contract('Datastore ', accounts => {
         await assertEvent(datastore, { event: 'NewWritePermission' })
     })    
 
-    /*it('createGroup creates a new group', async () => {
-        const groupName1 = 'My first group'
-        const groupName2 = 'My second group'
+    it('createGroup creates a new group', async () => {
+        await datastore.createGroup('My first group')
+        await datastore.createGroup('My second group')
 
-        await datastore.createGroup(groupName1)
-        await datastore.createGroup(groupName2)
+        assert.equal((await datastore.getGroups())[0], 1)
+        assert.equal((await datastore.getGroups())[1], 2)
+    })
 
-        assert.equal((await datastore.getGroups())[0], groupName1)
-        assert.equal((await datastore.getGroups())[1], groupName2)
-    })*/
+    it('deleteGroup deletes a group', async () => {
+        await datastore.createGroup('My first group')
+        await datastore.createGroup('My second group')
+        await datastore.deleteGroup(2)
+
+        assert.equal((await datastore.getGroups())[0], 1)
+        assert.equal((await datastore.getGroups())[1], 0)
+    })
+
+    it('renameGroup renames an existing group', async() => {
+        await datastore.createGroup('My old name')
+        await datastore.renameGroup(1, 'My new name')
+        var group = await datastore.getGroup(1)
+
+        assert.equal(group[1], 'My new name')
+    })
+
+    it('getGroups returns the list of Id of the groups', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.createGroup('My second group')
+        await datastore.createGroup('My third group')
+        var groupCount = await datastore.getGroups();
+
+        assert.equal(groupCount.length, 3)
+        assert.equal((await datastore.getGroups())[0], 1)
+        assert.equal((await datastore.getGroups())[1], 2)
+        assert.equal((await datastore.getGroups())[2], 3)
+    })
+
+    it('getGroup returns the list of entities in a group and its name', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        var entityCount = await datastore.getGroupCount(1)
+        var group = await datastore.getGroup(1)
+
+        assert.equal(entityCount, 2)
+        assert.equal(group[0][0], '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        assert.equal(group[0][1], '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        assert.equal(group[1], 'My first group')
+    })
+
+    it('getGroupEntity returns an entity from a group', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        var entity1 = await datastore.getGroupEntity(1, 0)
+        var entity2 = await datastore.getGroupEntity(1, 1)
+
+        assert.equal(entity1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        assert.equal(entity2, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+    })
+
+    it('getGroupCount returns the number of entities in a group', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+
+        assert.equal(await datastore.getGroupCount(1), 2)
+    })
+
+    it('addEntityToGroup adds an entity to a group', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        var entity = await datastore.getGroupEntity(1, 0)
+
+        assert.equal(entity, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+    })
+
+    it('removeEntityFromGroup removes an entity from a group', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        var entity1 = await datastore.getGroupEntity(1, 0)
+        var entity2 = await datastore.getGroupEntity(1, 1)
+
+        assert.equal(entity1, 0)
+        assert.equal(entity2, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+    })
 })
-
 
 async function assertThrow(fn) {
     try {

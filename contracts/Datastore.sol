@@ -337,7 +337,7 @@ contract Datastore {
      * @param _groupName Name of the group
      */
     function createGroup(string _groupName) external {
-        uint id = groupList.length;
+        uint id = groupList.length + 1;
         require(groups[id].exists == false);
         groups[id].groupName = _groupName;
         groups[id].exists = true;
@@ -351,7 +351,7 @@ contract Datastore {
     function deleteGroup(uint _groupId) external {
         require(groups[_groupId].exists == true);
         delete groups[_groupId];
-        delete groupList[_groupId];
+        delete groupList[_groupId - 1];
     }
 
     /**
@@ -375,9 +375,10 @@ contract Datastore {
      * @notice Get a specific group
      * @param _groupId Id of the group to return
      */
-    function getGroup(uint _groupId) public view returns(address[]) {
+    function getGroup(uint _groupId) public view returns(address[] _entities, string _groupName) {
         require(groups[_groupId].exists == true);
-        return groups[_groupId].entities;
+        _entities = groups[_groupId].entities;
+        _groupName = groups[_groupId].groupName;
     }
 
     /**
@@ -406,7 +407,7 @@ contract Datastore {
      */
     function addEntityToGroup(uint _groupId, address _entity) public {
         require(groups[_groupId].exists == true);
-        groups[_groupId].entitiesWithIndex[_entity] = groups[_groupId].entities.length;
+        groups[_groupId].entitiesWithIndex[_entity] = groups[_groupId].entities.length + 1;
         groups[_groupId].entities.push(_entity);
     }
 
@@ -417,9 +418,9 @@ contract Datastore {
      */
     function removeEntityFromGroup(uint _groupId, address _entity) public {
         require(groups[_groupId].exists == true);
-        Group storage groupToRemoveIn = groups[_groupId];
-        delete groupToRemoveIn.entities[groupToRemoveIn.entitiesWithIndex[_entity]];
-        delete groupToRemoveIn.entitiesWithIndex[_entity];
+        uint indexOfEntity = groups[_groupId].entitiesWithIndex[_entity] - 1;
+        delete groups[_groupId].entities[indexOfEntity];
+        delete groups[_groupId].entitiesWithIndex[_entity];
     }
 
     function setGroupPermissions(uint _fileId, string _group, bool _read, bool _write) public {
