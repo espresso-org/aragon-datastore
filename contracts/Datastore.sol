@@ -398,7 +398,12 @@ contract Datastore {
      */
     function getGroupCount(uint _groupId) public view returns(uint) {
         require(groups[_groupId].exists == true);
-        return groups[_groupId].entities.length;
+        uint counter = 0;
+        for(uint i = 0; i < groups[_groupId].entities.length; i++) {
+            if(groups[_groupId].entities[i] != 0)
+                counter++;
+        }
+        return counter;
     } 
 
     /**

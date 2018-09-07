@@ -244,19 +244,22 @@ export class Datastore {
     }
 
     /**
-     * Returns an array of all the groups names and Ids
+     * Returns an array of all the groups infos
      */
     async getGroupsInfos() {
         await this._initialize()
 
-        var groups = []
+        let groups = []
         let groupsIds = await this._contract.getGroups()
         for(var i = 0; i < groupsIds.length; i++) {
+            let getGroup = await this._contract.getGroup(groupsIds[i])
             let group = {
                 id: groupsIds[i],
-                name: await this._contract.getGroup(groupsIds[i])
+                name: getGroup[0],
+                entities: getGroup[1]
             }
-            groups.push(group)
+            if(group.name != 0)
+                groups.push(group)
         }
         return groups
     }
