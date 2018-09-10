@@ -322,6 +322,17 @@ export class Datastore {
     }
 
     /**
+     * Removes a group from a file's permissions
+     * @param fileId Id of the file
+     * @param groupId Id of the group
+     */
+    async removeGroupFromFile(fileId: number, groupId: number) {
+        await this._initialize()
+
+        await this._contract.removeGroupFromFile(fileId, groupId)
+    }
+
+    /**
      * Datastore events
      * 
      */

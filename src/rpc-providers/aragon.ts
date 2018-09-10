@@ -137,6 +137,10 @@ export class AragonContract implements RpcProviderContract {
   async setGroupPermissions(fileId: number, groupId: number, read: boolean, write: boolean) {
     return convertTransactionToPromise(this._aragonApp, 'setGroupPermissions', fileId, groupId, read, write)
   }
+
+  async removeGroupFromFile(fileId: number, groupId: number) {
+    return convertTransactionToPromise(this._aragonApp, 'removeGroupFromFile', fileId, groupId)
+  }
 }
 
 
