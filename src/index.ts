@@ -237,7 +237,7 @@ export class Datastore {
     /**
      * Returns an array of all the groups infos
      */
-    async getGroupsInfos() {
+    async getGroups() {
         await this._initialize()
 
         let groups = []
@@ -263,27 +263,6 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.getGroup(groupId)
-    }
-
-    /**
-     * Returns an entity from the `entities` array 
-     * @param groupId Id of the group to get entity from
-     * @param entityIndex Index of that entity in the `entities` array
-     */
-    async getGroupEntity(groupId: number, entityIndex: number) {
-        await this._initialize()
-
-        await this._contract.getGroupEntity(groupId, entityIndex)
-    }
-
-    /**
-     * Returns the number of entities in the specified group
-     * @param groupId Id of the group to get count from
-     */
-    async getGroupCount(groupId: number) {
-        await this._initialize()
-
-        await this._contract.getGroupCount(groupId)
     }
 
     /**

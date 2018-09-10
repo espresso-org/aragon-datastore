@@ -208,12 +208,12 @@ contract('Datastore ', accounts => {
         assert.equal(entity3, 0)
     })
 
-    it('getGroupCount returns the number of entities in a group', async() => {
+    it('getGroupEntityCount returns the number of entities in a group', async() => {
         await datastore.createGroup('My first group')
         await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
         await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
 
-        assert.equal(await datastore.getGroupCount(1), 2)
+        assert.equal(await datastore.getGroupEntityCount(1), 2)
     })
 
     it('addEntityToGroup adds an entity to a group', async() => {

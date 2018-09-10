@@ -359,7 +359,6 @@ contract Datastore {
      */
     function createGroup(string _groupName) external {
         uint id = groupList.length + 1;
-        require(!groups[id].exists);
         groups[id].groupName = _groupName;
         groups[id].exists = true;
         groupList.push(id);
@@ -417,7 +416,7 @@ contract Datastore {
      * @notice Get the number of entities in a group
      * @param _groupId Id of the group to get the count from
      */
-    function getGroupCount(uint _groupId) public view returns(uint) {
+    function getGroupEntityCount(uint _groupId) public view returns(uint) {
         require(groups[_groupId].exists);
         uint counter = 0;
         for(uint i = 0; i < groups[_groupId].entities.length; i++) {
@@ -425,7 +424,7 @@ contract Datastore {
                 counter++;
         }
         return counter;
-    } 
+    }
 
     /**
      * @notice Add an entity to a group
