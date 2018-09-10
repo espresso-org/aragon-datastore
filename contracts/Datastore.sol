@@ -52,6 +52,8 @@ contract Datastore {
         uint lastModification;  // Timestamp of the last file content update
         mapping (address => Permission) permissions;  // Read and Write permissions for each entity
         address[] permissionAddresses;  // Internal references for permission listing
+        mapping (uint => Permission) groupPermissions;  // Read and Write permissions for each group
+        uint[] groupIds;  // Internal references for this file's groups
     }
 
     /**
@@ -105,7 +107,8 @@ contract Datastore {
             isDeleted: false,
             owner: msg.sender,
             lastModification: now,
-            permissionAddresses: new address[](0)
+            permissionAddresses: new address[](0),
+            groupIds: new uint[](0) 
         });
         NewFile(msg.sender, lastFileId);
         return lastFileId;
@@ -320,7 +323,16 @@ contract Datastore {
      * @param _entity Entity address     
      */
     function hasReadAccess(uint _fileId, address _entity) public view returns (bool) {
-        return files[_fileId].permissions[_entity].read;
+        if(files[_fileId].permissions[_entity].read)
+            return true;
+
+        for (uint i = 0; i < files[_fileId].groupIds.length; i++) {
+            if (files[_fileId].groupPermissions[files[_fileId].groupIds[i]].read) {
+                if (groups[files[_fileId].groupIds[i]].entitiesWithIndex[_entity] != 0)
+                    return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -329,7 +341,16 @@ contract Datastore {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
-        return isOwner(_fileId, _entity) || files[_fileId].permissions[_entity].write;
+        if(isOwner(_fileId, _entity) || files[_fileId].permissions[_entity].write)
+            return true;
+        
+        for (uint i = 0; i < files[_fileId].groupIds.length; i++) {
+            if (files[_fileId].groupPermissions[files[_fileId].groupIds[i]].write) {
+                if (groups[files[_fileId].groupIds[i]].entitiesWithIndex[_entity] != 0)
+                    return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -433,24 +454,34 @@ contract Datastore {
      * @notice Set the read and write permissions on a file for a specified group
      * @param _fileId Id of the file
      * @param _groupId Id of the group
-     * @param _read Read permissionp
+     * @param _read Read permission
      * @param _write Write permission
      */
     function setGroupPermissions(uint _fileId, uint _groupId, bool _read, bool _write) public {
         require(isOwner(_fileId, msg.sender));
 
-        for(var i = 0; i < groups[_groupId].entities.length; i++) {
-            address entity = groups[_groupId].entities[i];
-            if (!files[_fileId].permissions[entity].exists) {
-                files[_fileId].permissionAddresses.push(entity);
-                files[_fileId].permissions[entity].exists = true;
-            }
-            files[_fileId].permissions[entity].read = _read;
-            files[_fileId].permissions[entity].write = _write;                
+        if (!files[_fileId].groupPermissions[_groupId].exists) {
+            files[_fileId].groupIds.push(_groupId);
+            files[_fileId].groupPermissions[_groupId].exists = true;
         }
+        files[_fileId].groupPermissions[_groupId].read = _read;
+        files[_fileId].groupPermissions[_groupId].write = _write;
     }
 
+    /**
+     * @notice Remove group from file permissions
+     * @param _fileId Id of the file
+     * @param _groupId Id of the group
+     */
     function removeGroupFromFile(uint _fileId, uint _groupId) public {
+        require(isOwner(_fileId, msg.sender));
 
+        if (files[_fileId].groupPermissions[_groupId].exists) {
+            delete files[_fileId].groupPermissions[_groupId];
+            for(uint i = 0; i < files[_fileId].groupIds.length; i++) {
+                if(files[_fileId].groupIds[i] == _groupId)
+                    delete files[_fileId].groupIds[i];
+            }
+        }
     }
 }
