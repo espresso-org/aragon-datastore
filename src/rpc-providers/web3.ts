@@ -13,7 +13,6 @@ export class Web3 implements RpcProvider {
     _contract
     _isInit
 
-
     constructor(web3) {
         const contract = require('truffle-contract')
         

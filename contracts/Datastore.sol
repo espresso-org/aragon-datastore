@@ -1,8 +1,7 @@
 pragma solidity ^0.4.18;
 
-import '@aragon/os/contracts/apps/AragonApp.sol';
-import '@aragon/os/contracts/lib/zeppelin/math/SafeMath.sol';
-
+import "@aragon/os/contracts/apps/AragonApp.sol";
+import "@aragon/os/contracts/lib/zeppelin/math/SafeMath.sol";
 
 contract Datastore {
     using SafeMath for uint256;
@@ -18,10 +17,8 @@ contract Datastore {
     /**
      * Datastore settings
      */
-
     enum StorageProvider { None, Ipfs, Filecoin, Swarm }
     enum EncryptionType { None, Aes }
-
 
     struct Settings {
         StorageProvider storageProvider;
@@ -41,10 +38,6 @@ contract Datastore {
         string protocol;        
     }
     
-
-
-
-
     /**
      * File stored in the 
      */
@@ -59,6 +52,8 @@ contract Datastore {
         uint lastModification;  // Timestamp of the last file content update
         mapping (address => Permission) permissions;  // Read and Write permissions for each entity
         address[] permissionAddresses;  // Internal references for permission listing
+        mapping (uint => Permission) groupPermissions;  // Read and Write permissions for each group
+        uint[] groupIds;  // Internal references for this file's groups
     }
 
     /**
@@ -71,6 +66,16 @@ contract Datastore {
     }
 
     /**
+     * Represents a group and its entities within it   
+     */
+    struct Group {
+        string groupName;
+        mapping (address => uint) entitiesWithIndex;
+        address[] entities;
+        bool exists;    // Used internally to check if a group really exists
+    }
+
+    /**
      * Id of the last file added to the datastore. 
      * Also represents the total number of files stored.
      */
@@ -79,8 +84,10 @@ contract Datastore {
     mapping (uint => File) private files;
 
     Settings public settings;
-    
 
+    uint[] private groupList;
+    mapping (uint => Group) private groups;
+    
     /**
      * @notice Add a file to the datastore
      * @param _storageRef Storage Id of the file (IPFS only for now)
@@ -100,7 +107,8 @@ contract Datastore {
             isDeleted: false,
             owner: msg.sender,
             lastModification: now,
-            permissionAddresses: new address[](0)
+            permissionAddresses: new address[](0),
+            groupIds: new uint[](0) 
         });
         NewFile(msg.sender, lastFileId);
         return lastFileId;
@@ -274,11 +282,9 @@ contract Datastore {
         NewWritePermission(msg.sender, lastFileId);
     }
 
-
     /**
      * Settings related methods
      */
-
     
     /**
      * Sets IPFS as the storage provider for the datastore.
@@ -302,9 +308,6 @@ contract Datastore {
         SettingsChanged(msg.sender);
     }
 
-
-
-
     /**
      * @notice Returns true if `_entity` is owner of file `_fileId`
      * @param _fileId File Id
@@ -320,7 +323,16 @@ contract Datastore {
      * @param _entity Entity address     
      */
     function hasReadAccess(uint _fileId, address _entity) public view returns (bool) {
-        return files[_fileId].permissions[_entity].read;
+        if(files[_fileId].permissions[_entity].read)
+            return true;
+
+        for (uint i = 0; i < files[_fileId].groupIds.length; i++) {
+            if (files[_fileId].groupPermissions[files[_fileId].groupIds[i]].read) {
+                if (groups[files[_fileId].groupIds[i]].entitiesWithIndex[_entity] != 0)
+                    return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -329,6 +341,146 @@ contract Datastore {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
-        return isOwner(_fileId, _entity) || files[_fileId].permissions[_entity].write;
+        if(isOwner(_fileId, _entity) || files[_fileId].permissions[_entity].write)
+            return true;
+        
+        for (uint i = 0; i < files[_fileId].groupIds.length; i++) {
+            if (files[_fileId].groupPermissions[files[_fileId].groupIds[i]].write) {
+                if (groups[files[_fileId].groupIds[i]].entitiesWithIndex[_entity] != 0)
+                    return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @notice Add a group to the datastore
+     * @param _groupName Name of the group
+     */
+    function createGroup(string _groupName) external {
+        uint id = groupList.length + 1;
+        groups[id].groupName = _groupName;
+        groups[id].exists = true;
+        groupList.push(id);
+    }
+
+    /**
+     * @notice Delete a group from the datastore
+     * @param _groupId Id of the group to delete
+     */
+    function deleteGroup(uint _groupId) external {
+        require(groups[_groupId].exists);
+        delete groups[_groupId];
+        delete groupList[_groupId - 1];
+    }
+
+    /**
+     * @notice Rename a group
+     * @param _groupId Id of the group to rename
+     * @param _newGroupName New name for the group
+     */
+    function renameGroup(uint _groupId, string _newGroupName) external  {
+        require(groups[_groupId].exists);
+        groups[_groupId].groupName = _newGroupName;
+    }
+
+    /**
+     * @notice Get a list of all the groups Id's
+     */
+    function getGroups() external view returns(uint[]){
+        return groupList;
+    }
+
+    /**
+     * @notice Get a specific group
+     * @param _groupId Id of the group to return
+     */
+    function getGroup(uint _groupId) public view returns(address[] _entities, string _groupName) {
+        require(groups[_groupId].exists);
+        _entities = groups[_groupId].entities;
+        _groupName = groups[_groupId].groupName;
+    }
+
+    /**
+     * @notice Get an entity inside a specific group
+     * @param _groupId Id of the group to retrieve the entity from
+     * @param _entityIndex Index of the entity to retrieve from the group
+     */
+    function getGroupEntity(uint _groupId, uint _entityIndex) public view returns(address) {
+        require(groups[_groupId].exists);
+        if(groups[_groupId].entities[_entityIndex] != 0)
+            return groups[_groupId].entities[_entityIndex];
+    }
+
+    /**
+     * @notice Get the number of entities in a group
+     * @param _groupId Id of the group to get the count from
+     */
+    function getGroupEntityCount(uint _groupId) public view returns(uint) {
+        require(groups[_groupId].exists);
+        uint counter = 0;
+        for(uint i = 0; i < groups[_groupId].entities.length; i++) {
+            if(groups[_groupId].entities[i] != 0)
+                counter++;
+        }
+        return counter;
+    }
+
+    /**
+     * @notice Add an entity to a group
+     * @param _groupId Id of the group to add the entity in
+     * @param _entity Address of the entity
+     */
+    function addEntityToGroup(uint _groupId, address _entity) public {
+        require(groups[_groupId].exists);
+        groups[_groupId].entitiesWithIndex[_entity] = groups[_groupId].entities.length + 1;
+        groups[_groupId].entities.push(_entity);
+    }
+
+    /**
+     * @notice Remove an entity from a group
+     * @param _groupId Id of the group to remove the entity from 
+     * @param _entity Address of the entity
+     */
+    function removeEntityFromGroup(uint _groupId, address _entity) public {
+        require(groups[_groupId].exists);
+        uint indexOfEntity = groups[_groupId].entitiesWithIndex[_entity] - 1;
+        delete groups[_groupId].entities[indexOfEntity];
+        delete groups[_groupId].entitiesWithIndex[_entity];
+    }
+
+    /**
+     * @notice Set the read and write permissions on a file for a specified group
+     * @param _fileId Id of the file
+     * @param _groupId Id of the group
+     * @param _read Read permission
+     * @param _write Write permission
+     */
+    function setGroupPermissions(uint _fileId, uint _groupId, bool _read, bool _write) public {
+        require(isOwner(_fileId, msg.sender));
+
+        if (!files[_fileId].groupPermissions[_groupId].exists) {
+            files[_fileId].groupIds.push(_groupId);
+            files[_fileId].groupPermissions[_groupId].exists = true;
+        }
+        files[_fileId].groupPermissions[_groupId].read = _read;
+        files[_fileId].groupPermissions[_groupId].write = _write;
+    }
+
+    /**
+     * @notice Remove group from file permissions
+     * @param _fileId Id of the file
+     * @param _groupId Id of the group
+     */
+    function removeGroupFromFile(uint _fileId, uint _groupId) public {
+        require(isOwner(_fileId, msg.sender));
+
+        if (files[_fileId].groupPermissions[_groupId].exists) {
+            delete files[_fileId].groupPermissions[_groupId];
+            for(uint i = 0; i < files[_fileId].groupIds.length; i++) {
+                if(files[_fileId].groupIds[i] == _groupId)
+                    delete files[_fileId].groupIds[i];
+            }
+        }
     }
 }
