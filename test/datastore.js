@@ -143,11 +143,16 @@ contract('Datastore ', accounts => {
         await datastore.setWritePermission(1, accounts[1], true)
 
         await assertEvent(datastore, { event: 'NewWritePermission' })
-    })    
+    })   
+    
+    it('tests if ownership of files works correctly', async() => {
+        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
+        const file = await datastore.getFile(1)
 
-
+        assert.equal(file[5], accounts[0])
+        assert.equal(file[6], true)
+    })
 })
-
 
 async function assertThrow(fn) {
     try {

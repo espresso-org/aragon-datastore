@@ -2,10 +2,48 @@ pragma solidity ^0.4.18;
 
 import '@aragon/os/contracts/apps/AragonApp.sol';
 import '@aragon/os/contracts/lib/zeppelin/math/SafeMath.sol';
+//import { PermissionLibrary } from "./PermissionLibrary.sol";
 
+library PermissionLibrary {
+    using SafeMath for uint256;
+
+    struct Owner {
+        mapping (uint => address) fileOwners;
+    }
+
+    /**
+     * @notice Returns true if `_entity` is owner of file `_fileId`
+     * @param _self Owner mapping
+     * @param _fileId File Id
+     * @param _entity Entity address
+     */
+    function isOwner(Owner storage _self, uint _fileId, address _entity) internal view returns (bool) {
+        return _self.fileOwners[_fileId] == _entity;
+    }
+
+    /**
+     * @notice Returns the owner of the file with `_fileId`
+     * @param _self Owner mapping
+     * @param _fileId File Id
+     */
+    function getOwner(Owner storage _self, uint _fileId) internal view returns (address) {
+        return _self.fileOwners[_fileId];
+    }
+
+    /**
+     * @notice Adds a `_entiy` as owner to file with `_fileId`
+     * @param _self Owner mapping
+     * @param _fileId File Id
+     * @param _entity Entity address
+     */
+    function addOwner(Owner storage _self, uint _fileId, address _entity) internal {
+        _self.fileOwners[_fileId] = _entity;
+    }
+}
 
 contract Datastore {
     using SafeMath for uint256;
+    using PermissionLibrary for PermissionLibrary.Owner;
 
     event FileRename(address indexed entity, uint fileId);
     event FileContentUpdate(address indexed entity, uint fileId);
@@ -40,11 +78,17 @@ contract Datastore {
         uint16 port;
         string protocol;        
     }
+
+    /**
+     * Read and write permission for an entity on a specific file
+     */
+    struct Permission {
+        address user;
+        bool write;             
+        bool read;
+        bool exists;    // Used internally to check if an entity has a stored permission
+    }
     
-
-
-
-
     /**
      * File stored in the 
      */
@@ -55,19 +99,9 @@ contract Datastore {
         string keepRef;         // Keep Id for encryption key
         bool isPublic;          // True if file can be read by anyone
         bool isDeleted;         // Is file deleted
-        address owner;          // Address of the file owner
         uint lastModification;  // Timestamp of the last file content update
         mapping (address => Permission) permissions;  // Read and Write permissions for each entity
         address[] permissionAddresses;  // Internal references for permission listing
-    }
-
-    /**
-     * Read and write permission for an entity on a specific file
-     */
-    struct Permission {
-        bool write;             
-        bool read;
-        bool exists;    // Used internally to check if an entity has a stored permission
     }
 
     /**
@@ -77,9 +111,9 @@ contract Datastore {
     uint public lastFileId = 0;
 
     mapping (uint => File) private files;
+    PermissionLibrary.Owner private fileOwners;
 
     Settings public settings;
-    
 
     /**
      * @notice Add a file to the datastore
@@ -91,17 +125,17 @@ contract Datastore {
     function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external returns (uint fileId) {
         lastFileId = lastFileId.add(1);
 
-        files[lastFileId] = File({ 
+        files[lastFileId] = File({
             storageRef: _storageRef,
             name: _name,
             fileSize: _fileSize,
             keepRef: "",
             isPublic: _isPublic,
             isDeleted: false,
-            owner: msg.sender,
             lastModification: now,
             permissionAddresses: new address[](0)
         });
+        PermissionLibrary.addOwner(fileOwners, lastFileId, msg.sender);
         NewFile(msg.sender, lastFileId);
         return lastFileId;
     }
@@ -133,8 +167,8 @@ contract Datastore {
         fileSize = file.fileSize;
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
-        owner = file.owner;
-        isOwner = this.isOwner(_fileId, msg.sender);
+        owner = PermissionLibrary.getOwner(fileOwners, _fileId);
+        isOwner = PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender);
         lastModification = file.lastModification;
         permissionAddresses = file.permissionAddresses;
         writeAccess = hasWriteAccess(_fileId, msg.sender);
@@ -168,8 +202,8 @@ contract Datastore {
         fileSize = file.fileSize;
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
-        owner = file.owner;
-        isOwner = this.isOwner(_fileId, _caller);
+        owner = PermissionLibrary.getOwner(fileOwners, _fileId);
+        isOwner = PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender);
         lastModification = file.lastModification;
         permissionAddresses = file.permissionAddresses;
         writeAccess = hasWriteAccess(_fileId, _caller);
@@ -180,7 +214,7 @@ contract Datastore {
      * @param _fileId File Id
      */
     function deleteFile(uint _fileId) public {
-        require(isOwner(_fileId, msg.sender));
+        require(PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender));
 
         files[_fileId].isDeleted = true;
         files[_fileId].lastModification = now;
@@ -245,7 +279,7 @@ contract Datastore {
      * @param _hasPermission Read permission
      */
     function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external {
-        require(isOwner(_fileId, msg.sender));
+        require(PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender));
 
         if (!files[_fileId].permissions[_entity].exists) {
             files[_fileId].permissionAddresses.push(_entity);
@@ -263,7 +297,7 @@ contract Datastore {
      * @param _hasPermission Write permission
      */
     function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external {
-        require(isOwner(_fileId, msg.sender));
+        require(PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender));
 
         if (!files[_fileId].permissions[_entity].exists) {
             files[_fileId].permissionAddresses.push(_entity);
@@ -302,18 +336,6 @@ contract Datastore {
         SettingsChanged(msg.sender);
     }
 
-
-
-
-    /**
-     * @notice Returns true if `_entity` is owner of file `_fileId`
-     * @param _fileId File Id
-     * @param _entity Entity address
-     */
-    function isOwner(uint _fileId, address _entity) public view returns (bool) {
-        return files[_fileId].owner == _entity;
-    }
-
     /**
      * @notice Returns true if `_entity` has read access on file `_fileId`
      * @param _fileId File Id
@@ -329,6 +351,6 @@ contract Datastore {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
-        return isOwner(_fileId, _entity) || files[_fileId].permissions[_entity].write;
+        return PermissionLibrary.isOwner(fileOwners, _fileId, _entity) || files[_fileId].permissions[_entity].write;
     }
 }
