@@ -152,6 +152,161 @@ contract('Datastore ', accounts => {
         assert.equal(file[5], accounts[0])
         assert.equal(file[6], true)
     })
+
+    it('createGroup creates a new group', async () => {
+        await datastore.createGroup('My first group')
+        await datastore.createGroup('My second group')
+
+        assert.equal((await datastore.getGroups())[0], 1)
+        assert.equal((await datastore.getGroups())[1], 2)
+    })
+
+    it('deleteGroup deletes a group', async () => {
+        await datastore.createGroup('My first group')
+        await datastore.createGroup('My second group')
+        await datastore.deleteGroup(2)
+
+        assert.equal((await datastore.getGroups())[0], 1)
+        assert.equal((await datastore.getGroups())[1], 0)
+    })
+
+    it('renameGroup renames an existing group', async() => {
+        await datastore.createGroup('My old name')
+        await datastore.renameGroup(1, 'My new name')
+        var group = await datastore.getGroup(1)
+
+        assert.equal(group[1], 'My new name')
+    })
+
+    it('getGroups returns the list of Id of the groups', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.createGroup('My second group')
+        await datastore.createGroup('My third group')
+        var groupCount = await datastore.getGroups();
+
+        assert.equal(groupCount.length, 3)
+        assert.equal((await datastore.getGroups())[0], 1)
+        assert.equal((await datastore.getGroups())[1], 2)
+        assert.equal((await datastore.getGroups())[2], 3)
+    })
+
+    it('getGroup returns the list of entities in a group and its name', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        var group = await datastore.getGroup(1)
+
+        assert.equal(group[0][0], '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        assert.equal(group[0][1], '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        assert.equal(group[1], 'My first group')
+    })
+
+    it('getGroupEntity returns an entity from a group', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6af7')
+        await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6af7')
+        var entity1 = await datastore.getGroupEntity(1, 0)
+        var entity2 = await datastore.getGroupEntity(1, 1)
+        var entity3 = await datastore.getGroupEntity(1, 2)
+
+        assert.equal(entity1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        assert.equal(entity2, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        assert.equal(entity3, 0)
+    })
+
+    it('getGroupEntityCount returns the number of entities in a group', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+
+        assert.equal(await datastore.getGroupEntityCount(1), 2)
+    })
+
+    it('addEntityToGroup adds an entity to a group', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        var entity = await datastore.getGroupEntity(1, 0)
+
+        assert.equal(entity, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+    })
+
+    it('removeEntityFromGroup removes an entity from a group', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        var entity1 = await datastore.getGroupEntity(1, 0)
+        var entity2 = await datastore.getGroupEntity(1, 1)
+
+        assert.equal(entity1, 0)
+        assert.equal(entity2, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+    })
+
+    it('setGroupPermissions sets read and write permissions on a file', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        const file1 = { 
+            name: 'test name',
+            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+            size: 4567,
+            isPublic: false
+        }
+        await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+        await datastore.setGroupPermissions(1, 1, 1, 0)
+
+        assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), true)
+        assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), false)
+        assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
+        assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
+    })
+
+    it('setGroupPermissions sets read and write permissions on a file', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        const file1 = { 
+            name: 'test name',
+            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+            size: 4567,
+            isPublic: false
+        }
+        await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+        await datastore.setGroupPermissions(1, 1, 0, 1)
+
+        assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), false)
+        assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), true)
+        assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
+        assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
+    })
+
+    it('removeGroupFromFile deletes a group from a file', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+        await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        const file1 = { 
+            name: 'test name',
+            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+            size: 4567,
+            isPublic: false
+        }
+        await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+        await datastore.setGroupPermissions(1, 1, 1, 1)
+        
+        assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), true)
+        assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), true)
+        assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
+        assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
+
+        await datastore.removeGroupFromFile(1, 1)
+
+        assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), false)
+        assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), false)
+        assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
+        assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
+    })
 })
 
 async function assertThrow(fn) {

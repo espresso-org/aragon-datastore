@@ -204,6 +204,114 @@ export class Datastore {
     }
 
     /**
+     * Creates a new group of entities
+     * @param groupName Name of the group
+     */
+    async createGroup(groupName: string) {
+        await this._initialize()
+
+        await this._contract.createGroup(groupName)
+    }
+
+    /**
+     * Deletes a group
+     * @param groupId Id of the group
+     */
+    async deleteGroup(groupId: number) {
+        await this._initialize()
+
+        await this._contract.deleteGroup(groupId)
+    }
+
+    /**
+     * Rename an existing group
+     * @param groupId Id of the group to rename
+     * @param newGroupName New group name
+     */
+    async renameGroup(groupId: number, newGroupName: string) {
+        await this._initialize()
+
+        await this._contract.renameGroup(groupId, newGroupName)
+    }
+
+    /**
+     * Returns an array of all the groups infos
+     */
+    async getGroups() {
+        await this._initialize()
+
+        let groups = []
+        let groupsIds = await this._contract.getGroups()
+        for(var i = 0; i < groupsIds.length; i++) {
+            let getGroup = await this._contract.getGroup(groupsIds[i])
+            let group = {
+                id: groupsIds[i],
+                name: getGroup[0],
+                entities: getGroup[1]
+            }
+            if(group.name !== 0)
+                groups.push(group)
+        }
+        return groups
+    }
+
+    /**
+     * Returns the entities from a group
+     * @param groupId Id of the group to get entities from
+     */
+    async getGroup(groupId: number) {
+        await this._initialize()
+
+        await this._contract.getGroup(groupId)
+    }
+
+    /**
+     * Add an entity to a group
+     * @param groupId Id of the group to insert the entity in
+     * @param entity Entity to add in group
+     */
+    async addEntityToGroup(groupId: number, entity: string) {
+        await this._initialize()
+
+        await this._contract.addEntityToGroup(groupId, entity)
+    }
+
+    /**
+     * Removes an entity from a group
+     * @param groupId Id of the group to remove the entity from
+     * @param entity Entity to remove from group
+     */
+    async removeEntityFromGroup(groupId: number, entity: string) {
+        await this._initialize()
+
+        await this._contract.removeEntityFromGroup(groupId, entity)
+    }
+
+    /**
+     * Sets read and write permissions on a file for a group
+     * @param fileId Id of the file
+     * @param groupId Id of the group
+     * @param read Read permission
+     * @param write Write permission
+     */
+    async setGroupPermissions(fileId: number, groupId: number, read: boolean, write: boolean) {
+        await this._initialize()
+
+        await this._contract.setGroupPermissions(fileId, groupId, read, write)
+    }
+
+    /**
+     * Removes a group from a file's permissions
+     * @param fileId Id of the file
+     * @param groupId Id of the group
+     */
+    async removeGroupFromFile(fileId: number, groupId: number) {
+        await this._initialize()
+
+        await this._contract.removeGroupFromFile(fileId, groupId)
+    }
+
+    /**
      * Datastore events
      * 
      */

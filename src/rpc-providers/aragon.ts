@@ -93,6 +93,50 @@ export class AragonContract implements RpcProviderContract {
   async setIpfsStorageSettings(host: string, port: number, protocol: string) {
     return convertTransactionToPromise(this._aragonApp, 'setIpfsStorageSettings', host, port, protocol)
   }  
+
+  async createGroup(groupName: string) {
+    return convertTransactionToPromise(this._aragonApp, 'createGroup', groupName)
+  }
+
+  async deleteGroup(groupId: number) {
+    return convertTransactionToPromise(this._aragonApp, 'deleteGroup', groupId)
+  }
+
+  async renameGroup(groupId: number, newGroupName: string) {
+    return convertTransactionToPromise(this._aragonApp, 'renameGroup', groupId, newGroupName)
+  }
+
+  async getGroups() {
+    return convertTransactionToPromise(this._aragonApp, 'getGroups')
+  }
+
+  async getGroup(groupId: number) {
+    return convertTransactionToPromise(this._aragonApp, 'getGroup', groupId)
+  }
+
+  async getGroupEntity(groupId: number, entityIndex: number) {
+    return convertTransactionToPromise(this._aragonApp, 'getGroupEntity', groupId, entityIndex)
+  }
+
+  async getGroupEntityCount(groupId: number) {
+    return convertTransactionToPromise(this._aragonApp, 'getGroupCount', groupId)
+  }
+
+  async addEntityToGroup(groupId: number, entity: string) {
+    return convertTransactionToPromise(this._aragonApp, 'addEntityToGroup', groupId, entity)
+  }
+
+  async removeEntityFromGroup(groupId: number, entity: string) {
+    return convertTransactionToPromise(this._aragonApp, 'removeEntityFromGroup', groupId, entity)
+  }
+
+  async setGroupPermissions(fileId: number, groupId: number, read: boolean, write: boolean) {
+    return convertTransactionToPromise(this._aragonApp, 'setGroupPermissions', fileId, groupId, read, write)
+  }
+
+  async removeGroupFromFile(fileId: number, groupId: number) {
+    return convertTransactionToPromise(this._aragonApp, 'removeGroupFromFile', fileId, groupId)
+  }
 }
 
 
