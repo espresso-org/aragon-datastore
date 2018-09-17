@@ -567,6 +567,15 @@ contract Datastore {
     }
 
     /**
+     * @notice Get write and read permissions for entity `_entity` on file `_fileId`
+     * @param _fileId File Id
+     * @param _entity Entity address
+     */
+    function getPermission(uint _fileId, address _entity) public view returns (bool write, bool read) {
+        return PermissionLibrary.getPermission(permissions, _fileId, _entity);
+    }
+
+    /**
      * @notice Add a group to the datastore
      * @param _groupName Name of the group
      */
