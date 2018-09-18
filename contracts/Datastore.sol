@@ -258,7 +258,7 @@ contract Datastore {
      * @param _entity Entity address     
      */
     function hasReadAccess(uint _fileId, address _entity) public view returns (bool) {
-        if(permissions.permissions[_fileId][_entity].read)
+        if(fileOwners.isOwner(_fileId, _entity) || permissions.permissions[_fileId][_entity].read)
             return true;
 
         for(uint i = 0; i < groups.groupList.length; i++) {
@@ -279,7 +279,7 @@ contract Datastore {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
-        if(permissions.permissions[_fileId][_entity].write)
+        if(fileOwners.isOwner(_fileId, _entity) || permissions.permissions[_fileId][_entity].write)
             return true;
 
         for(uint i = 0; i < groups.groupList.length; i++) {
@@ -334,10 +334,10 @@ contract Datastore {
         return groups.getGroup(_groupId);
     }
 
-     /**
+    /**
      * @notice Get a list of all the groups Id's
      */
-    function getGroups() internal view returns(uint[]){
+    function getGroups() public view returns(uint[]){
         return groups.groupList;
     }
 

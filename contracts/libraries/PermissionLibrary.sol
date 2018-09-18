@@ -119,7 +119,7 @@ library PermissionLibrary {
      * @param _groupId Id of the group
      */
     function removeGroupFromFile(PermissionData storage _self, uint _fileId, uint _groupId) internal {
-        if(!_self.groupPermissions[_fileId][_groupId].exists) {
+        if(_self.groupPermissions[_fileId][_groupId].exists) {
             delete _self.groupPermissions[_fileId][_groupId];
             for(uint i = 0; i < _self.groupIds[_fileId].length; i++) {
                 if(_self.groupIds[_fileId][i] == _groupId)
