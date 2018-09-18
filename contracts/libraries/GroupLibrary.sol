@@ -29,11 +29,12 @@ library GroupLibrary {
      * @param _self GroupData
      * @param _groupName Name of the group
      */
-    function createGroup(GroupData storage _self, string _groupName) internal {
+    function createGroup(GroupData storage _self, string _groupName) internal returns (uint) {
         uint id = _self.groupList.length + 1;
         _self.groups[id].groupName = _groupName;
         _self.groups[id].exists = true;
         _self.groupList.push(id);
+        return id;
     }
 
     /**
@@ -97,6 +98,18 @@ library GroupLibrary {
                 counter++;
         }
         return counter;
+    }
+
+    /**
+     * @notice Returns if an entity is part of a group
+     * @param _self GroupData
+     * @param _groupId Id of the group
+     * @param _entity Address of the entity
+     */
+    function isEntityInGroup(GroupData storage _self, uint _groupId, address _entity) internal view returns(bool) {
+        if(_self.groups[_groupId].entitiesWithIndex[_entity] != 0)
+            return true;
+        return false;
     }
 
     /**

@@ -283,7 +283,7 @@ contract('Datastore ', accounts => {
         await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
         await datastore.setGroupPermissions(1, 1, 1, 0)
 
-        assert.equal((await datastore.getPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7'))[0], true)
+        assert.equal((await datastore.hasReadPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), true)
         //assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), false)
         //assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
         //assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)

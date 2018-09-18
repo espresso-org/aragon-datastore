@@ -83,14 +83,23 @@ library PermissionLibrary {
     }
 
     /**
-     * @notice Get write and read permissions for entity `_entity` on file `_fileId`
+     * @notice Get read permissions for entity `_entity` on file `_fileId`
      * @param _self PermissionData
      * @param _fileId File Id
      * @param _entity Entity address
      */
-    function getPermission(PermissionData storage _self, uint _fileId, address _entity) internal view returns (bool write, bool read) {
-        write = _self.permissions[_fileId][_entity].write;
-        read = _self.permissions[_fileId][_entity].read;
+    function getReadPermissionOnFile(PermissionData storage _self, uint _fileId, address _entity) internal view returns (bool) {
+        return _self.permissions[_fileId][_entity].read;
+    }
+
+    /**
+     * @notice Get write permissions for entity `_entity` on file `_fileId`
+     * @param _self PermissionData
+     * @param _fileId File Id
+     * @param _entity Entity address
+     */
+    function getWritePermissionOnFile(PermissionData storage _self, uint _fileId, address _entity) internal view returns (bool) {
+        return _self.permissions[_fileId][_entity].write;
     }
 
     /**
@@ -126,13 +135,42 @@ library PermissionLibrary {
     }
 
     /**
-     * @notice Returns true if `_entity` has read access on file `_fileId`
+     * @notice Returns the list of groupIds for file with `_fileId`
      * @param _self PermissionData
-     * @param _fileId File Id
-     * @param _entity Entity address     
+     * @param _fileId Id of the file
      */
-    function hasReadAccess(PermissionData storage _self, uint _fileId, address _entity) internal view returns (bool) {
-        return _self.permissions[_fileId][_entity].read;
+    function getGroupIds(PermissionData storage _self, uint _fileId) internal view returns (uint[]) {
+        return _self.groupIds[_fileId];
+    }
+
+    /**
+     * @notice Return whether a group has permissions on a file or not
+     * @param _self PermissionData
+     * @param _fileId Id of the file
+     * @param _groupId Id of the group
+     */
+    function groupHasPermissionsOnFile(PermissionData storage _self, uint _fileId, uint _groupId) internal view returns (bool) {
+        return _self.groupPermissions[_fileId][_groupId].exists;
+    }
+
+    /**
+     * @notice Returns a group's read permission
+     * @param _self PermissionData
+     * @param _fileId Id of the file
+     * @param _groupId Id of the group
+     */
+    function getGroupReadPermission(PermissionData storage _self, uint _fileId, uint _groupId) internal view returns (bool) {
+        return _self.groupPermissions[_fileId][_groupId].read;
+    }
+
+    /**
+     * @notice Returns a group's write permission
+     * @param _self PermissionData
+     * @param _fileId Id of the file
+     * @param _groupId Id of the group
+     */
+    function getGroupWritePermission(PermissionData storage _self, uint _fileId, uint _groupId) internal view returns (bool) {
+        return _self.groupPermissions[_fileId][_groupId].write;
     }
 
     /**
