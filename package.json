@@ -13,13 +13,12 @@
   "scripts": {
     "start": "webpack -w",
     "build": "run-s truffle:compile && webpack",
-    "test": "TRUFFLE_TEST=true npm run ganache-cli:test",
+    "test": "truffle test",
     "ganache-cli:test": "scripts/ganache-cli.sh",
     "truffle:compile": "truffle compile && run-s truffle:copy-contracts",
     "truffle:migrate": "truffle compile --network development && truffle migrate --network development && run-s truffle:copy-contracts",
     "test:watch": "npm test -- --watch",
-    "coverage": "SOLIDITY_COVERAGE=true npm run ganache-cli:test",
-    "coverage2": "solidity-coverage",
+    "coverage": "solidity-coverage",
     "coverage:watch": "npm run coverage -- --watch",
     "release": "standard-version && npm pack",
     "truffle:copy-contracts": "copyfiles -f build/contracts/* src/build-contracts"
