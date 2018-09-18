@@ -31,7 +31,7 @@
     "@types/node": "^8.0.24",
     "browserify": "^14.4.0",
     "copyfiles": "^2.0.0",
-    "coveralls": "2.13.3",
+    "coveralls": "^3.0.2",
     "delete-empty": "^1.0.1",
     "dts-bundle": "^0.7.3",
     "ganache-cli": "^6.1.8",
