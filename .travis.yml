@@ -13,3 +13,6 @@ script:
 
 # Allow Travis tests to run in containers.
 sudo: false
+
+after_success:
+  - cat coverage/lcov.info | ./node_modules/.bin/coveralls
