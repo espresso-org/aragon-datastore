@@ -2,355 +2,8 @@ pragma solidity ^0.4.18;
 
 import '@aragon/os/contracts/apps/AragonApp.sol';
 import '@aragon/os/contracts/lib/zeppelin/math/SafeMath.sol';
-//import { PermissionLibrary } from "./libraries/PermissionLibrary.sol";
-//import { GroupLibrary } from "./libraries/GroupLibrary.sol";
-
-library GroupLibrary {
-    using SafeMath for uint256;
-
-    /**
-     * Represents a group and its entities within it   
-     */
-    struct Group {
-        string groupName;
-        mapping (address => uint) entitiesWithIndex;
-        address[] entities;
-        bool exists;    // Used internally to check if a group really exists
-    }
-
-    /**
-     * Groups of entities
-     */
-    struct GroupData {
-        mapping (uint => Group) groups;                 // Read and Write permissions for each entity
-        uint[] groupList;                               // Internal references for list of groups
-    }
-
-    /**
-     * @notice Add a group to the datastore
-     * @param _self GroupData
-     * @param _groupName Name of the group
-     */
-    function createGroup(GroupData storage _self, string _groupName) internal returns (uint) {
-        uint id = _self.groupList.length + 1;
-        _self.groups[id].groupName = _groupName;
-        _self.groups[id].exists = true;
-        _self.groupList.push(id);
-        return id;
-    }
-
-    /**
-     * @notice Delete a group from the datastore
-     * @param _self GroupData
-     * @param _groupId Id of the group to delete
-     */
-    function deleteGroup(GroupData storage _self, uint _groupId) internal {
-        delete _self.groups[_groupId];
-        delete _self.groupList[_groupId - 1];
-    }
-
-    /**
-     * @notice Rename a group
-     * @param _self GroupData
-     * @param _groupId Id of the group to rename
-     * @param _newGroupName New name for the group
-     */
-    function renameGroup(GroupData storage _self, uint _groupId, string _newGroupName) internal {
-        _self.groups[_groupId].groupName = _newGroupName;
-    }
-
-    /**
-     * @notice Get a list of all the groups Id's
-     * @param _self GroupData
-     */
-    function getGroups(GroupData storage _self) internal view returns(uint[]){
-        return _self.groupList;
-    }
-
-    /**
-     * @notice Get a specific group
-     * @param _self GroupData
-     * @param _groupId Id of the group to return
-     */
-    function getGroup(GroupData storage _self, uint _groupId) internal view returns(address[] _entities, string _groupName) {
-        _entities = _self.groups[_groupId].entities;
-        _groupName = _self.groups[_groupId].groupName;
-    }
-
-    /**
-     * @notice Get an entity inside a specific group
-     * @param _self GroupData
-     * @param _groupId Id of the group to retrieve the entity from
-     * @param _entityIndex Index of the entity to retrieve from the group
-     */
-    function getGroupEntity(GroupData storage _self, uint _groupId, uint _entityIndex) internal view returns(address) {
-        if(_self.groups[_groupId].entities[_entityIndex] != 0)
-            return _self.groups[_groupId].entities[_entityIndex];
-    }
-
-    /**
-     * @notice Get the number of entities in a group
-     * @param _self GroupData
-     * @param _groupId Id of the group to get the count from
-     */
-    function getGroupEntityCount(GroupData storage _self, uint _groupId) internal view returns(uint) {
-        uint counter = 0;
-        for(uint i = 0; i < _self.groups[_groupId].entities.length; i++) {
-            if(_self.groups[_groupId].entities[i] != 0)
-                counter++;
-        }
-        return counter;
-    }
-
-    /**
-     * @notice Returns if an entity is part of a group
-     * @param _self GroupData
-     * @param _groupId Id of the group
-     * @param _entity Address of the entity
-     */
-    function isEntityInGroup(GroupData storage _self, uint _groupId, address _entity) internal view returns(bool) {
-        if(_self.groups[_groupId].entitiesWithIndex[_entity] != 0)
-            return true;
-        return false;
-    }
-
-    /**
-     * @notice Add an entity to a group
-     * @param _self GroupData
-     * @param _groupId Id of the group to add the entity in
-     * @param _entity Address of the entity
-     */
-    function addEntityToGroup(GroupData storage _self, uint _groupId, address _entity) internal {
-        _self.groups[_groupId].entitiesWithIndex[_entity] = _self.groups[_groupId].entities.length + 1;
-        _self.groups[_groupId].entities.push(_entity);
-    }
-
-    /**
-     * @notice Remove an entity from a group
-     * @param _self GroupData
-     * @param _groupId Id of the group to remove the entity from 
-     * @param _entity Address of the entity
-     */
-    function removeEntityFromGroup(GroupData storage _self, uint _groupId, address _entity) internal {
-        uint indexOfEntity = _self.groups[_groupId].entitiesWithIndex[_entity] - 1;
-        delete _self.groups[_groupId].entities[indexOfEntity];
-        delete _self.groups[_groupId].entitiesWithIndex[_entity];
-    }
-}
-
-library PermissionLibrary {
-    using SafeMath for uint256;
-
-    /**
-     * Owners of files    
-     */
-    struct OwnerData {
-        mapping (uint => address) fileOwners;
-    }
-
-    /**
-     * Read and write permission for an entity on a specific file
-     */
-    struct Permission {
-        bool write;             
-        bool read;
-        bool exists;    // Used internally to check if an entity has a stored permission
-    }
-
-    /**
-     * Users permissions on files and internal references
-     */
-    struct PermissionData {
-        mapping (uint => mapping (address => Permission)) permissions;      // Read and Write permissions for each entity
-        mapping (uint => address[]) permissionAddresses;                    // Internal references for permission listing
-        mapping (uint => mapping (uint => Permission)) groupPermissions;    // Read and Write permissions for groups
-        mapping (uint => uint[]) groupIds;                                  // Internal references for files groups listing
-    }
-
-    // ************* OwnerData ************* //
-    /**
-     * @notice Returns true if `_entity` is owner of file `_fileId`
-     * @param _self OwnerData 
-     * @param _fileId File Id
-     * @param _entity Entity address
-     */
-    function isOwner(OwnerData storage _self, uint _fileId, address _entity) internal view returns (bool) {
-        return _self.fileOwners[_fileId] == _entity;
-    }
-
-    /**
-     * @notice Returns the owner of the file with `_fileId`
-     * @param _self OwnerData
-     * @param _fileId File Id
-     */
-    function getOwner(OwnerData storage _self, uint _fileId) internal view returns (address) {
-        return _self.fileOwners[_fileId];
-    }
-
-    /**
-     * @notice Adds an `_entity` as owner to file with `_fileId`
-     * @param _self OwnerData
-     * @param _fileId File Id
-     * @param _entity Entity address
-     */
-    function addOwner(OwnerData storage _self, uint _fileId, address _entity) internal {
-        _self.fileOwners[_fileId] = _entity;
-    }
-
-    // ************* PermissionData ************* //
-    /**
-     * @notice Initializes the permissionAddresses array for the file with `_fileId`
-     * @param _self PermissionData
-     * @param _fileId File Id
-     */
-    function initializePermissionAddresses(PermissionData storage _self, uint _fileId) internal {
-        _self.permissionAddresses[_fileId] = new address[](0);
-    }
-
-    /**
-     * @notice Returns entity addresses on which permissions are set for file `_fileId`
-     * @param _self PermissionData
-     * @param _fileId File Id
-     * @return addresses Array of entity addresses
-     */
-    function getPermissionAddresses(PermissionData storage _self, uint _fileId) internal view returns(address[]) {
-        return _self.permissionAddresses[_fileId];
-    }
-
-    /**
-     * @notice Get read permissions for entity `_entity` on file `_fileId`
-     * @param _self PermissionData
-     * @param _fileId File Id
-     * @param _entity Entity address
-     */
-    function getReadPermissionOnFile(PermissionData storage _self, uint _fileId, address _entity) internal view returns (bool) {
-        return _self.permissions[_fileId][_entity].read;
-    }
-
-    /**
-     * @notice Get write permissions for entity `_entity` on file `_fileId`
-     * @param _self PermissionData
-     * @param _fileId File Id
-     * @param _entity Entity address
-     */
-    function getWritePermissionOnFile(PermissionData storage _self, uint _fileId, address _entity) internal view returns (bool) {
-        return _self.permissions[_fileId][_entity].write;
-    }
-
-    /**
-     * @notice Set read permission to `_hasPermission` for `_entity` on file `_fileId`
-     * @param _self PermissionData
-     * @param _fileId File Id
-     * @param _entity Entity address
-     * @param _hasPermission Read permission
-     */
-    function setReadPermission(PermissionData storage _self, uint _fileId, address _entity, bool _hasPermission) internal {
-        if (!_self.permissions[_fileId][_entity].exists) {
-            _self.permissionAddresses[_fileId].push(_entity);
-            _self.permissions[_fileId][_entity].exists = true;
-        }
-
-        _self.permissions[_fileId][_entity].read = _hasPermission;
-    }
-
-    /**
-     * @notice Set write permission to `_hasPermission` for `_entity` on file `_fileId`
-     * @param _self PermissionData
-     * @param _fileId File Id
-     * @param _entity Entity address
-     * @param _hasPermission Write permission
-     */
-    function setWritePermission(PermissionData storage _self, uint _fileId, address _entity, bool _hasPermission) internal {
-        if (!_self.permissions[_fileId][_entity].exists) {
-            _self.permissionAddresses[_fileId].push(_entity);
-            _self.permissions[_fileId][_entity].exists = true;
-        }
-
-        _self.permissions[_fileId][_entity].write = _hasPermission;
-    }
-
-    /**
-     * @notice Returns the list of groupIds for file with `_fileId`
-     * @param _self PermissionData
-     * @param _fileId Id of the file
-     */
-    function getGroupIds(PermissionData storage _self, uint _fileId) internal view returns (uint[]) {
-        return _self.groupIds[_fileId];
-    }
-
-    /**
-     * @notice Return whether a group has permissions on a file or not
-     * @param _self PermissionData
-     * @param _fileId Id of the file
-     * @param _groupId Id of the group
-     */
-    function groupHasPermissionsOnFile(PermissionData storage _self, uint _fileId, uint _groupId) internal view returns (bool) {
-        return _self.groupPermissions[_fileId][_groupId].exists;
-    }
-
-    /**
-     * @notice Returns a group's read permission
-     * @param _self PermissionData
-     * @param _fileId Id of the file
-     * @param _groupId Id of the group
-     */
-    function getGroupReadPermission(PermissionData storage _self, uint _fileId, uint _groupId) internal view returns (bool) {
-        return _self.groupPermissions[_fileId][_groupId].read;
-    }
-
-    /**
-     * @notice Returns a group's write permission
-     * @param _self PermissionData
-     * @param _fileId Id of the file
-     * @param _groupId Id of the group
-     */
-    function getGroupWritePermission(PermissionData storage _self, uint _fileId, uint _groupId) internal view returns (bool) {
-        return _self.groupPermissions[_fileId][_groupId].write;
-    }
-
-    /**
-     * @notice Returns true if `_entity` has write access on file `_fileId`
-     * @param _self PermissionData
-     * @param _fileId File Id
-     * @param _entity Entity address     
-     */
-    function hasWriteAccess(PermissionData storage _self, uint _fileId, address _entity) internal view returns (bool) {
-        return _self.permissions[_fileId][_entity].write;
-    }
-
-    /**
-     * @notice Set the read and write permissions on a file for a specified group
-     * @param _self PermissionData
-     * @param _fileId Id of the file
-     * @param _groupId Id of the group
-     * @param _read Read permission
-     * @param _write Write permission
-     */
-    function setGroupPermissions(PermissionData storage _self, uint _fileId, uint _groupId, bool _read, bool _write) internal {
-        if (!_self.groupPermissions[_fileId][_groupId].exists) {
-            _self.groupIds[_fileId].push(_groupId);
-            _self.groupPermissions[_fileId][_groupId].exists = true;
-        }
-        _self.groupPermissions[_fileId][_groupId].read = _read;
-        _self.groupPermissions[_fileId][_groupId].write = _write;
-    }
-
-    /**
-     * @notice Remove group from file permissions
-     * @param _self PermissionData
-     * @param _fileId Id of the file
-     * @param _groupId Id of the group
-     */
-    function removeGroupFromFile(PermissionData storage _self, uint _fileId, uint _groupId) internal {
-        if(!_self.groupPermissions[_fileId][_groupId].exists) {
-            delete _self.groupPermissions[_fileId][_groupId];
-            for(uint i = 0; i < _self.groupIds[_fileId].length; i++) {
-                if(_self.groupIds[_fileId][i] == _groupId)
-                    delete _self.groupIds[_fileId][i];
-            }
-        }
-    }
-}
+import "./libraries/PermissionLibrary.sol";
+import "./libraries/GroupLibrary.sol";
 
 contract Datastore {
     using SafeMath for uint256;
@@ -470,10 +123,10 @@ contract Datastore {
         fileSize = file.fileSize;
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
-        owner = PermissionLibrary.getOwner(fileOwners, _fileId);
-        isOwner = PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender);
+        owner = fileOwners.fileOwners[_fileId];
+        isOwner = fileOwners.isOwner(_fileId, msg.sender);
         lastModification = file.lastModification;
-        permissionAddresses = PermissionLibrary.getPermissionAddresses(permissions, _fileId);
+        permissionAddresses = permissions.permissionAddresses[_fileId];
         writeAccess = hasWriteAccess(_fileId, msg.sender);
     }
 
@@ -505,10 +158,10 @@ contract Datastore {
         fileSize = file.fileSize;
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
-        owner = PermissionLibrary.getOwner(fileOwners, _fileId);
-        isOwner = PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender);
+        owner = fileOwners.fileOwners[_fileId];
+        isOwner = fileOwners.isOwner(_fileId, msg.sender);
         lastModification = file.lastModification;
-        permissionAddresses = PermissionLibrary.getPermissionAddresses(permissions, _fileId);
+        permissionAddresses = permissions.permissionAddresses[_fileId];
         writeAccess = hasWriteAccess(_fileId, _caller);
     }    
 
@@ -517,7 +170,7 @@ contract Datastore {
      * @param _fileId File Id
      */
     function deleteFile(uint _fileId) public {
-        require(PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender));
+        require(fileOwners.isOwner(_fileId, msg.sender));
 
         files[_fileId].isDeleted = true;
         files[_fileId].lastModification = now;
@@ -560,8 +213,8 @@ contract Datastore {
      * @param _hasPermission Read permission
      */
     function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external {
-        require(PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender));
-        PermissionLibrary.setReadPermission(permissions, _fileId, _entity, _hasPermission);
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.setReadPermission(_fileId, _entity, _hasPermission);
         NewReadPermission(msg.sender, lastFileId);
     }
 
@@ -572,8 +225,8 @@ contract Datastore {
      * @param _hasPermission Write permission
      */
     function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external {
-        require(PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender));
-        PermissionLibrary.setWritePermission(permissions, _fileId, _entity, _hasPermission);
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.setWritePermission(_fileId, _entity, _hasPermission);
         NewWritePermission(msg.sender, lastFileId);
     }
     
@@ -605,14 +258,13 @@ contract Datastore {
      * @param _entity Entity address     
      */
     function hasReadAccess(uint _fileId, address _entity) public view returns (bool) {
-        if(PermissionLibrary.getReadPermissionOnFile(permissions, _fileId, _entity))
+        if(permissions.permissions[_fileId][_entity].read)
             return true;
 
-        uint[] storage groupList = this.getGroups();
-        for(uint i = 0; i < groupList.length; i++) {
-            if(PermissionLibrary.groupHasPermissionsOnFile(permissions, _fileId, groupList[i])) {
-                if(PermissionLibrary.getGroupReadPermission(permissions, _fileId, groupList[i])) {
-                    if(GroupLibrary.isEntityInGroup(groups, groupList[i], _entity)) {
+        for(uint i = 0; i < groups.groupList.length; i++) {
+            if(permissions.groupPermissions[_fileId][groups.groupList[i]].exists) {
+                if(permissions.groupPermissions[_fileId][groups.groupList[i]].read) {
+                    if(groups.isEntityInGroup(groups.groupList[i], _entity)) {
                         return true;
                     }
                 }
@@ -627,14 +279,13 @@ contract Datastore {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
-        if(PermissionLibrary.getWritePermissionOnFile(permissions, _fileId, _entity))
+        if(permissions.permissions[_fileId][_entity].write)
             return true;
 
-        uint[] storage groupList = this.getGroups();
-        for(uint i = 0; i < groupList.length; i++) {
-            if(PermissionLibrary.groupHasPermissionsOnFile(permissions, _fileId, groupList[i])) {
-                if(PermissionLibrary.getGroupWritePermission(permissions, _fileId, groupList[i])) {
-                    if(GroupLibrary.isEntityInGroup(groups, groupList[i], _entity)) {
+        for(uint i = 0; i < groups.groupList.length; i++) {
+            if(permissions.groupPermissions[_fileId][groups.groupList[i]].exists) {
+                if(permissions.groupPermissions[_fileId][groups.groupList[i]].write) {
+                    if(groups.isEntityInGroup(groups.groupList[i], _entity)) {
                         return true;
                     }
                 }
@@ -648,7 +299,7 @@ contract Datastore {
      * @param _groupName Name of the group
      */
     function createGroup(string _groupName) external returns (uint) {
-        uint id = GroupLibrary.createGroup(groups, _groupName);
+        uint id = groups.createGroup(_groupName);
         GroupChange(msg.sender);
         return id;
     }
@@ -659,7 +310,7 @@ contract Datastore {
      */
     function deleteGroup(uint _groupId) external {
         require(groups.groups[_groupId].exists);
-        GroupLibrary.deleteGroup(groups, _groupId);
+        groups.deleteGroup(_groupId);
         GroupChange(msg.sender);
     }
 
@@ -670,15 +321,8 @@ contract Datastore {
      */
     function renameGroup(uint _groupId, string _newGroupName) external  {
         require(groups.groups[_groupId].exists);
-        GroupLibrary.renameGroup(groups, _groupId, _newGroupName);
+        groups.renameGroup(_groupId, _newGroupName);
         GroupChange(msg.sender);
-    }
-
-    /**
-     * @notice Get a list of all the groups Id's
-     */
-    function getGroups() external view returns(uint[]){
-        return GroupLibrary.getGroups(groups);
     }
 
     /**
@@ -687,7 +331,14 @@ contract Datastore {
      */
     function getGroup(uint _groupId) public view returns(address[], string) {
         require(groups.groups[_groupId].exists);
-        return GroupLibrary.getGroup(groups, _groupId);
+        return groups.getGroup(_groupId);
+    }
+
+     /**
+     * @notice Get a list of all the groups Id's
+     */
+    function getGroups() internal view returns(uint[]){
+        return groups.groupList;
     }
 
     /**
@@ -697,7 +348,7 @@ contract Datastore {
      */
     function getGroupEntity(uint _groupId, uint _entityIndex) public view returns(address) {
         require(groups.groups[_groupId].exists);
-        return GroupLibrary.getGroupEntity(groups, _groupId, _entityIndex);
+        return groups.getGroupEntity(_groupId, _entityIndex);
     }
 
     /**
@@ -706,7 +357,7 @@ contract Datastore {
      */
     function getGroupEntityCount(uint _groupId) public view returns(uint) {
         require(groups.groups[_groupId].exists);
-        return GroupLibrary.getGroupEntityCount(groups, _groupId);
+        return groups.getGroupEntityCount(_groupId);
     }
 
     /**
@@ -716,7 +367,7 @@ contract Datastore {
      */
     function addEntityToGroup(uint _groupId, address _entity) public {
         require(groups.groups[_groupId].exists);
-        GroupLibrary.addEntityToGroup(groups, _groupId, _entity);
+        groups.addEntityToGroup(_groupId, _entity);
         GroupChange(msg.sender);
     }
 
@@ -727,7 +378,7 @@ contract Datastore {
      */
     function removeEntityFromGroup(uint _groupId, address _entity) public {
         require(groups.groups[_groupId].exists);
-        GroupLibrary.removeEntityFromGroup(groups, _groupId, _entity);
+        groups.removeEntityFromGroup(_groupId, _entity);
         GroupChange(msg.sender);
     }
 
@@ -739,8 +390,8 @@ contract Datastore {
      * @param _write Write permission
      */
     function setGroupPermissions(uint _fileId, uint _groupId, bool _read, bool _write) public {
-        require(PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender));
-        PermissionLibrary.setGroupPermissions(permissions, _fileId, _groupId, _read, _write);
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.setGroupPermissions(_fileId, _groupId, _read, _write);
     }
 
     /**
@@ -749,7 +400,7 @@ contract Datastore {
      * @param _groupId Id of the group
      */
     function removeGroupFromFile(uint _fileId, uint _groupId) public {
-        require(PermissionLibrary.isOwner(fileOwners, _fileId, msg.sender));
-        PermissionLibrary.removeGroupFromFile(permissions, _fileId, _groupId);
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.removeGroupFromFile(_fileId, _groupId);
     }
 }

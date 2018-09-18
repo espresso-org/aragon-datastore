@@ -50,7 +50,6 @@ contract('Datastore ', accounts => {
         
     })
 
-
     it('setFilename changes the file name', async () => {
         const newFilename = 'new file name'
 
@@ -59,7 +58,6 @@ contract('Datastore ', accounts => {
 
         assert.equal((await datastore.getFile(1))[1], newFilename)
     })
-
 
     it('setFileContent changes the storage reference and file size', async () => {
         const newStorageRef = 'Qm2NjB3YrhJTHsV4X3vb2tWWQSuPMS6aXCbZKpEjPHPUZN'
@@ -72,16 +70,14 @@ contract('Datastore ', accounts => {
 
         assert.equal(file[0], newStorageRef)
         assert.equal(file[2], newFileSize)
-    })    
-
+    })
 
     it('throws when setFilename is called with no write access', async () => {
         await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, { from: accounts[0] })
 
         await assertThrow(async () => datastore.setFilename(1, 'new file name', { from: accounts[1] }))
 
-    }) 
-
+    })
 
     it('changes filename when setFilename is called with write access', async () => {
         const newFilename = 'new file name'
@@ -95,7 +91,6 @@ contract('Datastore ', accounts => {
 
         assert.equal(file[1], newFilename)
     })
-
 
     it('throws when setFileContent is called with no write access', async () => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', "file name", 100, true, { from: accounts[0] })

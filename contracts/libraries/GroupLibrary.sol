@@ -58,14 +58,6 @@ library GroupLibrary {
     }
 
     /**
-     * @notice Get a list of all the groups Id's
-     * @param _self GroupData
-     */
-    function getGroups(GroupData storage _self) internal view returns(uint[]){
-        return _self.groupList;
-    }
-
-    /**
      * @notice Get a specific group
      * @param _self GroupData
      * @param _groupId Id of the group to return
