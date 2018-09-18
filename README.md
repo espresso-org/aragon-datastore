@@ -1,5 +1,8 @@
 # AragonOS Datastore
 
+[![Build Status](https://travis-ci.org/espresso-org/aragon-datastore.svg?branch=master)](https://travis-ci.org/espresso-org/aragon-datastore) 
+[![Coverage Status](https://coveralls.io/repos/github/espresso-org/aragon-datastore/badge.svg?branch=master)](https://coveralls.io/github/espresso-org/aragon-datastore?branch=master)
+
 The Datastore lets DApps easily store files and manage their permissions decentrally. It consists of two modules: 
 
 1. A javascript library to store files in a distributed file system, IPFS as of right now. It will also handle the encryption/decryption process.
