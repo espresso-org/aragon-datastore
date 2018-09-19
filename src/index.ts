@@ -93,7 +93,6 @@ export class Datastore {
         return { id: fileId, ...createFileFromTuple(fileTuple) }
     }
 
-
     /**
      * Delete the specified file
      * @param {number} fileId 
@@ -103,7 +102,6 @@ export class Datastore {
 
         await this._contract.deleteFile(fileId)
     }
-
 
     async getFilePermissions(fileId: number) {
         await this._initialize()
@@ -126,7 +124,6 @@ export class Datastore {
 
         return this._settings
     }
-
 
     async setIpfsStorageSettings(host: string, port: number, protocol: string) {
         await this._initialize()
@@ -321,5 +318,4 @@ export class Datastore {
         
         return this._contract.events(...args)
     }
-
 }

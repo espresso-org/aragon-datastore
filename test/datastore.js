@@ -328,6 +328,17 @@ contract('Datastore ', accounts => {
         assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
         assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
     })
+
+    it('getGroups returns the array of groups Ids', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.createGroup('My second group')
+        await datastore.createGroup('My third group')
+
+        assert.equal((await datastore.getGroups()).length, 3)
+        assert.equal((await datastore.getGroups())[0], 1)
+        assert.equal((await datastore.getGroups())[1], 2)
+        assert.equal((await datastore.getGroups())[2], 3)
+    })
 })
 
 async function assertThrow(fn) {
