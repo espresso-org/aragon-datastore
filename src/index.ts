@@ -176,6 +176,21 @@ export class Datastore {
     }
 
     /**
+     * Add/Remove permissions to an entity for
+     * a specific file
+     * 
+     * @param {number} fileId File Id
+     * @param {string} entity Entity address
+     * @param {boolean} read read permission
+     * @param {boolean} write write permission
+     */
+    async setEntityPermissions(fileId, entity, read, write) {
+        await this._initialize()
+
+        await this._contract.setEntityPermissions(fileId, entity, read, write)
+    }    
+
+    /**
      * Add/Remove write permission to an entity for
      * a specific file
      * 
@@ -187,6 +202,26 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.setWritePermission(fileId, entity, hasPermission)
+    }
+
+    /**
+     * 
+     * @param {number} fileId 
+     * @param {Object[]} entityPermissions 
+     * @param {Object[]} groupPermissions 
+     */
+    async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[]) { 
+        await this._initialize()
+        // TODO: 
+    }
+
+    /**
+     * Removes an entity's permissions from a file
+     * @param {number} fileId File id
+     * @param {string} entity 
+     */
+    async removeEntityFromFile(fileId: number, entity: string) {
+        await this._initialize()
     }
 
     /**
