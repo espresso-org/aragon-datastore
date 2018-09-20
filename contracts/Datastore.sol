@@ -1,10 +1,15 @@
 pragma solidity ^0.4.18;
 
-import "@aragon/os/contracts/apps/AragonApp.sol";
-import "@aragon/os/contracts/lib/zeppelin/math/SafeMath.sol";
+import '@aragon/os/contracts/apps/AragonApp.sol';
+import '@aragon/os/contracts/lib/zeppelin/math/SafeMath.sol';
+import "./libraries/PermissionLibrary.sol";
+import "./libraries/GroupLibrary.sol";
 
 contract Datastore {
     using SafeMath for uint256;
+    using PermissionLibrary for PermissionLibrary.OwnerData;
+    using PermissionLibrary for PermissionLibrary.PermissionData;
+    using GroupLibrary for GroupLibrary.GroupData;
 
     event FileRename(address indexed entity, uint fileId);
     event FileContentUpdate(address indexed entity, uint fileId);
@@ -13,6 +18,7 @@ contract Datastore {
     event NewReadPermission(address indexed entity, uint fileId);
     event DeleteFile(address indexed entity, uint fileId);
     event SettingsChanged(address indexed entity);
+    event GroupChange(address indexed entity);
 
     /**
      * Datastore settings
@@ -48,31 +54,7 @@ contract Datastore {
         string keepRef;         // Keep Id for encryption key
         bool isPublic;          // True if file can be read by anyone
         bool isDeleted;         // Is file deleted
-        address owner;          // Address of the file owner
         uint lastModification;  // Timestamp of the last file content update
-        mapping (address => Permission) permissions;  // Read and Write permissions for each entity
-        address[] permissionAddresses;  // Internal references for permission listing
-        mapping (uint => Permission) groupPermissions;  // Read and Write permissions for each group
-        uint[] groupIds;  // Internal references for this file's groups
-    }
-
-    /**
-     * Read and write permission for an entity on a specific file
-     */
-    struct Permission {
-        bool write;             
-        bool read;
-        bool exists;    // Used internally to check if an entity has a stored permission
-    }
-
-    /**
-     * Represents a group and its entities within it   
-     */
-    struct Group {
-        string groupName;
-        mapping (address => uint) entitiesWithIndex;
-        address[] entities;
-        bool exists;    // Used internally to check if a group really exists
     }
 
     /**
@@ -82,11 +64,12 @@ contract Datastore {
     uint public lastFileId = 0;
 
     mapping (uint => File) private files;
+    PermissionLibrary.OwnerData private fileOwners;
+    PermissionLibrary.PermissionData private permissions;
 
     Settings public settings;
 
-    uint[] private groupList;
-    mapping (uint => Group) private groups;
+    GroupLibrary.GroupData private groups;
     
     /**
      * @notice Add a file to the datastore
@@ -98,18 +81,17 @@ contract Datastore {
     function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external returns (uint fileId) {
         lastFileId = lastFileId.add(1);
 
-        files[lastFileId] = File({ 
+        files[lastFileId] = File({
             storageRef: _storageRef,
             name: _name,
             fileSize: _fileSize,
             keepRef: "",
             isPublic: _isPublic,
             isDeleted: false,
-            owner: msg.sender,
-            lastModification: now,
-            permissionAddresses: new address[](0),
-            groupIds: new uint[](0) 
+            lastModification: now
         });
+        PermissionLibrary.addOwner(fileOwners, lastFileId, msg.sender);
+        PermissionLibrary.initializePermissionAddresses(permissions, lastFileId);
         NewFile(msg.sender, lastFileId);
         return lastFileId;
     }
@@ -141,10 +123,10 @@ contract Datastore {
         fileSize = file.fileSize;
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
-        owner = file.owner;
-        isOwner = this.isOwner(_fileId, msg.sender);
+        owner = fileOwners.fileOwners[_fileId];
+        isOwner = fileOwners.isOwner(_fileId, msg.sender);
         lastModification = file.lastModification;
-        permissionAddresses = file.permissionAddresses;
+        permissionAddresses = permissions.permissionAddresses[_fileId];
         writeAccess = hasWriteAccess(_fileId, msg.sender);
     }
 
@@ -176,10 +158,10 @@ contract Datastore {
         fileSize = file.fileSize;
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
-        owner = file.owner;
-        isOwner = this.isOwner(_fileId, _caller);
+        owner = fileOwners.fileOwners[_fileId];
+        isOwner = fileOwners.isOwner(_fileId, msg.sender);
         lastModification = file.lastModification;
-        permissionAddresses = file.permissionAddresses;
+        permissionAddresses = permissions.permissionAddresses[_fileId];
         writeAccess = hasWriteAccess(_fileId, _caller);
     }    
 
@@ -188,7 +170,7 @@ contract Datastore {
      * @param _fileId File Id
      */
     function deleteFile(uint _fileId) public {
-        require(isOwner(_fileId, msg.sender));
+        require(fileOwners.isOwner(_fileId, msg.sender));
 
         files[_fileId].isDeleted = true;
         files[_fileId].lastModification = now;
@@ -208,7 +190,6 @@ contract Datastore {
         FileRename(msg.sender, lastFileId);
     }
 
-
     /**
      * @notice Change file content of file `_fileId` to content stored at `_storageRef`
      * with size of `_fileSize` bytes
@@ -226,41 +207,14 @@ contract Datastore {
     }
 
     /**
-     * @notice Returns entity addresses on which permissions are set for file `_fileId`
-     * @param _fileId File Id
-     * @return addresses Array of entity addresses
-     */
-    function getPermissionAddresses(uint _fileId) external view returns (address[] addresses) {
-        return files[_fileId].permissionAddresses;
-    }
-
-    /**
-     * @notice Get write and read permissions for entity `_entity` on file `_fileId`
-     * @param _fileId File Id
-     * @param _entity Entity address
-     */
-    function getPermission(uint _fileId, address _entity) external view returns (bool write, bool read) {
-        Permission storage permission = files[_fileId].permissions[_entity];
-
-        write = permission.write;
-        read = permission.read;
-    }
-
-    /**
      * @notice Set read permission to `_hasPermission` for `_entity` on file `_fileId`
      * @param _fileId File Id
      * @param _entity Entity address
      * @param _hasPermission Read permission
      */
     function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external {
-        require(isOwner(_fileId, msg.sender));
-
-        if (!files[_fileId].permissions[_entity].exists) {
-            files[_fileId].permissionAddresses.push(_entity);
-            files[_fileId].permissions[_entity].exists = true;
-        }
-
-        files[_fileId].permissions[_entity].read = _hasPermission;
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.setReadPermission(_fileId, _entity, _hasPermission);
         NewReadPermission(msg.sender, lastFileId);
     }
 
@@ -271,20 +225,10 @@ contract Datastore {
      * @param _hasPermission Write permission
      */
     function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external {
-        require(isOwner(_fileId, msg.sender));
-
-        if (!files[_fileId].permissions[_entity].exists) {
-            files[_fileId].permissionAddresses.push(_entity);
-            files[_fileId].permissions[_entity].exists = true;
-        }
-
-        files[_fileId].permissions[_entity].write = _hasPermission;
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.setWritePermission(_fileId, _entity, _hasPermission);
         NewWritePermission(msg.sender, lastFileId);
     }
-
-    /**
-     * Settings related methods
-     */
     
     /**
      * Sets IPFS as the storage provider for the datastore.
@@ -309,27 +253,21 @@ contract Datastore {
     }
 
     /**
-     * @notice Returns true if `_entity` is owner of file `_fileId`
-     * @param _fileId File Id
-     * @param _entity Entity address
-     */
-    function isOwner(uint _fileId, address _entity) public view returns (bool) {
-        return files[_fileId].owner == _entity;
-    }
-
-    /**
      * @notice Returns true if `_entity` has read access on file `_fileId`
      * @param _fileId File Id
      * @param _entity Entity address     
      */
     function hasReadAccess(uint _fileId, address _entity) public view returns (bool) {
-        if(files[_fileId].permissions[_entity].read)
+        if(fileOwners.isOwner(_fileId, _entity) || permissions.permissions[_fileId][_entity].read)
             return true;
 
-        for (uint i = 0; i < files[_fileId].groupIds.length; i++) {
-            if (files[_fileId].groupPermissions[files[_fileId].groupIds[i]].read) {
-                if (groups[files[_fileId].groupIds[i]].entitiesWithIndex[_entity] != 0)
-                    return true;
+        for(uint i = 0; i < groups.groupList.length; i++) {
+            if(permissions.groupPermissions[_fileId][groups.groupList[i]].exists) {
+                if(permissions.groupPermissions[_fileId][groups.groupList[i]].read) {
+                    if(groups.isEntityInGroup(groups.groupList[i], _entity)) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
@@ -341,13 +279,16 @@ contract Datastore {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
-        if(isOwner(_fileId, _entity) || files[_fileId].permissions[_entity].write)
+        if(fileOwners.isOwner(_fileId, _entity) || permissions.permissions[_fileId][_entity].write)
             return true;
-        
-        for (uint i = 0; i < files[_fileId].groupIds.length; i++) {
-            if (files[_fileId].groupPermissions[files[_fileId].groupIds[i]].write) {
-                if (groups[files[_fileId].groupIds[i]].entitiesWithIndex[_entity] != 0)
-                    return true;
+
+        for(uint i = 0; i < groups.groupList.length; i++) {
+            if(permissions.groupPermissions[_fileId][groups.groupList[i]].exists) {
+                if(permissions.groupPermissions[_fileId][groups.groupList[i]].write) {
+                    if(groups.isEntityInGroup(groups.groupList[i], _entity)) {
+                        return true;
+                    }
+                }
             }
         }
         return false;
@@ -357,11 +298,10 @@ contract Datastore {
      * @notice Add a group to the datastore
      * @param _groupName Name of the group
      */
-    function createGroup(string _groupName) external {
-        uint id = groupList.length + 1;
-        groups[id].groupName = _groupName;
-        groups[id].exists = true;
-        groupList.push(id);
+    function createGroup(string _groupName) external returns (uint) {
+        uint id = groups.createGroup(_groupName);
+        GroupChange(msg.sender);
+        return id;
     }
 
     /**
@@ -369,9 +309,9 @@ contract Datastore {
      * @param _groupId Id of the group to delete
      */
     function deleteGroup(uint _groupId) external {
-        require(groups[_groupId].exists);
-        delete groups[_groupId];
-        delete groupList[_groupId - 1];
+        require(groups.groups[_groupId].exists);
+        groups.deleteGroup(_groupId);
+        GroupChange(msg.sender);
     }
 
     /**
@@ -380,25 +320,25 @@ contract Datastore {
      * @param _newGroupName New name for the group
      */
     function renameGroup(uint _groupId, string _newGroupName) external  {
-        require(groups[_groupId].exists);
-        groups[_groupId].groupName = _newGroupName;
-    }
-
-    /**
-     * @notice Get a list of all the groups Id's
-     */
-    function getGroups() external view returns(uint[]){
-        return groupList;
+        require(groups.groups[_groupId].exists);
+        groups.renameGroup(_groupId, _newGroupName);
+        GroupChange(msg.sender);
     }
 
     /**
      * @notice Get a specific group
      * @param _groupId Id of the group to return
      */
-    function getGroup(uint _groupId) public view returns(address[] _entities, string _groupName) {
-        require(groups[_groupId].exists);
-        _entities = groups[_groupId].entities;
-        _groupName = groups[_groupId].groupName;
+    function getGroup(uint _groupId) public view returns(address[], string) {
+        require(groups.groups[_groupId].exists);
+        return groups.getGroup(_groupId);
+    }
+
+    /**
+     * @notice Get a list of all the groups Id's
+     */
+    function getGroups() public view returns(uint[]){
+        return groups.groupList;
     }
 
     /**
@@ -407,9 +347,8 @@ contract Datastore {
      * @param _entityIndex Index of the entity to retrieve from the group
      */
     function getGroupEntity(uint _groupId, uint _entityIndex) public view returns(address) {
-        require(groups[_groupId].exists);
-        if(groups[_groupId].entities[_entityIndex] != 0)
-            return groups[_groupId].entities[_entityIndex];
+        require(groups.groups[_groupId].exists);
+        return groups.getGroupEntity(_groupId, _entityIndex);
     }
 
     /**
@@ -417,13 +356,8 @@ contract Datastore {
      * @param _groupId Id of the group to get the count from
      */
     function getGroupEntityCount(uint _groupId) public view returns(uint) {
-        require(groups[_groupId].exists);
-        uint counter = 0;
-        for(uint i = 0; i < groups[_groupId].entities.length; i++) {
-            if(groups[_groupId].entities[i] != 0)
-                counter++;
-        }
-        return counter;
+        require(groups.groups[_groupId].exists);
+        return groups.getGroupEntityCount(_groupId);
     }
 
     /**
@@ -432,9 +366,9 @@ contract Datastore {
      * @param _entity Address of the entity
      */
     function addEntityToGroup(uint _groupId, address _entity) public {
-        require(groups[_groupId].exists);
-        groups[_groupId].entitiesWithIndex[_entity] = groups[_groupId].entities.length + 1;
-        groups[_groupId].entities.push(_entity);
+        require(groups.groups[_groupId].exists);
+        groups.addEntityToGroup(_groupId, _entity);
+        GroupChange(msg.sender);
     }
 
     /**
@@ -443,10 +377,9 @@ contract Datastore {
      * @param _entity Address of the entity
      */
     function removeEntityFromGroup(uint _groupId, address _entity) public {
-        require(groups[_groupId].exists);
-        uint indexOfEntity = groups[_groupId].entitiesWithIndex[_entity] - 1;
-        delete groups[_groupId].entities[indexOfEntity];
-        delete groups[_groupId].entitiesWithIndex[_entity];
+        require(groups.groups[_groupId].exists);
+        groups.removeEntityFromGroup(_groupId, _entity);
+        GroupChange(msg.sender);
     }
 
     /**
@@ -457,14 +390,8 @@ contract Datastore {
      * @param _write Write permission
      */
     function setGroupPermissions(uint _fileId, uint _groupId, bool _read, bool _write) public {
-        require(isOwner(_fileId, msg.sender));
-
-        if (!files[_fileId].groupPermissions[_groupId].exists) {
-            files[_fileId].groupIds.push(_groupId);
-            files[_fileId].groupPermissions[_groupId].exists = true;
-        }
-        files[_fileId].groupPermissions[_groupId].read = _read;
-        files[_fileId].groupPermissions[_groupId].write = _write;
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.setGroupPermissions(_fileId, _groupId, _read, _write);
     }
 
     /**
@@ -473,14 +400,7 @@ contract Datastore {
      * @param _groupId Id of the group
      */
     function removeGroupFromFile(uint _fileId, uint _groupId) public {
-        require(isOwner(_fileId, msg.sender));
-
-        if (files[_fileId].groupPermissions[_groupId].exists) {
-            delete files[_fileId].groupPermissions[_groupId];
-            for(uint i = 0; i < files[_fileId].groupIds.length; i++) {
-                if(files[_fileId].groupIds[i] == _groupId)
-                    delete files[_fileId].groupIds[i];
-            }
-        }
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.removeGroupFromFile(_fileId, _groupId);
     }
 }

@@ -93,7 +93,6 @@ export class Datastore {
         return { id: fileId, ...createFileFromTuple(fileTuple) }
     }
 
-
     /**
      * Delete the specified file
      * @param {number} fileId 
@@ -103,7 +102,6 @@ export class Datastore {
 
         await this._contract.deleteFile(fileId)
     }
-
 
     async getFilePermissions(fileId: number) {
         await this._initialize()
@@ -126,7 +124,6 @@ export class Datastore {
 
         return this._settings
     }
-
 
     async setIpfsStorageSettings(host: string, port: number, protocol: string) {
         await this._initialize()
@@ -244,13 +241,14 @@ export class Datastore {
         let groupsIds = await this._contract.getGroups()
         for(var i = 0; i < groupsIds.length; i++) {
             let getGroup = await this._contract.getGroup(groupsIds[i])
-            let group = {
-                id: groupsIds[i],
-                name: getGroup[0],
-                entities: getGroup[1]
-            }
-            if(group.name !== 0)
+            if(getGroup && getGroup[1] !== 0) {
+                let group = {
+                    id: groupsIds[i],
+                    name: getGroup[1],
+                    entities: getGroup[0]
+                }
                 groups.push(group)
+            }
         }
         return groups
     }
@@ -321,5 +319,4 @@ export class Datastore {
         
         return this._contract.events(...args)
     }
-
 }

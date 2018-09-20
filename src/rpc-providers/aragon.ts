@@ -22,7 +22,6 @@ export class Aragon implements RpcProvider {
 
 }
 
-
 export class AragonContract implements RpcProviderContract {
 
   private _aragonApp
@@ -107,19 +106,19 @@ export class AragonContract implements RpcProviderContract {
   }
 
   async getGroups() {
-    return convertTransactionToPromise(this._aragonApp, 'getGroups')
+    return convertCallToPromise(this._aragonApp, 'getGroups')
   }
 
   async getGroup(groupId: number) {
-    return convertTransactionToPromise(this._aragonApp, 'getGroup', groupId)
+    return convertCallToPromise(this._aragonApp, 'getGroup', groupId)
   }
 
   async getGroupEntity(groupId: number, entityIndex: number) {
-    return convertTransactionToPromise(this._aragonApp, 'getGroupEntity', groupId, entityIndex)
+    return convertCallToPromise(this._aragonApp, 'getGroupEntity', groupId, entityIndex)
   }
 
   async getGroupEntityCount(groupId: number) {
-    return convertTransactionToPromise(this._aragonApp, 'getGroupCount', groupId)
+    return convertCallToPromise(this._aragonApp, 'getGroupCount', groupId)
   }
 
   async addEntityToGroup(groupId: number, entity: string) {
@@ -138,7 +137,6 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'removeGroupFromFile', fileId, groupId)
   }
 }
-
 
 function convertCallToPromise(aragonApp, methodName, ...args): Promise<any> {
   return new Promise((resolve, rej) => {
