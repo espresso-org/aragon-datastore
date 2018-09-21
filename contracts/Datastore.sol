@@ -475,6 +475,9 @@ contract Datastore {
      * @param _groupIds Ids of the groups
      * @param _groupRead Read permission
      * @param _groupWrite Write permission
+     * @param _entities Ids of the groups
+     * @param _entityRead Read permission
+     * @param _entityWrite Write permission      
      */
     function setMultiplePermissions(uint256 _fileId, uint256[] _groupIds, bool[] _groupRead, bool[] _groupWrite, address[] _entities, bool[] _entityRead, bool[] _entityWrite) public {
         require(fileOwners.isOwner(_fileId, msg.sender));
