@@ -16,6 +16,7 @@ export interface RpcProviderContract {
     setWritePermission(fileId: number, entity: string, hasWritePermission: boolean): Promise<{}>
     setReadPermission(fileId: number, entity: string, hasReadPermission: boolean): Promise<{}>
     setEntityPermissions(fileId: number, entity: string, read: boolean, write: boolean): Promise<{}>
+    setMultiplePermissions(fileId: number, groupIds: number[], groupRead: boolean[], groupWrite: boolean[], entities: string[], entityRead: boolean[], entityWrite: boolean[]): Promise<{}>
     settings(): Promise<any[]>
     setIpfsStorageSettings(host: string, port: number, protocol: string): Promise<{}>
     createGroup(groupName: string) : Promise<{}>

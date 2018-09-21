@@ -212,7 +212,16 @@ export class Datastore {
      */
     async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[]) { 
         await this._initialize()
-        // TODO: 
+        
+        await this._contract.setMultiplePermissions(
+            fileId,
+            groupPermissions.map(perm => perm.groupId),
+            groupPermissions.map(perm => perm.read),
+            groupPermissions.map(perm => perm.write),
+            entityPermissions.map(perm => perm.entity),
+            entityPermissions.map(perm => perm.read),
+            entityPermissions.map(perm => perm.write),
+        )
     }
 
     /**
