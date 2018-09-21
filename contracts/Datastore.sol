@@ -210,6 +210,15 @@ contract Datastore {
     }
 
     /**
+     * @notice Returns entity addresses on which permissions are set for file `_fileId`
+     * @param _fileId File Id
+     * @return addresses Array of entity addresses
+     */
+    function getPermissionAddresses(uint _fileId) external view returns (address[] addresses) {
+        return permissions.permissionAddresses[_fileId];
+    }    
+
+    /**
      * @notice Set read permission to `_hasPermission` for `_entity` on file `_fileId`
      * @param _fileId File Id
      * @param _entity Entity address
