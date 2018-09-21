@@ -50,6 +50,40 @@ contract('Datastore ', accounts => {
         
     })
 
+    it('getFileAsCaller returns the right file data', async () => {
+        const file1 = { 
+            name: 'test name',
+            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+            size: 4567,
+            isPublic: true
+        }
+
+        const file2 = { 
+            name: 'test name2',
+            storageRef: 'K4WWQSuPMS6aGCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+            size: 9872214,
+            isPublic: false
+        }        
+
+        await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+        await datastore.addFile(file2.storageRef, file2.name, file2.size, file2.isPublic)
+
+        const getFile1 = await datastore.getFileAsCaller(1, '0xdeadbeef')
+        assert.equal(getFile1[0], file1.storageRef)
+        assert.equal(getFile1[1], file1.name)
+        assert.equal(getFile1[2], file1.size)
+        assert.equal(getFile1[3], file1.isPublic)
+        assert.equal(getFile1[4], false) // isDeleted should be false
+
+        const getFile2 = await datastore.getFileAsCaller(2, '0xdeadbeef')
+        assert.equal(getFile2[0], file2.storageRef)
+        assert.equal(getFile2[1], file2.name)
+        assert.equal(getFile2[2], file2.size)
+        assert.equal(getFile2[3], file2.isPublic)
+        assert.equal(getFile2[4], false) // isDeleted should be false
+        
+    })
+
     it('setFilename changes the file name', async () => {
         const newFilename = 'new file name'
 
@@ -70,6 +104,25 @@ contract('Datastore ', accounts => {
 
         assert.equal(file[0], newStorageRef)
         assert.equal(file[2], newFileSize)
+    })
+
+    it('deleteFile deletes a file from the datastore', async () => {
+        const file1 = { 
+            name: 'test name',
+            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+            size: 4567,
+            isPublic: true
+        }       
+
+        await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+        await datastore.deleteFile(1)
+
+        const getFile1 = await datastore.getFile(1)
+        assert.equal(getFile1[0], file1.storageRef)
+        assert.equal(getFile1[1], file1.name)
+        assert.equal(getFile1[2], file1.size)
+        assert.equal(getFile1[3], file1.isPublic)
+        assert.equal(getFile1[4], true) // isDeleted should be false      
     })
 
     it('throws when setFilename is called with no write access', async () => {
@@ -252,6 +305,18 @@ contract('Datastore ', accounts => {
         assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
     })
 
+    it('hasReadAccess returns false when entity doesnt have permissions on it and isnt in a group that has', async() => {
+        const file1 = { 
+            name: 'test name',
+            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+            size: 4567,
+            isPublic: false
+        }
+        await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+
+        assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
+    })
+
     it('setWritePermission sets read permissions on a file', async() => {
         const file1 = { 
             name: 'test name',
@@ -338,6 +403,11 @@ contract('Datastore ', accounts => {
         assert.equal((await datastore.getGroups())[0], 1)
         assert.equal((await datastore.getGroups())[1], 2)
         assert.equal((await datastore.getGroups())[2], 3)
+    })
+
+    it('setIpfsStorageSettings fires the SettingsChanged event', async() => {
+        await datastore.setIpfsStorageSettings('localhost', 5001, 'http')
+        await assertEvent(datastore, { event: 'SettingsChanged' })
     })
 })
 
