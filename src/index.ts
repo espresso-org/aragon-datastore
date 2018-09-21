@@ -64,7 +64,7 @@ export class Datastore {
         await this._initialize()
 
         const storageId = await this._storage.addFile(file)
-        const fileId = await this._contract.addFile(storageId, name, file.byteLength, true)
+        const fileId = await this._contract.addFile(storageId, name, file.byteLength, false)
         return fileId
     }
 
@@ -210,7 +210,7 @@ export class Datastore {
      * @param {Object[]} entityPermissions 
      * @param {Object[]} groupPermissions 
      */
-    async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[]) { 
+    async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[], isPublic: boolean) { 
         await this._initialize()
         
         await this._contract.setMultiplePermissions(
@@ -221,6 +221,7 @@ export class Datastore {
             entityPermissions.map(perm => perm.entity),
             entityPermissions.map(perm => perm.read),
             entityPermissions.map(perm => perm.write),
+            isPublic
         )
     }
 
