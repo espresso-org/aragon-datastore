@@ -121,6 +121,19 @@ export class AragonContract implements RpcProviderContract {
     return convertCallToPromise(this._aragonApp, 'getGroupCount', groupId)
   }
 
+  async getPermissionGroups(fileId: number) {
+    return convertCallToPromise(this._aragonApp, 'getPermissionGroups', fileId)
+  }
+  async getGroupPermission(fileId: number, groupId: number): Promise<any> {
+    return convertCallToPromise(this._aragonApp, 'getGroupPermission', fileId, groupId)
+  }
+  async setEntityPermissions(fileId: number, entity: string, read: boolean, write: boolean): Promise<{}> {
+    return convertTransactionToPromise(this._aragonApp, 'setEntityPermissions', fileId, entity, read, write)
+  }
+  async removeEntityFromFile(fileId: number, entity: string): Promise<{}> {
+    return convertTransactionToPromise(this._aragonApp, 'removeEntityFromFile', fileId, entity)
+  }
+
   async addEntityToGroup(groupId: number, entity: string) {
     return convertTransactionToPromise(this._aragonApp, 'addEntityToGroup', groupId, entity)
   }

@@ -17,6 +17,7 @@ contract Datastore {
     event NewWritePermission(address indexed entity, uint fileId);
     event NewReadPermission(address indexed entity, uint fileId);
     event NewEntityPermissions(address indexed entity, uint fileId);
+    event NewGroupPermissions(address indexed entity, uint fileId);
     event NewPermissions(address indexed entity, uint fileId);
     event DeleteFile(address indexed entity, uint fileId);
     event SettingsChanged(address indexed entity);
@@ -465,6 +466,7 @@ contract Datastore {
     function setGroupPermissions(uint _fileId, uint _groupId, bool _read, bool _write) public {
         require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.setGroupPermissions(_fileId, _groupId, _read, _write);
+        NewGroupPermissions(msg.sender, _fileId);
     }
 
     /**

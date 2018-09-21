@@ -296,9 +296,9 @@ export class Datastore {
 
         return Promise.all(
             entitiesAddress.map(async groupId => ({
-                groupId: groupId.toNumber(),
-                groupName: (await this._contract.getGroup(groupId.toNumber()))[1],
-                ...createPermissionFromTuple(await this._contract.getGroupPermission(fileId, groupId.toNumber()))
+                groupId: parseInt(groupId),
+                groupName: (await this._contract.getGroup(parseInt(groupId)))[1],
+                ...createPermissionFromTuple(await this._contract.getGroupPermission(fileId, parseInt(groupId)))
             })) 
         )
     }
