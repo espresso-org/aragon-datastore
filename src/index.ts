@@ -289,6 +289,16 @@ export class Datastore {
     }
 
     /**
+     * 
+     * @param {number} fileId 
+     */
+    async getFileGroupPermissions(fileId: number) {
+        await this._initialize()
+
+        // TODO:
+    }
+
+    /**
      * Returns the entities from a group
      * @param groupId Id of the group to get entities from
      */
