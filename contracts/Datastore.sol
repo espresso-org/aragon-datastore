@@ -16,9 +16,13 @@ contract Datastore {
     event NewFile(address indexed entity, uint fileId);
     event NewWritePermission(address indexed entity, uint fileId);
     event NewReadPermission(address indexed entity, uint fileId);
+    event NewEntityPermissions(address indexed entity, uint fileId);
+    event NewGroupPermissions(address indexed entity, uint fileId);
+    event NewPermissions(address indexed entity, uint fileId);
     event DeleteFile(address indexed entity, uint fileId);
     event SettingsChanged(address indexed entity);
     event GroupChange(address indexed entity);
+    event EntityPermissionsRemoved(address indexed entity);
 
     /**
      * Datastore settings
@@ -207,6 +211,50 @@ contract Datastore {
     }
 
     /**
+     * @notice Returns entity addresses on which permissions are set for file `_fileId`
+     * @param _fileId File Id
+     * @return addresses Array of entity addresses
+     */
+    function getPermissionAddresses(uint _fileId) external view returns (address[] addresses) {
+        return permissions.permissionAddresses[_fileId];
+    }  
+
+    /**
+     * @notice Returns group ids on which permissions are set for file `_fileId`
+     * @param _fileId File Id
+     * @return Array of group ids
+     */
+    function getPermissionGroups(uint _fileId) external view returns (uint256[]) {
+        return permissions.groupIds[_fileId];
+    }   
+
+
+    /**
+     * @notice Get write and read permissions for entity `_entity` on file `_fileId`
+     * @param _fileId File Id
+     * @param _entity Entity address
+     */
+    function getPermission(uint256 _fileId, address _entity) external view returns (bool write, bool read) {
+        PermissionLibrary.Permission storage permission = permissions.permissions[_fileId][_entity];
+
+        write = permission.write;
+        read = permission.read;
+    } 
+
+
+    /**
+     * @notice Get write and read permissions for group `_groupId` on file `_fileId`
+     * @param _fileId File Id
+     * @param _groupId Group Id
+     */
+    function getGroupPermission(uint256 _fileId, uint256 _groupId) external view returns (bool write, bool read) {
+        PermissionLibrary.Permission storage permission = permissions.groupPermissions[_fileId][_groupId];
+
+        write = permission.write;
+        read = permission.read;
+    } 
+
+    /**
      * @notice Set read permission to `_hasPermission` for `_entity` on file `_fileId`
      * @param _fileId File Id
      * @param _entity Entity address
@@ -229,6 +277,32 @@ contract Datastore {
         permissions.setWritePermission(_fileId, _entity, _hasPermission);
         NewWritePermission(msg.sender, lastFileId);
     }
+
+    /**
+     * @notice Add/Remove permissions to an entity for a specific file
+     * @param _fileId File Id
+     * @param _entity Entity address
+     * @param _read Read permission
+     * @param _write Write permission     
+     */
+    function setEntityPermissions(uint _fileId, address _entity, bool _read, bool _write) external {
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.setEntityPermissions(_fileId, _entity, _read, _write);
+        NewEntityPermissions(msg.sender, lastFileId);
+    }
+
+
+    /**
+     * @notice Remove entity from file permissions
+     * @param _fileId Id of the file
+     * @param _entity Entity address
+     */
+    function removeEntityFromFile(uint _fileId, address _entity) external {
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.removeEntityFromFile(_fileId, _entity);
+        EntityPermissionsRemoved(msg.sender);       
+    }
+
     
     /**
      * Sets IPFS as the storage provider for the datastore.
@@ -392,7 +466,30 @@ contract Datastore {
     function setGroupPermissions(uint _fileId, uint _groupId, bool _read, bool _write) public {
         require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.setGroupPermissions(_fileId, _groupId, _read, _write);
+        NewGroupPermissions(msg.sender, _fileId);
     }
+
+    /**
+     * @notice Set the read and write permissions on a file
+     * @param _fileId Id of the file
+     * @param _groupIds Ids of the groups
+     * @param _groupRead Read permission
+     * @param _groupWrite Write permission
+     * @param _entities Ids of the groups
+     * @param _entityRead Read permission
+     * @param _entityWrite Write permission      
+     */
+    function setMultiplePermissions(uint256 _fileId, uint256[] _groupIds, bool[] _groupRead, bool[] _groupWrite, address[] _entities, bool[] _entityRead, bool[] _entityWrite) public {
+        require(fileOwners.isOwner(_fileId, msg.sender));
+
+        for(uint256 i = 0; i < _groupIds.length; i++) 
+            permissions.setGroupPermissions(_fileId, _groupIds[i], _groupRead[i], _groupWrite[i]);
+        
+        for(uint256 j = 0; j < _entities.length; j++) 
+            permissions.setEntityPermissions(_fileId, _entities[j], _entityRead[j], _entityWrite[j]);
+        
+        NewPermissions(msg.sender, _fileId);
+    }    
 
     /**
      * @notice Remove group from file permissions

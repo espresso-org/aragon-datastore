@@ -76,6 +76,10 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'setReadPermission', fileId, entity, hasReadPermission)
   }
 
+  async setMultiplePermissions(fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite) {
+    return convertTransactionToPromise(this._aragonApp, 'setMultiplePermissions', fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite)
+  }  
+
   events(...args) {
     return this._aragonApp.events(...args)
   }
@@ -119,6 +123,19 @@ export class AragonContract implements RpcProviderContract {
 
   async getGroupEntityCount(groupId: number) {
     return convertCallToPromise(this._aragonApp, 'getGroupCount', groupId)
+  }
+
+  async getPermissionGroups(fileId: number) {
+    return convertCallToPromise(this._aragonApp, 'getPermissionGroups', fileId)
+  }
+  async getGroupPermission(fileId: number, groupId: number): Promise<any> {
+    return convertCallToPromise(this._aragonApp, 'getGroupPermission', fileId, groupId)
+  }
+  async setEntityPermissions(fileId: number, entity: string, read: boolean, write: boolean): Promise<{}> {
+    return convertTransactionToPromise(this._aragonApp, 'setEntityPermissions', fileId, entity, read, write)
+  }
+  async removeEntityFromFile(fileId: number, entity: string): Promise<{}> {
+    return convertTransactionToPromise(this._aragonApp, 'removeEntityFromFile', fileId, entity)
   }
 
   async addEntityToGroup(groupId: number, entity: string) {

@@ -176,6 +176,21 @@ export class Datastore {
     }
 
     /**
+     * Add/Remove permissions to an entity for
+     * a specific file
+     * 
+     * @param {number} fileId File Id
+     * @param {string} entity Entity address
+     * @param {boolean} read read permission
+     * @param {boolean} write write permission
+     */
+    async setEntityPermissions(fileId: number, entity: string, read: boolean, write: boolean) {
+        await this._initialize()
+
+        await this._contract.setEntityPermissions(fileId, entity, read, write)
+    }    
+
+    /**
      * Add/Remove write permission to an entity for
      * a specific file
      * 
@@ -187,6 +202,36 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.setWritePermission(fileId, entity, hasPermission)
+    }
+
+    /**
+     * 
+     * @param {number} fileId 
+     * @param {Object[]} entityPermissions 
+     * @param {Object[]} groupPermissions 
+     */
+    async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[]) { 
+        await this._initialize()
+        
+        await this._contract.setMultiplePermissions(
+            fileId,
+            groupPermissions.map(perm => perm.groupId),
+            groupPermissions.map(perm => perm.read),
+            groupPermissions.map(perm => perm.write),
+            entityPermissions.map(perm => perm.entity),
+            entityPermissions.map(perm => perm.read),
+            entityPermissions.map(perm => perm.write),
+        )
+    }
+
+    /**
+     * Removes an entity's permissions from a file
+     * @param {number} fileId File id
+     * @param {string} entity 
+     */
+    async removeEntityFromFile(fileId: number, entity: string) {
+        await this._initialize()
+        await this._contract.removeEntityFromFile(fileId, entity)
     }
 
     /**
@@ -251,6 +296,20 @@ export class Datastore {
             }
         }
         return groups
+    }
+
+    async getFileGroupPermissions(fileId: number) {
+        await this._initialize()
+
+        const entitiesAddress = await this._contract.getPermissionGroups(fileId)
+
+        return Promise.all(
+            entitiesAddress.map(async groupId => ({
+                groupId: parseInt(groupId),
+                groupName: (await this._contract.getGroup(parseInt(groupId)))[1],
+                ...createPermissionFromTuple(await this._contract.getGroupPermission(fileId, parseInt(groupId)))
+            })) 
+        )
     }
 
     /**
