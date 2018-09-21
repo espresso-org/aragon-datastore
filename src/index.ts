@@ -289,14 +289,17 @@ export class Datastore {
         return groups
     }
 
-    /**
-     * 
-     * @param {number} fileId 
-     */
     async getFileGroupPermissions(fileId: number) {
         await this._initialize()
 
-        // TODO:
+        const entitiesAddress = await this._contract.getPermissionAddresses(fileId)
+
+        return Promise.all(
+            entitiesAddress.map(async entity => ({
+                entity,
+                ...createPermissionFromTuple(await this._contract.getPermission(fileId, entity))
+            })) 
+        )
     }
 
     /**
