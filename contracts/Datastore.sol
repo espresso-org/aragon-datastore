@@ -233,8 +233,21 @@ contract Datastore {
      * @param _fileId File Id
      * @param _entity Entity address
      */
-    function getPermission(uint _fileId, address _entity) external view returns (bool write, bool read) {
-        Permission storage permission = files[_fileId].permissions[_entity];
+    function getPermission(uint256 _fileId, address _entity) external view returns (bool write, bool read) {
+        Permission storage permission = permissions.permissions[_fileId][_entity];
+
+        write = permission.write;
+        read = permission.read;
+    } 
+
+
+    /**
+     * @notice Get write and read permissions for entity `_entity` on file `_fileId`
+     * @param _fileId File Id
+     * @param _entity Entity address
+     */
+    function getGroupPermission(uint256 _fileId, uint256 _groupId) external view returns (bool write, bool read) {
+        Permission storage permission = permissions.groupPermissions[_fileId][_groupId];
 
         write = permission.write;
         read = permission.read;
