@@ -16,6 +16,8 @@ contract Datastore {
     event NewFile(address indexed entity, uint fileId);
     event NewWritePermission(address indexed entity, uint fileId);
     event NewReadPermission(address indexed entity, uint fileId);
+    event NewEntityPermissions(address indexed entity, uint fileId);
+    event NewPermissions(address indexed entity, uint fileId);
     event DeleteFile(address indexed entity, uint fileId);
     event SettingsChanged(address indexed entity);
     event GroupChange(address indexed entity);
@@ -229,6 +231,20 @@ contract Datastore {
         permissions.setWritePermission(_fileId, _entity, _hasPermission);
         NewWritePermission(msg.sender, lastFileId);
     }
+
+    /**
+     * @notice Add/Remove permissions to an entity for a specific file
+     * @param _fileId File Id
+     * @param _entity Entity address
+     * @param _read Read permission
+     * @param _write Write permission     
+     */
+    function setEntityPermissions(uint _fileId, address _entity, bool _read, bool _write) external {
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.setEntityPermissions(_fileId, _entity, _read, _write);
+        NewEntityPermissions(msg.sender, lastFileId);
+    }
+
     
     /**
      * Sets IPFS as the storage provider for the datastore.

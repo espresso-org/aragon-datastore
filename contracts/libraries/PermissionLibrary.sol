@@ -94,6 +94,24 @@ library PermissionLibrary {
      * @notice Set the read and write permissions on a file for a specified group
      * @param _self PermissionData
      * @param _fileId Id of the file
+     * @param _entity Id of the group
+     * @param _read Read permission
+     * @param _write Write permission
+     */
+    function setEntityPermissions(PermissionData storage _self, uint _fileId, address _entity, bool _read, bool _write) internal { 
+        if (!_self.permissions[_fileId][_entity].exists) {
+            _self.permissionAddresses[_fileId].push(_entity);
+            _self.permissions[_fileId][_entity].exists = true;
+        }
+
+        _self.permissions[_fileId][_entity].read = _read;
+        _self.permissions[_fileId][_entity].write = _write;
+    }   
+
+    /**
+     * @notice Set the read and write permissions on a file for a specified group
+     * @param _self PermissionData
+     * @param _fileId Id of the file
      * @param _groupId Id of the group
      * @param _read Read permission
      * @param _write Write permission

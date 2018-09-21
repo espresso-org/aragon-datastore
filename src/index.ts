@@ -184,7 +184,7 @@ export class Datastore {
      * @param {boolean} read read permission
      * @param {boolean} write write permission
      */
-    async setEntityPermissions(fileId, entity, read, write) {
+    async setEntityPermissions(fileId: number, entity: string, read: boolean, write: boolean) {
         await this._initialize()
 
         await this._contract.setEntityPermissions(fileId, entity, read, write)
@@ -222,6 +222,7 @@ export class Datastore {
      */
     async removeEntityFromFile(fileId: number, entity: string) {
         await this._initialize()
+        // TODO:
     }
 
     /**
