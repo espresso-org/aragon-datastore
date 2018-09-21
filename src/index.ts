@@ -295,9 +295,10 @@ export class Datastore {
         const entitiesAddress = await this._contract.getPermissionGroups(fileId)
 
         return Promise.all(
-            entitiesAddress.map(async entity => ({
-                entity,
-                ...createPermissionFromTuple(await this._contract.getPermission(fileId, entity))
+            entitiesAddress.map(async groupId => ({
+                groupId: groupId.toNumber(),
+                groupName: (await this._contract.getGroup(groupId.toNumber()))[1],
+                ...createPermissionFromTuple(await this._contract.getGroupPermission(fileId, groupId.toNumber()))
             })) 
         )
     }

@@ -10,8 +10,9 @@ export interface RpcProviderContract {
     setFilename(fileId: number, newName: string): Promise<{}>
     setFileContent(fileId: number, storageRef: string, fileSize: number): Promise<{}>
     getPermissionAddresses(fileId: number): Promise<string[]>
-    getPermissionGroups(fileId: number): Promise<{}[]>
+    getPermissionGroups(fileId: number): Promise<any[]>
     getPermission(fileId: number, entity: string): Promise<any>
+    getGroupPermission(fileId: number, groupId: number): Promise<any>
     setWritePermission(fileId: number, entity: string, hasWritePermission: boolean): Promise<{}>
     setReadPermission(fileId: number, entity: string, hasReadPermission: boolean): Promise<{}>
     setEntityPermissions(fileId: number, entity: string, read: boolean, write: boolean): Promise<{}>

@@ -193,10 +193,11 @@ contract('Datastore ', accounts => {
         await assertEvent(datastore, { event: 'NewWritePermission' })
     })   
 
+
     describe('removeEntityFromFile', async () => {
 
         it('sets read and write permissions to false', async() => {
-            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, )
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
 
             await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true, true)
             await datastore.removeEntityFromFile(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
@@ -257,6 +258,19 @@ contract('Datastore ', accounts => {
         })   
     })    
     
+    it('getGroupPermission returns the right data', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.createGroup('My second group')
+
+        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
+        await datastore.setGroupPermissions(1, 1, true, false)
+
+        const groupPermissions = await datastore.getGroupPermission(1, 1)
+
+        assert.equal(groupPermissions[0], false)
+        assert.equal(groupPermissions[1], true)
+    })
+
     it('tests if ownership of files works correctly', async() => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
         const file = await datastore.getFile(1)
