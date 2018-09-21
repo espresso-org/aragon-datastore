@@ -21,6 +21,7 @@ contract Datastore {
     event DeleteFile(address indexed entity, uint fileId);
     event SettingsChanged(address indexed entity);
     event GroupChange(address indexed entity);
+    event EntityPermissionsRemoved(address indexed entity);
 
     /**
      * Datastore settings
@@ -243,6 +244,18 @@ contract Datastore {
         require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.setEntityPermissions(_fileId, _entity, _read, _write);
         NewEntityPermissions(msg.sender, lastFileId);
+    }
+
+
+    /**
+     * @notice Remove entity from file permissions
+     * @param _fileId Id of the file
+     * @param _entity Entity address
+     */
+    function removeEntityFromFile(uint _fileId, address _entity) external {
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        permissions.removeEntityFromFile(_fileId, _entity);
+        EntityPermissionsRemoved(msg.sender);       
     }
 
     

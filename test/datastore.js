@@ -193,6 +193,28 @@ contract('Datastore ', accounts => {
         await assertEvent(datastore, { event: 'NewWritePermission' })
     })   
 
+    describe('removeEntityFromFile', async () => {
+
+        it('sets read and write permissions to false', async() => {
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, )
+
+            await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true, true)
+            await datastore.removeEntityFromFile(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+
+            assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
+            assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef8')), false)
+        })
+
+        it('fires EntityPermissionsRemoved event ', async () => {
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
+            await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true, false)
+            await datastore.removeEntityFromFile(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+
+            await assertEvent(datastore, { event: 'EntityPermissionsRemoved' })
+        })         
+        
+    })
+
     describe('setEntityPermissions', async () => {
 
         it('sets read permissions on a file', async() => {

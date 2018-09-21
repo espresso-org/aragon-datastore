@@ -222,7 +222,7 @@ export class Datastore {
      */
     async removeEntityFromFile(fileId: number, entity: string) {
         await this._initialize()
-        // TODO:
+        await this._contract.removeEntityFromFile(fileId, entity)
     }
 
     /**
