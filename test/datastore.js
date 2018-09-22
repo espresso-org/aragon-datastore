@@ -191,7 +191,21 @@ contract('Datastore ', accounts => {
         await datastore.setWritePermission(1, accounts[1], true)
 
         await assertEvent(datastore, { event: 'NewWritePermission' })
-    })   
+    })  
+    
+    describe('getPermissionAddresses', async () => {
+
+        it('returns the right address list', async() => {
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
+            await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true, true)
+
+            const addresses = await datastore.getPermissionAddresses(1)
+
+            assert.equal(addresses.length, 1)
+            assert.equal(addresses[0], '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+        })
+        
+    })
 
 
     describe('removeEntityFromFile', async () => {
