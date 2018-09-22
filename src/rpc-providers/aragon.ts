@@ -58,7 +58,7 @@ export class AragonContract implements RpcProviderContract {
 
   async setFileContent(fileId, storageRef, fileSize) {
     return convertTransactionToPromise(this._aragonApp, 'setFileContent', fileId, storageRef, fileSize)
-  }   
+  }
 
   async getPermissionAddresses(fileId) {
     return convertCallToPromise(this._aragonApp, 'getPermissionAddresses', fileId)
@@ -76,8 +76,8 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'setReadPermission', fileId, entity, hasReadPermission)
   }
 
-  async setMultiplePermissions(fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite) {
-    return convertTransactionToPromise(this._aragonApp, 'setMultiplePermissions', fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite)
+  async setMultiplePermissions(fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite, isPublic) {
+    return convertTransactionToPromise(this._aragonApp, 'setMultiplePermissions', fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite, isPublic)
   }  
 
   events(...args) {
