@@ -301,6 +301,17 @@ contract Datastore {
     }
     
     /**
+     * @notice Change the storage provider
+     * @param _storageProvider Storage provider
+     */
+    function setStorageProvider(StorageProvider _storageProvider) public {
+        require(settings.storageProvider == StorageProvider.None);
+
+        settings.storageProvider = _storageProvider;
+        SettingsChanged(msg.sender);
+    }
+
+    /**
      * Sets IPFS as the storage provider for the datastore.
      * Since switching between storage providers is not supported,
      * the method can only be called if storage isn't set or already IPFS
