@@ -623,10 +623,11 @@ contract('Datastore ', accounts => {
             assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
         })
 
-        it("throws if group doesn't exist", async () => {  
+        it("throws if not called by owner", async () => {  
+            await datastore.createGroup('My first group')
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
 
-            assertThrow(async () => await datastore.setGroupPermissions(1, 1, true, false))
+            assertThrow(async () => await datastore.setGroupPermissions(1, 1, true, false), account[1])
         })        
     })
 
