@@ -93,19 +93,6 @@ contract('Datastore ', accounts => {
         assert.equal((await datastore.getFile(1))[1], newFilename)
     })
 
-    it('setFileContent changes the storage reference and file size', async () => {
-        const newStorageRef = 'Qm2NjB3YrhJTHsV4X3vb2tWWQSuPMS6aXCbZKpEjPHPUZN'
-        const newFileSize = 9086
-
-        await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
-        await datastore.setFileContent(1, newStorageRef, newFileSize)
-
-        const file = await datastore.getFile(1)
-
-        assert.equal(file[0], newStorageRef)
-        assert.equal(file[2], newFileSize)
-    })
-
     describe('deleteFile', async () => {
 
         it('deletes a file from the datastore', async () => {
@@ -158,26 +145,49 @@ contract('Datastore ', accounts => {
         assert.equal(file[1], newFilename)
     })
 
-    it('throws when setFileContent is called with no write access', async () => {
-        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', "file name", 100, true, { from: accounts[0] })
+    describe('setFileContent', async () => {
 
-        await assertThrow(async () => datastore.setFileContent(1, 'QmB3YrhJTHsV4X3vb2tWWQSuPMS6aXCbZKpEjPHPUZN2Nj', { from: accounts[1] }))
-    }) 
+        it('changes file content when setFileContent is called with write access', async () => {
+            const newStorageRef = 'QmB3YrhJTHsV4X3vb2tWWQSuPMS6aXCbZKpEjPHPUZN2Nj'
+            const newFileSize = 321
 
-    it('changes file content when setFileContent is called with write access', async () => {
-        const newStorageRef = 'QmB3YrhJTHsV4X3vb2tWWQSuPMS6aXCbZKpEjPHPUZN2Nj'
-        const newFileSize = 321
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
+            await datastore.setWritePermission(1, accounts[1], true)
 
-        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
-        await datastore.setWritePermission(1, accounts[1], true)
+            await datastore.setFileContent(1, newStorageRef, newFileSize, { from: accounts[1] })
+            
+            const file = await datastore.getFile(1)
 
-        await datastore.setFileContent(1, newStorageRef, newFileSize, { from: accounts[1] })
+            assert.equal(file[0], newStorageRef)
+            assert.equal(file[2], newFileSize)
+        })  
+
+        it('changes the storage reference and file size', async () => {
+            const newStorageRef = 'Qm2NjB3YrhJTHsV4X3vb2tWWQSuPMS6aXCbZKpEjPHPUZN'
+            const newFileSize = 9086
+    
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
+            await datastore.setFileContent(1, newStorageRef, newFileSize)
+    
+            const file = await datastore.getFile(1)
+    
+            assert.equal(file[0], newStorageRef)
+            assert.equal(file[2], newFileSize)
+        })        
         
-        const file = await datastore.getFile(1)
+        it('fires FileContentUpdate event on setFileContent call', async () => {
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
+            await datastore.setFileContent(1, 'QmMWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 432)
+    
+            await assertEvent(datastore, { event: 'FileContentUpdate' })
+        })         
 
-        assert.equal(file[0], newStorageRef)
-        assert.equal(file[2], newFileSize)
-    })   
+        it('throws when setFileContent is called with no write access', async () => {
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', "file name", 100, true, { from: accounts[0] })
+
+            await assertThrow(async () => datastore.setFileContent(1, 'QmB3YrhJTHsV4X3vb2tWWQSuPMS6aXCbZKpEjPHPUZN2Nj', { from: accounts[1] }))
+        }) 
+    })
     
     it('fires NewFile event on addFile call', async () => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
@@ -192,13 +202,7 @@ contract('Datastore ', accounts => {
         await assertEvent(datastore, { event: 'FileRename' })
     })        
     
-    it('fires FileContentUpdate event on setFileContent call', async () => {
-        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
-        await datastore.setFileContent(1, 'QmMWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 432)
-
-        await assertEvent(datastore, { event: 'FileContentUpdate' })
-    }) 
-    
+   
     it('fires NewWritePermission event on setWritePermission call', async () => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
         await datastore.setWritePermission(1, accounts[1], true)
@@ -272,7 +276,16 @@ contract('Datastore ', accounts => {
             await datastore.removeEntityFromFile(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
 
             await assertEvent(datastore, { event: 'EntityPermissionsRemoved' })
-        })         
+        })   
+        
+        it('throws when is not called by owner', async () => {
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
+            await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true, false)
+
+            assertThrow(async () => {
+                await datastore.removeEntityFromFile(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', { from: accounts[1] })
+            })
+        })        
         
     })
 
@@ -315,7 +328,15 @@ contract('Datastore ', accounts => {
             await datastore.setEntityPermissions(1, accounts[1], true, false)
 
             await assertEvent(datastore, { event: 'NewEntityPermissions' })
-        })   
+        })  
+        
+        it('throws when is not called by owner', async () => {
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
+
+            assertThrow(async () => {
+                await datastore.setEntityPermissions(1, accounts[1], true, false, { from: accounts[1] })
+            })
+        })        
     })    
     
     it('getGroupPermission returns the right data', async() => {
@@ -468,17 +489,28 @@ contract('Datastore ', accounts => {
         assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
     })
 
-    it('setWritePermission sets read permissions on a file', async() => {
-        const file1 = { 
-            name: 'test name',
-            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
-            size: 4567,
-            isPublic: false
-        }
-        await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
-        await datastore.setWritePermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 1)
+    describe('setWritePermission', async () => {
 
-        assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
+        it('sets read permissions on a file', async() => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: false
+            }
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+            await datastore.setWritePermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 1)
+
+            assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
+        })
+
+        it('throws when is not called by owner', async () => {
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
+
+            assertThrow(async () => {
+                await datastore.setWritePermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 1, { from: accounts[1] })
+            })
+        })          
     })
 
     describe('setMultiplePermissions', async () => {
