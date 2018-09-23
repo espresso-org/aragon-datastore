@@ -106,23 +106,36 @@ contract('Datastore ', accounts => {
         assert.equal(file[2], newFileSize)
     })
 
-    it('deleteFile deletes a file from the datastore', async () => {
-        const file1 = { 
-            name: 'test name',
-            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
-            size: 4567,
-            isPublic: true
-        }       
+    describe('deleteFile', async () => {
 
-        await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
-        await datastore.deleteFile(1)
+        it('deletes a file from the datastore', async () => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: true
+            }       
 
-        const getFile1 = await datastore.getFile(1)
-        assert.equal(getFile1[0], file1.storageRef)
-        assert.equal(getFile1[1], file1.name)
-        assert.equal(getFile1[2], file1.size)
-        assert.equal(getFile1[3], file1.isPublic)
-        assert.equal(getFile1[4], true) // isDeleted should be false      
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+            await datastore.deleteFile(1)
+
+            const getFile1 = await datastore.getFile(1)
+            assert.equal(getFile1[0], file1.storageRef)
+            assert.equal(getFile1[1], file1.name)
+            assert.equal(getFile1[2], file1.size)
+            assert.equal(getFile1[3], file1.isPublic)
+            assert.equal(getFile1[4], true) // isDeleted should be false      
+        })
+
+
+        it('throws when is not called by owner', async () => {
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
+
+            assertThrow(async () => {
+                await datastore.deleteFile(1, { from: accounts[1] })
+            })
+        })
+
     })
 
     it('throws when setFilename is called with no write access', async () => {
@@ -417,17 +430,30 @@ contract('Datastore ', accounts => {
         assert.equal(entity2, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
     })
 
-    it('setReadPermission sets read permissions on a file', async() => {
-        const file1 = { 
-            name: 'test name',
-            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
-            size: 4567,
-            isPublic: false
-        }
-        await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
-        await datastore.setReadPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 1)
 
-        assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
+    describe('setReadPermission', async () => {
+
+        it('sets read permissions on a file', async() => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: false
+            }
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+            await datastore.setReadPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 1)
+
+            assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
+        })
+
+        it('throws when is not called by owner', async () => {
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
+
+            assertThrow(async () => {
+                await datastore.setReadPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 1, { from: accounts[1] })
+            })
+        })        
+
     })
 
     it('hasReadAccess returns false when entity doesnt have permissions on it and isnt in a group that has', async() => {
