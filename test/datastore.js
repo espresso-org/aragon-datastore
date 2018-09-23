@@ -207,6 +207,24 @@ contract('Datastore ', accounts => {
         
     })
 
+    describe('getPermissionGroups', async () => {
+
+        it('returns the right group list', async() => {
+            await datastore.createGroup('My first group')
+            await datastore.createGroup('My second group')
+            await datastore.createGroup('My third group')
+
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
+            await datastore.setGroupPermissions(1, 1, true, true)
+
+            const groups = await datastore.getPermissionGroups(1)
+
+            assert.equal(groups.length, 1)
+            assert.equal(groups[0].toNumber(), 1)
+        })
+        
+    })    
+
 
     describe('removeEntityFromFile', async () => {
 
