@@ -88,14 +88,6 @@ contract('Datastore ', accounts => {
         
     })
 
-    it('setFilename changes the file name', async () => {
-        const newFilename = 'new file name'
-
-        await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
-        await datastore.setFilename(1, newFilename)
-
-        assert.equal((await datastore.getFile(1))[1], newFilename)
-    })
 
     describe('deleteFile', async () => {
 
@@ -129,24 +121,37 @@ contract('Datastore ', accounts => {
 
     })
 
-    it('throws when setFilename is called with no write access', async () => {
-        await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, { from: accounts[0] })
 
-        await assertThrow(async () => datastore.setFilename(1, 'new file name', { from: accounts[1] }))
+    describe('setFilename', async () => {
 
-    })
+        it('throws when called with no write access', async () => {
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, { from: accounts[0] })
 
-    it('changes filename when setFilename is called with write access', async () => {
-        const newFilename = 'new file name'
+            await assertThrow(async () => datastore.setFilename(1, 'new file name', { from: accounts[1] }))
 
-        await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, { from: accounts[0] })
-        await datastore.setWritePermission(1, accounts[1], true)
+        })
 
-        await datastore.setFilename(1, newFilename, { from: accounts[1] })
-        
-        const file = await datastore.getFile(1)
+        it('changes filename when called with write access', async () => {
+            const newFilename = 'new file name'
 
-        assert.equal(file[1], newFilename)
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, { from: accounts[0] })
+            await datastore.setWritePermission(1, accounts[1], true)
+
+            await datastore.setFilename(1, newFilename, { from: accounts[1] })
+            
+            const file = await datastore.getFile(1)
+
+            assert.equal(file[1], newFilename)
+        })
+      
+
+        it('fires FileRename event', async () => {
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
+            await datastore.setFilename(1, 'new file name')
+    
+            await assertEvent(datastore, { event: 'FileRename' })
+        })          
+
     })
 
     describe('setFileContent', async () => {
@@ -189,7 +194,7 @@ contract('Datastore ', accounts => {
         it('throws when setFileContent is called with no write access', async () => {
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', "file name", 100, true, { from: accounts[0] })
 
-            await assertThrow(async () => datastore.setFileContent(1, 'QmB3YrhJTHsV4X3vb2tWWQSuPMS6aXCbZKpEjPHPUZN2Nj', { from: accounts[1] }))
+            await assertThrow(async () => datastore.setFileContent(1, 'QmB3YrhJTHsV4X3vb2tWWQSuPMS6aXCbZKpEjPHPUZN2Nj', 234, { from: accounts[1] }))
         }) 
     })
     
@@ -198,14 +203,7 @@ contract('Datastore ', accounts => {
 
         await assertEvent(datastore, { event: 'NewFile' })
     })     
-
-    it('fires FileRename event on setFilename call', async () => {
-        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
-        await datastore.setFilename(1, 'new file name')
-
-        await assertEvent(datastore, { event: 'FileRename' })
-    })        
-    
+   
    
     it('fires NewWritePermission event on setWritePermission call', async () => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
@@ -544,7 +542,7 @@ contract('Datastore ', accounts => {
             assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
         })
 
-        it('returns false when entity doesnt have permissions on it and isnt in a group that has', async() => {
+        it("returns false when entity isn't in group", async() => {
             await datastore.createGroup('My first group')
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
             await datastore.setGroupPermissions(1, 1, true, false)
@@ -553,6 +551,30 @@ contract('Datastore ', accounts => {
         })        
 
     })
+
+    describe('hasWriteAccess', async () => {
+
+        it('returns false when entity doesnt have permissions on it and isnt in a group that has', async() => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: false
+            }
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+
+            assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
+        })
+
+        it("returns false when entity isn't in group", async() => {
+            await datastore.createGroup('My first group')
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
+            await datastore.setGroupPermissions(1, 1, true, true)
+
+            assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
+        })       
+
+    })    
 
     describe('setWritePermission', async () => {
 
@@ -643,7 +665,7 @@ contract('Datastore ', accounts => {
             await datastore.createGroup('My first group')
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
 
-            assertThrow(async () => await datastore.setGroupPermissions(1, 1, true, false, accounts[1]))
+            assertThrow(async () => await datastore.setGroupPermissions(1, 1, true, false, { from: accounts[1] }))
         })        
     })
 
