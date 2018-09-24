@@ -2,9 +2,7 @@ import { BigNumber } from 'bignumber.js'
 import { RpcProviderContract } from './rpc-provider-contract'
 import { RpcProvider } from './rpc-provider'
 
-
 export class Aragon implements RpcProvider {
-
   private _aragonApp
 
   constructor(aragonApp) {
@@ -19,11 +17,9 @@ export class Aragon implements RpcProvider {
       }, 1000)
     })
   }
-
 }
 
 export class AragonContract implements RpcProviderContract {
-
   private _aragonApp
   private _ethAccounts
 
@@ -52,20 +48,20 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'deleteFile', fileId)
   }
 
-  async setFilename(fileId, newName) {
-    return convertTransactionToPromise(this._aragonApp, 'setFilename', fileId, newName)
+  async setFileName(fileId, newName) {
+    return convertTransactionToPromise(this._aragonApp, 'setFileName', fileId, newName)
   } 
 
   async setFileContent(fileId, storageRef, fileSize) {
     return convertTransactionToPromise(this._aragonApp, 'setFileContent', fileId, storageRef, fileSize)
   }
 
-  async getPermissionAddresses(fileId) {
-    return convertCallToPromise(this._aragonApp, 'getPermissionAddresses', fileId)
+  async getEntitiesWithPermissionsOnFile(fileId) {
+    return convertCallToPromise(this._aragonApp, 'getEntitiesWithPermissionsOnFile', fileId)
   }
 
-  async getPermission(fileId, entity) {
-    return convertCallToPromise(this._aragonApp, 'getPermission', fileId, entity)
+  async getEntityPermissionsOnFile(fileId, entity) {
+    return convertCallToPromise(this._aragonApp, 'getEntityPermissionsOnFile', fileId, entity)
   }
 
   async setWritePermission(fileId, entity, hasWritePermission) {
@@ -109,31 +105,34 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'renameGroup', groupId, newGroupName)
   }
 
-  async getGroups() {
-    return convertCallToPromise(this._aragonApp, 'getGroups')
-  }
-
   async getGroup(groupId: number) {
     return convertCallToPromise(this._aragonApp, 'getGroup', groupId)
   }
 
-  async getGroupEntity(groupId: number, entityIndex: number) {
-    return convertCallToPromise(this._aragonApp, 'getGroupEntity', groupId, entityIndex)
+  async getGroupIds() {
+    return convertCallToPromise(this._aragonApp, 'getGroupIds')
+  }
+
+  async getEntityInGroup(groupId: number, entityIndex: number) {
+    return convertCallToPromise(this._aragonApp, 'getEntityInGroup', groupId, entityIndex)
   }
 
   async getGroupEntityCount(groupId: number) {
     return convertCallToPromise(this._aragonApp, 'getGroupCount', groupId)
   }
 
-  async getPermissionGroups(fileId: number) {
-    return convertCallToPromise(this._aragonApp, 'getPermissionGroups', fileId)
+  async getGroupsWithPermissionsOnFile(fileId: number) {
+    return convertCallToPromise(this._aragonApp, 'getGroupsWithPermissionsOnFile', fileId)
   }
-  async getGroupPermission(fileId: number, groupId: number): Promise<any> {
-    return convertCallToPromise(this._aragonApp, 'getGroupPermission', fileId, groupId)
+
+  async getGroupPermissionsOnFile(fileId: number, groupId: number): Promise<any> {
+    return convertCallToPromise(this._aragonApp, 'getGroupPermissionsOnFile', fileId, groupId)
   }
+
   async setEntityPermissions(fileId: number, entity: string, read: boolean, write: boolean): Promise<{}> {
     return convertTransactionToPromise(this._aragonApp, 'setEntityPermissions', fileId, entity, read, write)
   }
+
   async removeEntityFromFile(fileId: number, entity: string): Promise<{}> {
     return convertTransactionToPromise(this._aragonApp, 'removeEntityFromFile', fileId, entity)
   }

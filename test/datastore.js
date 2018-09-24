@@ -88,7 +88,6 @@ contract('Datastore ', accounts => {
         
     })
 
-
     describe('deleteFile', async () => {
 
         it('deletes a file from the datastore', async () => {
@@ -121,13 +120,12 @@ contract('Datastore ', accounts => {
 
     })
 
-
-    describe('setFilename', async () => {
+    describe('setFileName', async () => {
 
         it('throws when called with no write access', async () => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, { from: accounts[0] })
 
-            await assertThrow(async () => datastore.setFilename(1, 'new file name', { from: accounts[1] }))
+            await assertThrow(async () => datastore.setFileName(1, 'new file name', { from: accounts[1] }))
 
         })
 
@@ -137,7 +135,7 @@ contract('Datastore ', accounts => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, { from: accounts[0] })
             await datastore.setWritePermission(1, accounts[1], true)
 
-            await datastore.setFilename(1, newFilename, { from: accounts[1] })
+            await datastore.setFileName(1, newFilename, { from: accounts[1] })
             
             const file = await datastore.getFile(1)
 
@@ -147,7 +145,7 @@ contract('Datastore ', accounts => {
 
         it('fires FileRename event', async () => {
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
-            await datastore.setFilename(1, 'new file name')
+            await datastore.setFileName(1, 'new file name')
     
             await assertEvent(datastore, { event: 'FileRename' })
         })          
@@ -204,7 +202,6 @@ contract('Datastore ', accounts => {
         await assertEvent(datastore, { event: 'NewFile' })
     })     
    
-   
     it('fires NewWritePermission event on setWritePermission call', async () => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
         await datastore.setWritePermission(1, accounts[1], true)
@@ -212,13 +209,13 @@ contract('Datastore ', accounts => {
         await assertEvent(datastore, { event: 'NewWritePermission' })
     })  
     
-    describe('getPermissionAddresses', async () => {
+    describe('getEntitiesWithPermissionsOnFile', async () => {
 
         it('returns the right address list', async() => {
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
             await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true, true)
 
-            const addresses = await datastore.getPermissionAddresses(1)
+            const addresses = await datastore.getEntitiesWithPermissionsOnFile(1)
 
             assert.equal(addresses.length, 1)
             assert.equal(addresses[0], '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
@@ -226,7 +223,7 @@ contract('Datastore ', accounts => {
         
     })
 
-    describe('getPermissionGroups', async () => {
+    describe('getGroupsWithPermissionsOnFile', async () => {
 
         it('returns the right group list', async() => {
             await datastore.createGroup('My first group')
@@ -236,7 +233,7 @@ contract('Datastore ', accounts => {
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
             await datastore.setGroupPermissions(1, 1, true, true)
 
-            const groups = await datastore.getPermissionGroups(1)
+            const groups = await datastore.getGroupsWithPermissionsOnFile(1)
 
             assert.equal(groups.length, 1)
             assert.equal(groups[0].toNumber(), 1)
@@ -244,21 +241,20 @@ contract('Datastore ', accounts => {
         
     })   
     
-    describe('getPermission', async () => {
+    describe('getEntityPermissionsOnFile', async () => {
 
         it('returns the read and write permissions', async() => {
 
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
             await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', false, true)
 
-            const permissions = await datastore.getPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+            const permissions = await datastore.getEntityPermissionsOnFile(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
 
             assert.equal(permissions[0], true)
             assert.equal(permissions[1], false)
         })
         
     })      
-
 
     describe('removeEntityFromFile', async () => {
 
@@ -344,14 +340,14 @@ contract('Datastore ', accounts => {
         })        
     })    
     
-    it('getGroupPermission returns the right data', async() => {
+    it('getGroupPermissionsOnFile returns the right data', async() => {
         await datastore.createGroup('My first group')
         await datastore.createGroup('My second group')
 
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true)
         await datastore.setGroupPermissions(1, 1, true, false)
 
-        const groupPermissions = await datastore.getGroupPermission(1, 1)
+        const groupPermissions = await datastore.getGroupPermissionsOnFile(1, 1)
 
         assert.equal(groupPermissions[0], false)
         assert.equal(groupPermissions[1], true)
@@ -369,8 +365,8 @@ contract('Datastore ', accounts => {
         await datastore.createGroup('My first group')
         await datastore.createGroup('My second group')
 
-        assert.equal((await datastore.getGroups())[0], 1)
-        assert.equal((await datastore.getGroups())[1], 2)
+        assert.equal((await datastore.getGroupIds())[0], 1)
+        assert.equal((await datastore.getGroupIds())[1], 2)
     })
 
     describe('deleteGroup', async () => {
@@ -379,8 +375,8 @@ contract('Datastore ', accounts => {
             await datastore.createGroup('My second group')
             await datastore.deleteGroup(2)
 
-            assert.equal((await datastore.getGroups())[0], 1)
-            assert.equal((await datastore.getGroups())[1], 0)
+            assert.equal((await datastore.getGroupIds())[0], 1)
+            assert.equal((await datastore.getGroupIds())[1], 0)
         })
 
         it("throws if group doesn't exist", async () => {
@@ -408,16 +404,16 @@ contract('Datastore ', accounts => {
     })
 
 
-    it('getGroups returns the list of Id of the groups', async() => {
+    it('getGroupIds returns the list of Id of the groups', async() => {
         await datastore.createGroup('My first group')
         await datastore.createGroup('My second group')
         await datastore.createGroup('My third group')
-        var groupCount = await datastore.getGroups();
+        var groupCount = await datastore.getGroupIds();
 
         assert.equal(groupCount.length, 3)
-        assert.equal((await datastore.getGroups())[0], 1)
-        assert.equal((await datastore.getGroups())[1], 2)
-        assert.equal((await datastore.getGroups())[2], 3)
+        assert.equal((await datastore.getGroupIds())[0], 1)
+        assert.equal((await datastore.getGroupIds())[1], 2)
+        assert.equal((await datastore.getGroupIds())[2], 3)
     })
 
     describe('getGroup', async () => {
@@ -438,7 +434,7 @@ contract('Datastore ', accounts => {
         })
     })        
 
-    describe('getGroupEntity', async () => {
+    describe('getEntityInGroup', async () => {
         it('returns an entity from a group', async() => {
             await datastore.createGroup('My first group')
             await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
@@ -447,9 +443,9 @@ contract('Datastore ', accounts => {
 
             await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6af7')
             //await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
-            var entity1 = await datastore.getGroupEntity(1, 0)
-            var entity2 = await datastore.getGroupEntity(1, 1)
-            var entity3 = await datastore.getGroupEntity(1, 2)
+            var entity1 = await datastore.getEntityInGroup(1, 0)
+            var entity2 = await datastore.getEntityInGroup(1, 1)
+            var entity3 = await datastore.getEntityInGroup(1, 2)
 
             assert.equal(entity1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
             assert.equal(entity2, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
@@ -457,7 +453,7 @@ contract('Datastore ', accounts => {
         })
 
         it("throws if group doesn't exist", async () => {            
-            assertThrow(async () => await datastore.getGroupEntity(2, 0))
+            assertThrow(async () => await datastore.getEntityInGroup(2, 0))
         })
     })          
 
@@ -488,7 +484,7 @@ contract('Datastore ', accounts => {
         it('adds an entity to a group', async() => {
             await datastore.createGroup('My first group')
             await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
-            var entity = await datastore.getGroupEntity(1, 0)
+            var entity = await datastore.getEntityInGroup(1, 0)
 
             assert.equal(entity, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
         })
@@ -506,8 +502,8 @@ contract('Datastore ', accounts => {
             await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
             
             
-            var entity1 = await datastore.getGroupEntity(1, 0)
-            var entity2 = await datastore.getGroupEntity(1, 1)
+            var entity1 = await datastore.getEntityInGroup(1, 0)
+            var entity2 = await datastore.getEntityInGroup(1, 1)
 
             assert.equal(entity1, 0)
             assert.equal(entity2, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
@@ -522,7 +518,6 @@ contract('Datastore ', accounts => {
             assertThrow(async () => await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7'))
         })
     })      
-
 
     describe('setReadPermission', async () => {
 
@@ -735,15 +730,15 @@ contract('Datastore ', accounts => {
         })
     })       
 
-    it('getGroups returns the array of groups Ids', async() => {
+    it('getGroupIds returns the array of groups Ids', async() => {
         await datastore.createGroup('My first group')
         await datastore.createGroup('My second group')
         await datastore.createGroup('My third group')
 
-        assert.equal((await datastore.getGroups()).length, 3)
-        assert.equal((await datastore.getGroups())[0], 1)
-        assert.equal((await datastore.getGroups())[1], 2)
-        assert.equal((await datastore.getGroups())[2], 3)
+        assert.equal((await datastore.getGroupIds()).length, 3)
+        assert.equal((await datastore.getGroupIds())[0], 1)
+        assert.equal((await datastore.getGroupIds())[1], 2)
+        assert.equal((await datastore.getGroupIds())[2], 3)
     })
 
     describe('setStorageProvider', async () => {
@@ -775,7 +770,6 @@ contract('Datastore ', accounts => {
             })
         }) 
     })
-
 
     describe('setMultiplePermissions', async () => {
         it('sets a file public status', async() => {

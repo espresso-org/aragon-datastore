@@ -39,10 +39,7 @@ describe('IPFS Provider', async () => {
                 let file = await ipfs.getFile(storageRef)
 
                 expect(file).toEqual(fileContent)
-
             }) 
         })       
-
     })
- 
 })
