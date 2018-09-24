@@ -302,6 +302,7 @@ contract('Datastore ', accounts => {
             }
             await datastore.addFile(file.storageRef, file.name, file.size, file.isPublic)
 
+            await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', false, true)
             await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', false, false)
             await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef8', true, false)
 
@@ -645,7 +646,9 @@ contract('Datastore ', accounts => {
                 isPublic: false
             }
             await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
-            await datastore.setGroupPermissions(1, 1, 1, 0)
+
+            await datastore.setGroupPermissions(1, 1, true, true)
+            await datastore.setGroupPermissions(1, 1, true, false)
 
             assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), true)
             assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), false)
