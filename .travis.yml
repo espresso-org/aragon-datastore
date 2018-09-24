@@ -20,3 +20,8 @@ sudo: false
 
 after_success:
   - cat coverage/lcov.info | ./node_modules/.bin/coveralls
+
+# Build only master branch and pull requests
+branches:
+  only: 
+    - master
