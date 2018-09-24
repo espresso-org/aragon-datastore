@@ -10,8 +10,6 @@ import {
 import { DatastoreSettings } from './datastore-settings';
 import { RpcProvider } from './rpc-providers/rpc-provider';
 
-
-
 export const providers = { storage, encryption, rpc }
 
 export class DatastoreOptions {
@@ -28,7 +26,6 @@ export class Datastore {
 
     /**
      * Creates a new Datastore instance
-     * 
      * @param {Object} opts.rpcProvider - RPC provider (Web3, Aragon)
      */
     constructor(opts?: DatastoreOptions) {
@@ -44,9 +41,8 @@ export class Datastore {
             this._contract = await this._rpc.getContract()
             await this._refreshSettings()
         }
-        else {
+        else 
             return this._isInit
-        }
     }
 
     private async _refreshSettings() {
@@ -78,7 +74,6 @@ export class Datastore {
 
         const fileInfo = await this.getFileInfo(fileId)
         const fileContent = await this._storage.getFile(fileInfo.storageRef)
-
         return { ...fileInfo, content: fileContent }
     }
 
@@ -103,15 +98,18 @@ export class Datastore {
         await this._contract.deleteFile(fileId)
     }
 
+    /**
+     * Returns the permissions on file with `fileId`
+     * @param {number} fileId File Id
+     */
     async getFilePermissions(fileId: number) {
         await this._initialize()
 
-        const entitiesAddress = await this._contract.getPermissionAddresses(fileId)
-
+        const entitiesAddress = await this._contract.getEntitiesWithPermissionsOnFile(fileId)
         return Promise.all(
             entitiesAddress.map(async entity => ({
                 entity,
-                ...createPermissionFromTuple(await this._contract.getPermission(fileId, entity))
+                ...createPermissionFromTuple(await this._contract.getEntityPermissionsOnFile(fileId, entity))
             })) 
         )
     }
@@ -125,6 +123,12 @@ export class Datastore {
         return this._settings
     }
 
+    /**
+     * Sets the settings for IPFS storage
+     * @param {string} host Host
+     * @param {number} port Port
+     * @param {string} protocol HTTP protocol
+     */
     async setIpfsStorageSettings(host: string, port: number, protocol: string) {
         await this._initialize()
 
@@ -145,7 +149,6 @@ export class Datastore {
         for (let i = 1; i <= lastFileId; i++) {
             files[i] = await this.getFileInfo(i)
         }
-
         return files
     }
 
@@ -162,9 +165,7 @@ export class Datastore {
     }
 
     /**
-     * Add/Remove read permission to an entity for
-     * a specific file
-     * 
+     * Add/Remove read permission to an entity for a specific file
      * @param {number} fileId File Id
      * @param {string} entity Entity address
      * @param {boolean} hasPermission Write permission
@@ -176,24 +177,7 @@ export class Datastore {
     }
 
     /**
-     * Add/Remove permissions to an entity for
-     * a specific file
-     * 
-     * @param {number} fileId File Id
-     * @param {string} entity Entity address
-     * @param {boolean} read read permission
-     * @param {boolean} write write permission
-     */
-    async setEntityPermissions(fileId: number, entity: string, read: boolean, write: boolean) {
-        await this._initialize()
-
-        await this._contract.setEntityPermissions(fileId, entity, read, write)
-    }    
-
-    /**
-     * Add/Remove write permission to an entity for
-     * a specific file
-     * 
+     * Add/Remove write permission to an entity for a specific file
      * @param {number} fileId File Id
      * @param {string} entity Entity address
      * @param {boolean} hasPermission Write permission
@@ -205,7 +189,20 @@ export class Datastore {
     }
 
     /**
-     * 
+     * Add/Remove permissions to an entity for a specific file
+     * @param {number} fileId File Id
+     * @param {string} entity Entity address
+     * @param {boolean} read read permission
+     * @param {boolean} write write permission
+     */
+    async setEntityPermissions(fileId: number, entity: string, read: boolean, write: boolean) {
+        await this._initialize()
+
+        await this._contract.setEntityPermissions(fileId, entity, read, write)
+    }
+
+    /**
+     * Sets multiple permissions on a file
      * @param {number} fileId 
      * @param {Object[]} entityPermissions 
      * @param {Object[]} groupPermissions 
@@ -232,6 +229,7 @@ export class Datastore {
      */
     async removeEntityFromFile(fileId: number, entity: string) {
         await this._initialize()
+
         await this._contract.removeEntityFromFile(fileId, entity)
     }
 
@@ -240,15 +238,15 @@ export class Datastore {
      * @param {number} fileId File Id
      * @param {string} newName New file name
      */
-    async setFilename(fileId: number, newName: string) {
+    async setFileName(fileId: number, newName: string) {
         await this._initialize()
 
-        await this._contract.setFilename(fileId, newName)
+        await this._contract.setFileName(fileId, newName)
     }
 
     /**
      * Creates a new group of entities
-     * @param groupName Name of the group
+     * @param {string} groupName Name of the group
      */
     async createGroup(groupName: string) {
         await this._initialize()
@@ -258,7 +256,7 @@ export class Datastore {
 
     /**
      * Deletes a group
-     * @param groupId Id of the group
+     * @param {number} groupId Id of the group
      */
     async deleteGroup(groupId: number) {
         await this._initialize()
@@ -268,8 +266,8 @@ export class Datastore {
 
     /**
      * Rename an existing group
-     * @param groupId Id of the group to rename
-     * @param newGroupName New group name
+     * @param {number} groupId Id of the group to rename
+     * @param {string} newGroupName New group name
      */
     async renameGroup(groupId: number, newGroupName: string) {
         await this._initialize()
@@ -284,14 +282,14 @@ export class Datastore {
         await this._initialize()
 
         let groups = []
-        let groupsIds = await this._contract.getGroups()
-        for(var i = 0; i < groupsIds.length; i++) {
-            let getGroup = await this._contract.getGroup(groupsIds[i])
-            if(getGroup && getGroup[1] !== 0) {
+        let groupsIds = await this._contract.getGroupIds()
+        for (var i = 0; i < groupsIds.length; i++) {
+            let groupInfos = await this._contract.getGroup(groupsIds[i])
+            if (groupInfos && groupInfos[1] !== 0) {
                 let group = {
                     id: groupsIds[i],
-                    name: getGroup[1],
-                    entities: getGroup[0]
+                    name: groupInfos[1],
+                    entities: groupInfos[0]
                 }
                 groups.push(group)
             }
@@ -299,23 +297,26 @@ export class Datastore {
         return groups
     }
 
+    /**
+     * Returns the groups permissions for file with `fileId`
+     * @param {number} fileId 
+     */
     async getFileGroupPermissions(fileId: number) {
         await this._initialize()
 
-        const entitiesAddress = await this._contract.getPermissionGroups(fileId)
-
+        const entitiesAddress = await this._contract.getGroupsWithPermissionsOnFile(fileId)
         return Promise.all(
             entitiesAddress.map(async groupId => ({
                 groupId: parseInt(groupId),
                 groupName: (await this._contract.getGroup(parseInt(groupId)))[1],
-                ...createPermissionFromTuple(await this._contract.getGroupPermission(fileId, parseInt(groupId)))
-            })) 
+                ...createPermissionFromTuple(await this._contract.getGroupPermissionsOnFile(fileId, parseInt(groupId)))
+            }))
         )
     }
 
     /**
      * Returns the entities from a group
-     * @param groupId Id of the group to get entities from
+     * @param {number} groupId Id of the group to get entities from
      */
     async getGroup(groupId: number) {
         await this._initialize()
@@ -325,8 +326,8 @@ export class Datastore {
 
     /**
      * Add an entity to a group
-     * @param groupId Id of the group to insert the entity in
-     * @param entity Entity to add in group
+     * @param {number} groupId Id of the group to insert the entity in
+     * @param {string} entity Entity to add in group
      */
     async addEntityToGroup(groupId: number, entity: string) {
         await this._initialize()
@@ -336,8 +337,8 @@ export class Datastore {
 
     /**
      * Removes an entity from a group
-     * @param groupId Id of the group to remove the entity from
-     * @param entity Entity to remove from group
+     * @param {number} groupId Id of the group to remove the entity from
+     * @param {string} entity Entity to remove from group
      */
     async removeEntityFromGroup(groupId: number, entity: string) {
         await this._initialize()
@@ -347,10 +348,10 @@ export class Datastore {
 
     /**
      * Sets read and write permissions on a file for a group
-     * @param fileId Id of the file
-     * @param groupId Id of the group
-     * @param read Read permission
-     * @param write Write permission
+     * @param {number} fileId Id of the file
+     * @param {number} groupId Id of the group
+     * @param {boolean} read Read permission
+     * @param {boolean} write Write permission
      */
     async setGroupPermissions(fileId: number, groupId: number, read: boolean, write: boolean) {
         await this._initialize()
@@ -360,8 +361,8 @@ export class Datastore {
 
     /**
      * Removes a group from a file's permissions
-     * @param fileId Id of the file
-     * @param groupId Id of the group
+     * @param {number} fileId Id of the file
+     * @param {number} groupId Id of the group
      */
     async removeGroupFromFile(fileId: number, groupId: number) {
         await this._initialize()
@@ -371,7 +372,6 @@ export class Datastore {
 
     /**
      * Datastore events
-     * 
      */
     async events(...args) {
         // TODO: Return an Observable without async

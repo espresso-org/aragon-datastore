@@ -4,9 +4,8 @@ import { DatastoreSettings, StorageProvider } from '../datastore-settings'
 export { StorageProvider } from './storage-provider'
 export { Ipfs } from './ipfs'
 
-
 export function getStorageProviderFromSettings(settings: DatastoreSettings) {
-    switch(settings.storageProvider) {
+    switch (settings.storageProvider) {
         case StorageProvider.Ipfs: 
             return new Ipfs({
                 host: settings.ipfs.host,
@@ -24,6 +23,3 @@ export function getStorageProviderFromSettings(settings: DatastoreSettings) {
             return undefined
     }
 }
-
-
-

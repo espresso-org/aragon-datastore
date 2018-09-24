@@ -21,7 +21,6 @@ export const createPermissionFromTuple = (tuple: boolean[]) => ({
     read: tuple[1]    
 })
 
-
 export const createSettingsFromTuple = (tuple: any[]): DatastoreSettings => ({
     storageProvider: convertStringToEnum<StorageProvider>(tuple[0]),
     encryptionType: convertStringToEnum<EncryptionType>(tuple[1]),
@@ -33,9 +32,6 @@ export const createSettingsFromTuple = (tuple: any[]): DatastoreSettings => ({
     }
 })
 
-
 export function convertStringToEnum<T>(s: string): T {
     return (parseInt(s) as any) as T
 }
-
-

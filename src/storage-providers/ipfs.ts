@@ -1,7 +1,6 @@
 import * as ipfsAPI from 'ipfs-api' 
 import { StorageProvider } from './storage-provider'
 
-
 export class IpfsOptions {
     host: string
     port: string
@@ -32,8 +31,4 @@ export class Ipfs implements StorageProvider {
         else 
             throw 'Unable to add file to IPFS'
     }
-
 }
-
-
-
