@@ -22,7 +22,7 @@ export interface RpcProviderContract {
     deleteGroup(groupId: number) : Promise<{}>
     renameGroup(groupId: number, newGroupName: string) : Promise<{}>
     getGroupIds() : Promise<any[]>
-    getGroup(groupId: number) : Promise<{}>
+    getGroup(groupId: number) : Promise<any>
     getEntityInGroup(groupId: number, entityIndex: number) : Promise<{}>
     getGroupEntityCount(groupId: number) : Promise<{}>
     addEntityToGroup(groupId: number, entity: string) : Promise<{}>

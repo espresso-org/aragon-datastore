@@ -291,7 +291,7 @@ export class Datastore {
                 let group = {
                     id: groupsIds[i],
                     name: groupInfos[1],
-                    entities: groupInfos[0]
+                    entities: groupInfos[0].filter(entity => entity !== '0x0000000000000000000000000000000000000000')
                 }
                 groups.push(group)
             }
@@ -326,7 +326,8 @@ export class Datastore {
     async getGroup(groupId: number) {
         await this._initialize()
 
-        await this._contract.getGroup(groupId)
+        return (await this._contract.getGroup(groupId))
+            .filter(entity => entity !== '0x0000000000000000000000000000000000000000')
     }
 
     /**
