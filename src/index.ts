@@ -60,7 +60,7 @@ export class Datastore {
         await this._initialize()
 
         const storageId = await this._storage.addFile(file)
-        const fileId = await this._contract.addFile(storageId, name, file.byteLength, false)
+        const fileId = await this._contract.addFile(storageId, name, file.byteLength, true)
         return fileId
     }
 
