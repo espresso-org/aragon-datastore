@@ -23,6 +23,7 @@ contract Datastore {
     event SettingsChanged(address indexed entity);
     event GroupChange(address indexed entity);
     event EntityPermissionsRemoved(address indexed entity);
+    event GroupPermissionsRemoved(address indexed entity);
 
     /**
      * Datastore settings
@@ -501,5 +502,6 @@ contract Datastore {
     function removeGroupFromFile(uint _fileId, uint _groupId) public {
         require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.removeGroupFromFile(_fileId, _groupId);
+        GroupPermissionsRemoved(msg.sender);
     }
 }

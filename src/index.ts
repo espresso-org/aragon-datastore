@@ -107,7 +107,9 @@ export class Datastore {
 
         const entitiesAddress = await this._contract.getEntitiesWithPermissionsOnFile(fileId)
         return Promise.all(
-            entitiesAddress.map(async entity => ({
+            entitiesAddress
+            .filter(entity => entity !== '0x0000000000000000000000000000000000000000')
+            .map(async entity => ({
                 entity,
                 ...createPermissionFromTuple(await this._contract.getEntityPermissionsOnFile(fileId, entity))
             })) 
@@ -304,12 +306,15 @@ export class Datastore {
     async getFileGroupPermissions(fileId: number) {
         await this._initialize()
 
-        const entitiesAddress = await this._contract.getGroupsWithPermissionsOnFile(fileId)
+        const groupIds = await this._contract.getGroupsWithPermissionsOnFile(fileId)
         return Promise.all(
-            entitiesAddress.map(async groupId => ({
-                groupId: parseInt(groupId),
-                groupName: (await this._contract.getGroup(parseInt(groupId)))[1],
-                ...createPermissionFromTuple(await this._contract.getGroupPermissionsOnFile(fileId, parseInt(groupId)))
+            groupIds
+            .map(groupId => parseInt(groupId))
+            .filter(groupId => groupId > 0)
+            .map(async groupId => ({
+                groupId: groupId,
+                groupName: (await this._contract.getGroup(groupId))[1],
+                ...createPermissionFromTuple(await this._contract.getGroupPermissionsOnFile(fileId, groupId))
             }))
         )
     }
