@@ -1,5 +1,5 @@
-import { Ipfs } from './ipfs' 
 import * as ipfsAPI from 'ipfs-api' 
+import { Ipfs } from './ipfs' 
 
 /**
  * The tests in this file needs an IPFS server to run.
@@ -20,10 +20,10 @@ describe('IPFS Provider', async () => {
         describe('addFile', async () => {
             xit('pins file', async () => {
 
-                let ipfs = new Ipfs(IpfsConfig)
-                let result = await ipfs.addFile(new ArrayBuffer(40))
+                const ipfs = new Ipfs(IpfsConfig)
+                const result = await ipfs.addFile(new ArrayBuffer(40))
 
-                let pinnedHash = (await _ipfs.pin.ls()).find(pin => pin.hash === result)
+                const pinnedHash = (await _ipfs.pin.ls()).find((pin) => pin.hash === result)
                 
                 expect(pinnedHash.hash).toEqual(result)
 
@@ -34,9 +34,9 @@ describe('IPFS Provider', async () => {
             xit('returns the exact same file', async () => {
 
                 const fileContent = new ArrayBuffer(40)
-                let ipfs = new Ipfs(IpfsConfig)
-                let storageRef = await ipfs.addFile(fileContent)
-                let file = await ipfs.getFile(storageRef)
+                const ipfs = new Ipfs(IpfsConfig)
+                const storageRef = await ipfs.addFile(fileContent)
+                const file = await ipfs.getFile(storageRef)
 
                 expect(file).toEqual(fileContent)
             }) 

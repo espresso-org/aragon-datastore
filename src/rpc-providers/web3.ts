@@ -1,10 +1,10 @@
 //import * as rxjs from 'rxjs'
 //import contract from 'truffle-contract'
 //import * as DatastoreContract from '../../build-contracts/Datastore'
-import * as DatastoreContract from '../build-contracts/Datastore.json'
 import { Observable } from 'rxjs'
-import { RpcProviderContract } from './rpc-provider-contract'
+import * as DatastoreContract from '../build-contracts/Datastore.json'
 import { RpcProvider } from './rpc-provider';
+import { RpcProviderContract } from './rpc-provider-contract'
 
 export class Web3 implements RpcProvider {
     _web3
@@ -17,7 +17,7 @@ export class Web3 implements RpcProvider {
         this._web3 = web3
         this._contract = contract(DatastoreContract)
         this._contract.defaults({
-            gas:3000000
+            gas: 3000000
         })
 
         this._contract.setProvider(web3.currentProvider)
@@ -48,7 +48,7 @@ export class Web3 implements RpcProvider {
     async getContract(): Promise<RpcProviderContract> {
         await this.initialize()
 
-        let contractInstance = await this._contract.deployed()
+        const contractInstance = await this._contract.deployed()
 
         contractInstance.events = fromCallback(contractInstance.allEvents.bind(contractInstance))
 
@@ -58,7 +58,7 @@ export class Web3 implements RpcProvider {
 
 function fromCallback(cb) {
     return () => {
-        return Observable.create(observer => {
+        return Observable.create((observer) => {
             cb((e, value) => {
                 if (e)
                     return observer.error(e)

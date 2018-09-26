@@ -1,5 +1,5 @@
-import { Ipfs } from './ipfs'
 import { DatastoreSettings, StorageProvider } from '../datastore-settings'
+import { Ipfs } from './ipfs'
 
 export { StorageProvider } from './storage-provider'
 export { Ipfs } from './ipfs'
@@ -14,10 +14,10 @@ export function getStorageProviderFromSettings(settings: DatastoreSettings) {
             })
 
         case StorageProvider.Filecoin: 
-            throw 'Not implemented yet'
+            throw new Error('Not implemented yet')
 
         case StorageProvider.Swarm:
-            throw 'Not implemented yet'
+            throw new Error('Not implemented yet')
 
         case StorageProvider.None:
             return undefined

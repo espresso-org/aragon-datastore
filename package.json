@@ -20,6 +20,8 @@
     "test:watch": "npm test -- --watch",
     "coverage": "solidity-coverage",
     "coverage:watch": "npm run coverage -- --watch",
+    "lint": "tslint src/**/*.ts",
+    "lint:fix": "tslint src/**/*.ts --fix",
     "release": "standard-version && npm pack",
     "truffle:copy-contracts": "copyfiles -f build/contracts/* src/build-contracts"
   },
@@ -42,7 +44,7 @@
     "truffle": "^4.0.5",
     "ts-jest": "^20.0.10",
     "ts-loader": "^2.3.3",
-    "tslint": "^5.10.0",
+    "tslint": "^5.11.0",
     "tslint-loader": "^3.5.3",
     "typescript": "^2.8.3",
     "webpack": "3.8.1",

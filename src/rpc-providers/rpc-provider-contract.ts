@@ -18,17 +18,17 @@ export interface RpcProviderContract {
     setMultiplePermissions(fileId: number, groupIds: number[], groupRead: boolean[], groupWrite: boolean[], entities: string[], entityRead: boolean[], entityWrite: boolean[], isPublic: boolean): Promise<{}>
     settings(): Promise<any[]>
     setIpfsStorageSettings(host: string, port: number, protocol: string): Promise<{}>
-    createGroup(groupName: string) : Promise<{}>
-    deleteGroup(groupId: number) : Promise<{}>
-    renameGroup(groupId: number, newGroupName: string) : Promise<{}>
-    getGroupIds() : Promise<any[]>
-    getGroup(groupId: number) : Promise<any>
-    getEntityInGroup(groupId: number, entityIndex: number) : Promise<{}>
-    getGroupEntityCount(groupId: number) : Promise<{}>
-    addEntityToGroup(groupId: number, entity: string) : Promise<{}>
-    removeEntityFromGroup(groupId: number, entity: string) : Promise<{}>
+    createGroup(groupName: string): Promise<{}>
+    deleteGroup(groupId: number): Promise<{}>
+    renameGroup(groupId: number, newGroupName: string): Promise<{}>
+    getGroupIds(): Promise<any[]>
+    getGroup(groupId: number): Promise<any>
+    getEntityInGroup(groupId: number, entityIndex: number): Promise<{}>
+    getGroupEntityCount(groupId: number): Promise<{}>
+    addEntityToGroup(groupId: number, entity: string): Promise<{}>
+    removeEntityFromGroup(groupId: number, entity: string): Promise<{}>
     removeEntityFromFile(fileId: number, entity: string): Promise<{}>
-    setGroupPermissions(fileId: number, groupId: number, read: boolean, write: boolean) : Promise<{}>
-    removeGroupFromFile(fileId: number, groupId: number) : Promise<{}>
+    setGroupPermissions(fileId: number, groupId: number, read: boolean, write: boolean): Promise<{}>
+    removeGroupFromFile(fileId: number, groupId: number): Promise<{}>
     events(...args): any
 }
