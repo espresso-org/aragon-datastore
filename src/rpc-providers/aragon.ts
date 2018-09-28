@@ -44,13 +44,21 @@ export class AragonContract implements RpcProviderContract {
     return fileTuple
   }
 
+  async getFileEncryptionKey(fileId) {
+    return convertCallToPromise(this._aragonApp, 'getFileEncryptionKey', fileId)
+  }
+
   async deleteFile(fileId) {
     return convertTransactionToPromise(this._aragonApp, 'deleteFile', fileId)
   }
 
   async setFileName(fileId, newName) {
     return convertTransactionToPromise(this._aragonApp, 'setFileName', fileId, newName)
-  } 
+  }
+
+  async setEncryptionKey(fileId, encryptionKey) {
+    return convertTransactionToPromise(this._aragonApp, 'setEncryptionKey', fileId, encryptionKey)
+  }
 
   async setFileContent(fileId, storageRef, fileSize) {
     return convertTransactionToPromise(this._aragonApp, 'setFileContent', fileId, storageRef, fileSize)

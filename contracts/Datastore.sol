@@ -60,6 +60,7 @@ contract Datastore {
         bool isPublic;          // True if file can be read by anyone
         bool isDeleted;         // Is file deleted
         uint lastModification;  // Timestamp of the last file content update
+        bytes cryptoKey;       // Encryption key for this file
     }
 
     /**
@@ -90,7 +91,8 @@ contract Datastore {
             keepRef: "",
             isPublic: _isPublic,
             isDeleted: false,
-            lastModification: now
+            lastModification: now,
+            cryptoKey: ""
         });
         PermissionLibrary.addOwner(fileOwners, lastFileId, msg.sender);
         PermissionLibrary.initializePermissionAddresses(permissions, lastFileId);
@@ -130,6 +132,14 @@ contract Datastore {
         lastModification = file.lastModification;
         permissionAddresses = permissions.permissionAddresses[_fileId];
         writeAccess = hasWriteAccess(_fileId, msg.sender);
+    }
+
+    /**
+     * @notice Returns the encryption key for file with `_fileId`
+     * @param _fileId File Id    
+     */
+    function getFileEncryptionKey(uint _fileId) external view returns(bytes) {
+        return files[_fileId].cryptoKey;
     }
 
     /**
@@ -190,6 +200,18 @@ contract Datastore {
         files[_fileId].name = _newName;
         files[_fileId].lastModification = now;
         FileRename(msg.sender, lastFileId);
+    }
+
+    /**
+     * @notice Changes encryption key of file `_fileId` to `_cryptoKey`
+     * @param _fileId File Id
+     * @param _cryptoKey Encryption key    
+     */
+    function setEncryptionKey(uint _fileId, bytes _cryptoKey) external {
+        require(hasWriteAccess(_fileId, msg.sender));
+
+        files[_fileId].cryptoKey = _cryptoKey;
+        FileContentUpdate(msg.sender, lastFileId);
     }
 
     /**

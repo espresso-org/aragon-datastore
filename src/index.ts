@@ -2,6 +2,8 @@ import * as async from 'async'
 import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
+import * as cryptoJS from './crypto-js'
+import * as base64JS from './base64-js'
 
 import { 
     createFileFromTuple, 
@@ -23,6 +25,17 @@ export class Datastore {
     private _contract: rpc.RpcProviderContract
     private _settings: DatastoreSettings
     private _isInit
+
+    // Temporary encryption options
+    private encryptionAlgo = {
+        name: 'AES-GCM',
+        length: 256,
+        iv: crypto.getRandomValues(new Uint8Array(12))
+    }
+    private encryptionKeyAlgo = {
+        name: 'AES-GCM',
+        length: 256
+    }
 
     /**
      * Creates a new Datastore instance
@@ -73,7 +86,11 @@ export class Datastore {
         await this._initialize()
 
         const fileInfo = await this.getFileInfo(fileId)
-        const fileContent = await this._storage.getFile(fileInfo.storageRef)
+        const fileEncryptionKey = await crypto.subtle.importKey('raw', await this._contract.getFileEncryptionKey(fileId), <any>[{ name: 'AES-GCM', length: 256, }], true, ['encrypt', 'decrypt'])
+        let fileContent = await this._storage.getFile(fileInfo.storageRef)
+        if (!fileInfo.isPublic)
+          fileContent = await this.decryptFile(fileContent, fileEncryptionKey)  
+
         return { ...fileInfo, content: fileContent }
     }
 
@@ -211,7 +228,12 @@ export class Datastore {
      */
     async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[], isPublic: boolean) { 
         await this._initialize()
-        
+
+        if (!isPublic) {
+            let file = await this.getFile(fileId)
+            this.setFileContent(fileId, await this.encryptFile(fileId, file.content))
+        }
+
         await this._contract.setMultiplePermissions(
             fileId,
             groupPermissions.map(perm => perm.groupId),
@@ -374,6 +396,30 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.removeGroupFromFile(fileId, groupId)
+    }
+
+    /**
+     * Encrypts a file with an AES Cipher algorithm
+     * @param {ArrayBuffer} file File as an ArrayBuffer
+     * @param {number} fileId Id of the file
+     */
+    async encryptFile(fileId: number, file: ArrayBuffer) {
+        await this._initialize()
+
+        const encryptionKey = await crypto.subtle.generateKey(this.encryptionKeyAlgo, true, ['encrypt', 'decrypt'])
+        await this._contract.setEncryptionKey(fileId, await crypto.subtle.exportKey('raw', encryptionKey))
+        return await crypto.subtle.encrypt(this.encryptionAlgo, encryptionKey, file)
+    }
+
+    /**
+     * Decryps a file with an AES Cipher algorithm
+     * @param {ArrayBuffer} encryptedFile Encrypted file to decrypt
+     * @param {CryptoKey} encryptionKey Encryption key
+     */
+    async decryptFile(encryptedFile: ArrayBuffer, encryptionKey: CryptoKey) {
+        await this._initialize()
+
+        return await crypto.subtle.decrypt(this.encryptionKeyAlgo, encryptionKey, encryptedFile)
     }
 
     /**
