@@ -5781,7 +5781,7 @@ truffle-privatekey-provider@0.0.6:
     web3 "^0.20.1"
     web3-provider-engine "^8.4.0"
 
-truffle@^4.0.5:
+truffle@^4.1.14:
   version "4.1.14"
   resolved "https://registry.yarnpkg.com/truffle/-/truffle-4.1.14.tgz#8d2c298e29abf9b1e486e44ff9faca6d34bb9030"
   dependencies:
