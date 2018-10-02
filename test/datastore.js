@@ -591,7 +591,7 @@ contract('Datastore ', accounts => {
             assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
         })       
 
-    })    
+    })  
 
     describe('setWritePermission', async () => {
 
@@ -796,8 +796,22 @@ contract('Datastore ', accounts => {
             assertThrow(async () => {
                 await datastore.setMultiplePermissions(1, [1], [true], [false], ['0xb4124ceb3451635dacedd11767f004d8a28c6ee8'], [false], [true], true, { from: accounts[1] })
             })
-        })          
+        })
+    })
 
+    describe('test encryption keys', async () => {
+        it('setEncryptionKey', async() => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: false
+            }
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+            await datastore.setEncryptionKey(1, JSON.stringify({"alg":"A256CBC","ext":true,"k":"GV8Vjmq-8_Em0lyrDVo-3YdFkTFrAKyg2UWIwTcolxY","key_ops":["encrypt","decrypt"],"kty":"oct"}))
+
+            assert.equal((await datastore.getFileEncryptionKey(1)), JSON.stringify({"alg":"A256CBC","ext":true,"k":"GV8Vjmq-8_Em0lyrDVo-3YdFkTFrAKyg2UWIwTcolxY","key_ops":["encrypt","decrypt"],"kty":"oct"}))
+        })
     })
 })
 

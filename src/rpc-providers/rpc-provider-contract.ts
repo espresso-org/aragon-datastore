@@ -5,10 +5,10 @@ export interface RpcProviderContract {
     lastFileId(): Promise<BigNumber>
     addFile(storageRef: string, name: string, fileSize: number, isPublic: boolean): Promise<{}>
     getFile(fileId: number): Promise<any[]>
-    getFileEncryptionKey(fileId: number): Promise<{}>
+    getFileEncryptionKey(fileId: number): Promise<string>
     deleteFile(fileId: number): Promise<{}>
     setFileName(fileId: number, newName: string): Promise<{}>
-    setEncryptionKey(fileId: number, cryptoKey: ArrayBuffer): Promise<{}>
+    setEncryptionKey(fileId: number, cryptoKey: string): Promise<{}>
     setFileContent(fileId: number, storageRef: string, fileSize: number): Promise<{}>
     getEntitiesWithPermissionsOnFile(fileId: number): Promise<string[]>
     getGroupsWithPermissionsOnFile(fileId: number): Promise<any[]>

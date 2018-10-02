@@ -60,7 +60,7 @@ contract Datastore {
         bool isPublic;          // True if file can be read by anyone
         bool isDeleted;         // Is file deleted
         uint lastModification;  // Timestamp of the last file content update
-        bytes cryptoKey;       // Encryption key for this file
+        string cryptoKey;       // Encryption key for this file
     }
 
     /**
@@ -138,7 +138,7 @@ contract Datastore {
      * @notice Returns the encryption key for file with `_fileId`
      * @param _fileId File Id    
      */
-    function getFileEncryptionKey(uint _fileId) external view returns(bytes) {
+    function getFileEncryptionKey(uint _fileId) external view returns(string) {
         return files[_fileId].cryptoKey;
     }
 
@@ -207,7 +207,7 @@ contract Datastore {
      * @param _fileId File Id
      * @param _cryptoKey Encryption key    
      */
-    function setEncryptionKey(uint _fileId, bytes _cryptoKey) external {
+    function setEncryptionKey(uint _fileId, string _cryptoKey) external {
         require(hasWriteAccess(_fileId, msg.sender));
 
         files[_fileId].cryptoKey = _cryptoKey;

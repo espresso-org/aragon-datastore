@@ -28,12 +28,12 @@ export class Datastore {
 
     // Temporary encryption options
     private encryptionAlgo = {
-        name: 'AES-GCM',
+        name: "AES-CBC",
         length: 256,
-        iv: crypto.getRandomValues(new Uint8Array(12))
+        iv: crypto.getRandomValues(new Uint8Array(16))
     }
     private encryptionKeyAlgo = {
-        name: 'AES-GCM',
+        name: "AES-CBC",
         length: 256
     }
 
@@ -86,10 +86,20 @@ export class Datastore {
         await this._initialize()
 
         const fileInfo = await this.getFileInfo(fileId)
-        const fileEncryptionKey = await crypto.subtle.importKey('raw', await this._contract.getFileEncryptionKey(fileId), <any>[{ name: 'AES-GCM', length: 256, }], true, ['encrypt', 'decrypt'])
         let fileContent = await this._storage.getFile(fileInfo.storageRef)
-        if (!fileInfo.isPublic)
-          fileContent = await this.decryptFile(fileContent, fileEncryptionKey)  
+
+        const encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
+        console.log('keyAsString: ' + encryptionKeyAsString)
+
+        if (encryptionKeyAsString) {
+            console.log('HEYHEYHYE IT GOT HERE')
+            const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
+            console.log('encryptionKeyAsJSON:', encryptionKeyAsJSON)
+            const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>{ name: "AES-CBC" }, true, ['encrypt', 'decrypt'])
+
+            if (!fileInfo.isPublic)
+                fileContent = await this.decryptFile(fileContent, fileEncryptionKey) 
+        }
 
         return { ...fileInfo, content: fileContent }
     }
@@ -229,11 +239,6 @@ export class Datastore {
     async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[], isPublic: boolean) { 
         await this._initialize()
 
-        if (!isPublic) {
-            let file = await this.getFile(fileId)
-            this.setFileContent(fileId, await this.encryptFile(fileId, file.content))
-        }
-
         await this._contract.setMultiplePermissions(
             fileId,
             groupPermissions.map(perm => perm.groupId),
@@ -244,6 +249,11 @@ export class Datastore {
             entityPermissions.map(perm => perm.write),
             isPublic
         )
+
+        if (!isPublic) {
+            let file = await this.getFile(fileId)
+            this.setFileContent(fileId, await this.encryptFile(fileId, file.content))
+        }
     }
 
     /**
@@ -407,7 +417,11 @@ export class Datastore {
         await this._initialize()
 
         const encryptionKey = await crypto.subtle.generateKey(this.encryptionKeyAlgo, true, ['encrypt', 'decrypt'])
-        await this._contract.setEncryptionKey(fileId, await crypto.subtle.exportKey('raw', encryptionKey))
+        const encryptionKeyAsJSON = await crypto.subtle.exportKey('jwk', encryptionKey)
+        const encryptionKeyAsString = JSON.stringify(encryptionKeyAsJSON)
+        console.log('keyAsString1: ' + encryptionKeyAsString)
+
+        await this._contract.setEncryptionKey(fileId, encryptionKeyAsString)
         return await crypto.subtle.encrypt(this.encryptionAlgo, encryptionKey, file)
     }
 
