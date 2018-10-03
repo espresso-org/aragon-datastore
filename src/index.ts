@@ -32,10 +32,6 @@ export class Datastore {
         length: 256,
         iv: crypto.getRandomValues(new Uint8Array(16))
     }
-    private encryptionKeyAlgo = {
-        name: "AES-CBC",
-        length: 256
-    }
 
     /**
      * Creates a new Datastore instance
@@ -89,13 +85,10 @@ export class Datastore {
         let fileContent = await this._storage.getFile(fileInfo.storageRef)
 
         const encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
-        console.log('keyAsString: ' + encryptionKeyAsString)
 
         if (encryptionKeyAsString) {
-            console.log('HEYHEYHYE IT GOT HERE')
             const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
-            console.log('encryptionKeyAsJSON:', encryptionKeyAsJSON)
-            const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>{ name: "AES-CBC" }, true, ['encrypt', 'decrypt'])
+            const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this.encryptionAlgo, true, ['encrypt', 'decrypt'])
 
             if (!fileInfo.isPublic)
                 fileContent = await this.decryptFile(fileContent, fileEncryptionKey) 
@@ -416,10 +409,9 @@ export class Datastore {
     async encryptFile(fileId: number, file: ArrayBuffer) {
         await this._initialize()
 
-        const encryptionKey = await crypto.subtle.generateKey(this.encryptionKeyAlgo, true, ['encrypt', 'decrypt'])
+        const encryptionKey = await crypto.subtle.generateKey(this.encryptionAlgo, true, ['encrypt', 'decrypt'])
         const encryptionKeyAsJSON = await crypto.subtle.exportKey('jwk', encryptionKey)
         const encryptionKeyAsString = JSON.stringify(encryptionKeyAsJSON)
-        console.log('keyAsString1: ' + encryptionKeyAsString)
 
         await this._contract.setEncryptionKey(fileId, encryptionKeyAsString)
         return await crypto.subtle.encrypt(this.encryptionAlgo, encryptionKey, file)
@@ -433,7 +425,7 @@ export class Datastore {
     async decryptFile(encryptedFile: ArrayBuffer, encryptionKey: CryptoKey) {
         await this._initialize()
 
-        return await crypto.subtle.decrypt(this.encryptionKeyAlgo, encryptionKey, encryptedFile)
+        return await crypto.subtle.decrypt(this.encryptionAlgo, encryptionKey, encryptedFile)
     }
 
     /**
