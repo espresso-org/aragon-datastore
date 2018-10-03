@@ -207,7 +207,7 @@ contract Datastore {
      * @param _fileId File Id
      * @param _cryptoKey Encryption key    
      */
-    function setEncryptionKey(uint _fileId, string _cryptoKey) external {
+    function setEncryptionKey(uint _fileId, string _cryptoKey) public {
         require(hasWriteAccess(_fileId, msg.sender));
 
         files[_fileId].cryptoKey = _cryptoKey;
@@ -221,7 +221,7 @@ contract Datastore {
      * @param _storageRef Storage Id (IPFS)
      * @param _fileSize File size in bytes
      */
-    function setFileContent(uint _fileId, string _storageRef, uint _fileSize) external {
+    function setFileContent(uint _fileId, string _storageRef, uint _fileSize) public {
         require(hasWriteAccess(_fileId, msg.sender));
 
         files[_fileId].storageRef = _storageRef;
@@ -503,7 +503,7 @@ contract Datastore {
      * @param _entityRead Read permission
      * @param _entityWrite Write permission      
      */
-    function setMultiplePermissions(uint256 _fileId, uint256[] _groupIds, bool[] _groupRead, bool[] _groupWrite, address[] _entities, bool[] _entityRead, bool[] _entityWrite, bool _isPublic) public {
+    function setMultiplePermissions(uint256 _fileId, uint256[] _groupIds, bool[] _groupRead, bool[] _groupWrite, address[] _entities, bool[] _entityRead, bool[] _entityWrite, bool _isPublic, string _storageRef, uint _fileSize, string encryptionKey) public {
         require(fileOwners.isOwner(_fileId, msg.sender));
 
         for(uint256 i = 0; i < _groupIds.length; i++) 
@@ -513,8 +513,14 @@ contract Datastore {
             permissions.setEntityPermissions(_fileId, _entities[j], _entityRead[j], _entityWrite[j]);
 
         files[_fileId].isPublic = _isPublic;
+
+        if (!_isPublic) {
+            setFileContent(_fileId, _storageRef, _fileSize);
+            setEncryptionKey(_fileId, encryptionKey);
+        }
+        
         NewPermissions(msg.sender, _fileId);
-    }    
+    }
 
     /**
      * @notice Remove group from file permissions

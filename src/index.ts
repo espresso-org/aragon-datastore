@@ -91,7 +91,7 @@ export class Datastore {
             const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this.encryptionAlgo, true, ['encrypt', 'decrypt'])
 
             if (!fileInfo.isPublic)
-                fileContent = await this.decryptFile(fileContent, fileEncryptionKey) 
+                fileContent = await this.decryptFile(fileContent, fileEncryptionKey)
         }
 
         return { ...fileInfo, content: fileContent }
@@ -232,6 +232,16 @@ export class Datastore {
     async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[], isPublic: boolean) { 
         await this._initialize()
 
+        let storageId
+        let fileByteLength
+        let encryptionFileData
+        if (!isPublic) {
+            let file = await this.getFile(fileId)
+            fileByteLength = file.content.byteLength
+            encryptionFileData = await this.encryptFile(fileId, file.content)
+            storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
+        }
+
         await this._contract.setMultiplePermissions(
             fileId,
             groupPermissions.map(perm => perm.groupId),
@@ -240,13 +250,11 @@ export class Datastore {
             entityPermissions.map(perm => perm.entity),
             entityPermissions.map(perm => perm.read),
             entityPermissions.map(perm => perm.write),
-            isPublic
+            isPublic,
+            storageId,
+            fileByteLength,
+            encryptionFileData.encryptionKey
         )
-
-        if (!isPublic) {
-            let file = await this.getFile(fileId)
-            this.setFileContent(fileId, await this.encryptFile(fileId, file.content))
-        }
     }
 
     /**
@@ -412,9 +420,12 @@ export class Datastore {
         const encryptionKey = await crypto.subtle.generateKey(this.encryptionAlgo, true, ['encrypt', 'decrypt'])
         const encryptionKeyAsJSON = await crypto.subtle.exportKey('jwk', encryptionKey)
         const encryptionKeyAsString = JSON.stringify(encryptionKeyAsJSON)
+        const encryptedFile = await crypto.subtle.encrypt(this.encryptionAlgo, encryptionKey, file)
 
-        await this._contract.setEncryptionKey(fileId, encryptionKeyAsString)
-        return await crypto.subtle.encrypt(this.encryptionAlgo, encryptionKey, file)
+        return {
+            encryptedFile: encryptedFile,
+            encryptionKey: encryptionKeyAsString
+        }
     }
 
     /**
