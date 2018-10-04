@@ -29,15 +29,18 @@ contract Datastore {
      * Datastore settings
      */
     enum StorageProvider { None, Ipfs, Filecoin, Swarm }
-    enum EncryptionType { None, Aes }
+    enum EncryptionProvider { None, Aes }
 
     struct Settings {
         StorageProvider storageProvider;
-        EncryptionType encryption;
+        EncryptionProvider encryptionProvider;
 
         string ipfsHost;
         uint16 ipfsPort;
         string ipfsProtocol;
+
+        string aesName;
+        uint aesLength;
     }
 
     /** 
@@ -47,6 +50,13 @@ contract Datastore {
         string host;
         uint16 port;
         string protocol;        
+    }
+    /** 
+     *  TODO: Use AesSettings inside Settings when aragon supports nested structs
+     */
+    struct AesSettings {
+        string name;
+        uint length;
     }
     
     /**
@@ -329,16 +339,29 @@ contract Datastore {
     }
 
     /**
-     * Sets IPFS as the storage provider for the datastore.
+     * @notice Change the encryption provider
+     * @param _encryptionProvider Encryption provider
+     */
+    function setEncryptionProvider(EncryptionProvider _encryptionProvider) public {
+        require(settings.encryptionProvider == EncryptionProvider.None);
+        settings.encryptionProvider = _encryptionProvider;
+        SettingsChanged(msg.sender);
+    }
+
+    /**
+     * @notice Sets IPFS as the storage provider for the datastore.
      * Since switching between storage providers is not supported,
      * the method can only be called if storage isn't set or already IPFS
+     * @param _host Host
+     * @param _port Port
+     * @param _protocol HTTP protocol
      */
-    function setIpfsStorageSettings(string host, uint16 port, string protocol) public {
+    function setIpfsStorageSettings(string _host, uint16 _port, string _protocol) public {
         require(settings.storageProvider == StorageProvider.None || settings.storageProvider == StorageProvider.Ipfs);
 
-        settings.ipfsHost = host;
-        settings.ipfsPort = port;
-        settings.ipfsProtocol = protocol;
+        settings.ipfsHost = _host;
+        settings.ipfsPort = _port;
+        settings.ipfsProtocol = _protocol;
         /*
         settings.ipfs = IpfsSettings({
             host: host,
@@ -347,6 +370,21 @@ contract Datastore {
         });*/
 
         settings.storageProvider = StorageProvider.Ipfs;
+        SettingsChanged(msg.sender);
+    }
+
+    /**
+     * @notice Sets Aes as the encryption provider for the datastore.
+     * @param _name Name of the AES encryption algorithm
+     * @param _length Length of the encryption key
+     */
+    function setAesEncryptionSettings(string _name, uint _length) public {
+        require(settings.encryptionProvider == EncryptionProvider.None || settings.encryptionProvider == EncryptionProvider.Aes);
+
+        settings.aesName = _name;
+        settings.aesLength = _length;
+
+        settings.encryptionProvider = EncryptionProvider.Aes;
         SettingsChanged(msg.sender);
     }
 

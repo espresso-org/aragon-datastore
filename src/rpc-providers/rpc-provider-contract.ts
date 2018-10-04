@@ -20,6 +20,7 @@ export interface RpcProviderContract {
     setMultiplePermissions(fileId: number, groupIds: number[], groupRead: boolean[], groupWrite: boolean[], entities: string[], entityRead: boolean[], entityWrite: boolean[], isPublic: boolean, storageRef: string, fileSize: number, encryptionKey: string): Promise<{}>
     settings(): Promise<any[]>
     setIpfsStorageSettings(host: string, port: number, protocol: string): Promise<{}>
+    setAesEncryptionSettings(name: string, length: number): Promise<{}>
     createGroup(groupName: string): Promise<{}>
     deleteGroup(groupId: number): Promise<{}>
     renameGroup(groupId: number, newGroupName: string): Promise<{}>

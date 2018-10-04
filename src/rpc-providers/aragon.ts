@@ -99,7 +99,11 @@ export class AragonContract implements RpcProviderContract {
 
   async setIpfsStorageSettings(host: string, port: number, protocol: string) {
     return convertTransactionToPromise(this._aragonApp, 'setIpfsStorageSettings', host, port, protocol)
-  }  
+  }
+
+  async setAesEncryptionSettings(name: string, length: number) {
+    return convertTransactionToPromise(this._aragonApp, 'setAesEncryptionSettings', name, length)
+  }
 
   async createGroup(groupName: string) {
     return convertTransactionToPromise(this._aragonApp, 'createGroup', groupName)

@@ -2,10 +2,8 @@ import * as async from 'async'
 import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
-import * as cryptoJS from './crypto-js'
-import * as base64JS from './base64-js'
 
-import { 
+import {
     createFileFromTuple, 
     createPermissionFromTuple, 
     createSettingsFromTuple } from './utils'
@@ -20,18 +18,11 @@ export class DatastoreOptions {
 
 export class Datastore {
     private _storage: storage.StorageProvider
-    private _encryption
+    private _encryption: encryption.EncryptionProvider
     private _rpc: RpcProvider
     private _contract: rpc.RpcProviderContract
     private _settings: DatastoreSettings
     private _isInit
-
-    // Temporary encryption options
-    private encryptionAlgo = {
-        name: "AES-CBC",
-        length: 256,
-        iv: crypto.getRandomValues(new Uint8Array(16))
-    }
 
     /**
      * Creates a new Datastore instance
@@ -57,7 +48,7 @@ export class Datastore {
     private async _refreshSettings() {
         this._settings = createSettingsFromTuple(await this._contract.settings())
         this._storage = storage.getStorageProviderFromSettings(this._settings)
-        this._encryption = new providers.encryption.Aes()
+        this._encryption = encryption.getEncryptionProviderFromSettings(this._settings)
     }
 
     /**
@@ -91,7 +82,7 @@ export class Datastore {
             const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this.encryptionAlgo, true, ['encrypt', 'decrypt'])
 
             if (!fileInfo.isPublic)
-                fileContent = await this.decryptFile(fileContent, fileEncryptionKey)
+                fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)
         }
 
         return { ...fileInfo, content: fileContent }
@@ -155,6 +146,18 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.setIpfsStorageSettings(host, port, protocol)
+        await this._refreshSettings()
+    }
+
+    /**
+     * Sets the settings for Aes encryption
+     * @param {string} name Name of the algorithm
+     * @param {number} length Length of the encryption key
+     */
+    async setAesEncryptionSettings(name: string, length: number) {
+        await this._initialize()
+
+        await this._contract.setAesEncryptionSettings(name, length)
         await this._refreshSettings()
     }
 
@@ -238,7 +241,7 @@ export class Datastore {
         if (!isPublic) {
             let file = await this.getFile(fileId)
             fileByteLength = file.content.byteLength
-            encryptionFileData = await this.encryptFile(fileId, file.content)
+            encryptionFileData = await this._encryption.encryptFile(file.content)
             storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
         }
 
@@ -407,36 +410,6 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.removeGroupFromFile(fileId, groupId)
-    }
-
-    /**
-     * Encrypts a file with an AES Cipher algorithm
-     * @param {ArrayBuffer} file File as an ArrayBuffer
-     * @param {number} fileId Id of the file
-     */
-    async encryptFile(fileId: number, file: ArrayBuffer) {
-        await this._initialize()
-
-        const encryptionKey = await crypto.subtle.generateKey(this.encryptionAlgo, true, ['encrypt', 'decrypt'])
-        const encryptionKeyAsJSON = await crypto.subtle.exportKey('jwk', encryptionKey)
-        const encryptionKeyAsString = JSON.stringify(encryptionKeyAsJSON)
-        const encryptedFile = await crypto.subtle.encrypt(this.encryptionAlgo, encryptionKey, file)
-
-        return {
-            encryptedFile: encryptedFile,
-            encryptionKey: encryptionKeyAsString
-        }
-    }
-
-    /**
-     * Decryps a file with an AES Cipher algorithm
-     * @param {ArrayBuffer} encryptedFile Encrypted file to decrypt
-     * @param {CryptoKey} encryptionKey Encryption key
-     */
-    async decryptFile(encryptedFile: ArrayBuffer, encryptionKey: CryptoKey) {
-        await this._initialize()
-
-        return await crypto.subtle.decrypt(this.encryptionAlgo, encryptionKey, encryptedFile)
     }
 
     /**
