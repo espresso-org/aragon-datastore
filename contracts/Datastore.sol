@@ -2,14 +2,19 @@ pragma solidity ^0.4.24;
 
 import "@aragon/os/contracts/apps/AragonApp.sol";
 import "@aragon/os/contracts/lib/math/SafeMath.sol";
+import "@aragon/os/contracts/acl/ACL.sol";
+import "@aragon/os/contracts/acl/ACLSyntaxSugar.sol";
 import "./libraries/PermissionLibrary.sol";
 import "./libraries/GroupLibrary.sol";
 
-contract Datastore {
+contract Datastore is AragonApp {
     using SafeMath for uint256;
     using PermissionLibrary for PermissionLibrary.OwnerData;
     using PermissionLibrary for PermissionLibrary.PermissionData;
     using GroupLibrary for GroupLibrary.GroupData;
+
+    bytes32 constant public DATASTORE_MANAGER_ROLE = keccak256("DATASTORE_MANAGER_ROLE");
+
 
     event FileRename(address indexed entity, uint fileId);
     event FileContentUpdate(address indexed entity, uint fileId);
@@ -72,6 +77,21 @@ contract Datastore {
     PermissionLibrary.PermissionData private permissions;
     GroupLibrary.GroupData private groups;
     Settings public settings;
+
+    ACL private acl;
+
+
+    function init() onlyInit public
+    {
+        initialized();
+
+        acl = ACL(kernel().acl());
+
+        //acl.createPermission(this, this, FILE_OWNER_ROLE, this);
+        //acl.createPermission(this, this, DATASTORE_MANAGER_ROLE, this);
+
+        //acl.grantPermission(msg.sender, this, DATASTORE_MANAGER_ROLE);
+    }      
     
     /**
      * @notice Add a file to the datastore
@@ -80,7 +100,7 @@ contract Datastore {
      * @param _fileSize File size in bytes
      * @param _isPublic Is file readable by anyone
      */
-    function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external returns (uint fileId) {
+    function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external auth(DATASTORE_MANAGER_ROLE) returns (uint fileId) {
         lastFileId = lastFileId.add(1);
 
         files[lastFileId] = File({
@@ -374,7 +394,7 @@ contract Datastore {
      * @notice Add a group to the datastore
      * @param _groupName Name of the group
      */
-    function createGroup(string _groupName) external returns (uint) {
+    function createGroup(string _groupName) external auth(DATASTORE_MANAGER_ROLE) returns (uint) {
         uint id = groups.createGroup(_groupName);
         emit GroupChange(msg.sender);
         return id;
@@ -384,7 +404,7 @@ contract Datastore {
      * @notice Delete a group from the datastore
      * @param _groupId Id of the group to delete
      */
-    function deleteGroup(uint _groupId) external {
+    function deleteGroup(uint _groupId) external auth(DATASTORE_MANAGER_ROLE) {
         require(groups.groups[_groupId].exists);
         groups.deleteGroup(_groupId);
         emit GroupChange(msg.sender);
@@ -395,7 +415,7 @@ contract Datastore {
      * @param _groupId Id of the group to rename
      * @param _newGroupName New name for the group
      */
-    function renameGroup(uint _groupId, string _newGroupName) external  {
+    function renameGroup(uint _groupId, string _newGroupName) external auth(DATASTORE_MANAGER_ROLE) {
         require(groups.groups[_groupId].exists);
         groups.renameGroup(_groupId, _newGroupName);
         emit GroupChange(msg.sender);
