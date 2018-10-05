@@ -21,6 +21,7 @@ export interface RpcProviderContract {
     settings(): Promise<any[]>
     setIpfsStorageSettings(host: string, port: number, protocol: string): Promise<{}>
     setAesEncryptionSettings(name: string, length: number): Promise<{}>
+    setSettings(host: string, port: number, protocol: string, name: string, length: number): Promise<{}>
     createGroup(groupName: string): Promise<{}>
     deleteGroup(groupId: number): Promise<{}>
     renameGroup(groupId: number, newGroupName: string): Promise<{}>

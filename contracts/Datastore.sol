@@ -388,6 +388,11 @@ contract Datastore {
         SettingsChanged(msg.sender);
     }
 
+    function setSettings(string _host, uint16 _port, string _protocol, string _name, uint _length) public {
+        setIpfsStorageSettings(_host, _port, _protocol);
+        setAesEncryptionSettings(_name, _length);
+    }
+
     /**
      * @notice Returns true if `_entity` has read access on file `_fileId`
      * @param _fileId File Id

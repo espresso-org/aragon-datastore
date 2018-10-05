@@ -49,6 +49,11 @@ export class Datastore {
         this._settings = createSettingsFromTuple(await this._contract.settings())
         this._storage = storage.getStorageProviderFromSettings(this._settings)
         this._encryption = encryption.getEncryptionProviderFromSettings(this._settings)
+        console.log('encryptionProvider: ', encryption.getEncryptionProviderFromSettings(this._settings))
+        console.log('_encryption: ', this._encryption)
+
+        console.log('storageProvider: ', storage.getStorageProviderFromSettings(this._settings))
+        console.log('_storage: ', this._storage)
     }
 
     /**
@@ -79,7 +84,7 @@ export class Datastore {
 
         if (encryptionKeyAsString) {
             const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
-            const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this.encryptionAlgo, true, ['encrypt', 'decrypt'])
+            const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
 
             if (!fileInfo.isPublic)
                 fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)
@@ -159,6 +164,12 @@ export class Datastore {
 
         await this._contract.setAesEncryptionSettings(name, length)
         await this._refreshSettings()
+    }
+
+    async setSettings(host: string, port: number, protocol: string, name: string, length: number) {
+        await this._initialize()
+
+        await this._contract.setSettings(host, port, protocol, name, length)
     }
 
     /**
