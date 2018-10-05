@@ -1,6 +1,7 @@
 const _ = require('lodash')
 
 const Datastore = artifacts.require('Datastore')
+const DatastoreACL = artifacts.require('DatastoreACL')
 const DAOFactory = artifacts.require('@aragon/core/contracts/factory/DAOFactory')
 const EVMScriptRegistryFactory = artifacts.require('@aragon/core/contracts/factory/EVMScriptRegistryFactory')
 const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
@@ -14,6 +15,7 @@ contract('Datastore ', accounts => {
     let kernelBase
     let aclBase
     let APP_MANAGER_ROLE
+    let datastoreACL
 
     const root = accounts[0]
     const holder = accounts[1]
@@ -45,7 +47,8 @@ contract('Datastore ', accounts => {
         await acl.grantPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
         await acl.grantPermission(holder, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
 
-        await datastore.init({ from: holder })
+        datastoreACL = await DatastoreACL.new()    
+        await datastore.init(datastoreACL.address, { from: root })
     })
 
     it('increases lastFileId by 1 after addFile', async () => {

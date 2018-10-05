@@ -4,7 +4,7 @@ import "@aragon/os/contracts/apps/AragonApp.sol";
 import "@aragon/os/contracts/lib/math/SafeMath.sol";
 import "@aragon/os/contracts/acl/ACL.sol";
 import "@aragon/os/contracts/acl/ACLSyntaxSugar.sol";
-//import "./DatastoreACL.sol";
+import "./DatastoreACL.sol";
 import "./libraries/PermissionLibrary.sol";
 import "./libraries/GroupLibrary.sol";
 
@@ -80,19 +80,19 @@ contract Datastore is AragonApp {
     Settings public settings;
 
     ACL private acl;
-    //DatastoreACL private datastoreACL;
+    DatastoreACL private datastoreACL;
 
     modifier authT(bytes32 _role) {
         //require(canPerform(msg.sender, _role, new uint256[](0)));
         _;
     }
 
-    function init() onlyInit public
+    function init(address _datastoreACL) onlyInit public
     {
         initialized();
 
         acl = ACL(kernel().acl());
-        //datastoreACL = new DatastoreACL();
+        datastoreACL = DatastoreACL(_datastoreACL);
 
         //acl.createPermission(this, this, FILE_OWNER_ROLE, this);
         //acl.createPermission(this, this, DATASTORE_MANAGER_ROLE, this);
