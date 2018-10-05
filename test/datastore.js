@@ -47,7 +47,8 @@ contract('Datastore ', accounts => {
         await acl.grantPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
         await acl.grantPermission(holder, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
 
-        datastoreACL = await DatastoreACL.new()    
+        datastoreACL = await DatastoreACL.new()   
+        await datastoreACL.initialize(datastore.address) 
         await datastore.init(datastoreACL.address, { from: root })
     })
 

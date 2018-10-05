@@ -15,6 +15,7 @@ contract Datastore is AragonApp {
     using GroupLibrary for GroupLibrary.GroupData;
 
     bytes32 constant public DATASTORE_MANAGER_ROLE = keccak256("DATASTORE_MANAGER_ROLE");
+    bytes32 constant public FILE_OWNER_ROLE = keccak256("FILE_OWNER_ROLE");
 
 
     event FileRename(address indexed entity, uint fileId);
@@ -94,7 +95,7 @@ contract Datastore is AragonApp {
         acl = ACL(kernel().acl());
         datastoreACL = DatastoreACL(_datastoreACL);
 
-        //acl.createPermission(this, this, FILE_OWNER_ROLE, this);
+        datastoreACL.createPermission(this, this, FILE_OWNER_ROLE, this);
         //acl.createPermission(this, this, DATASTORE_MANAGER_ROLE, this);
 
         //acl.grantPermission(msg.sender, this, DATASTORE_MANAGER_ROLE);
