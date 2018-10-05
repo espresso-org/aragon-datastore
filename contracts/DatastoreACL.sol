@@ -7,5 +7,6 @@ import '@aragon/os/contracts/acl/ACLSyntaxSugar.sol';
 contract DatastoreACL is ACL {
     
     
+
 }
 
