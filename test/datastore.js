@@ -1,17 +1,49 @@
 const _ = require('lodash')
 
 const Datastore = artifacts.require('Datastore')
+const DAOFactory = artifacts.require('@aragon/core/contracts/factory/DAOFactory')
+const EVMScriptRegistryFactory = artifacts.require('@aragon/core/contracts/factory/EVMScriptRegistryFactory')
+const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
+const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
 
 contract('Datastore ', accounts => {
     let datastore
+    let daoFact
+    let acl
+    let kernel
+    let kernelBase
+    let aclBase
+    let APP_MANAGER_ROLE
+
+    const root = accounts[0]
+    const holder = accounts[1]
+    const testAccount = accounts[2]
+
+
+    before(async () => {
+        aclBase = await ACL.new()        
+        kernelBase = await Kernel.new(true)
+    })
 
     beforeEach(async () => {
-        try {
-            datastore = await Datastore.new()
-        } catch(e) {
-            console.log('Error creating datastore: ', e)
-        }
+        const regFact = await EVMScriptRegistryFactory.new()
+        daoFact = await DAOFactory.new(kernelBase.address, aclBase.address, regFact.address)        
 
+        const r = await daoFact.newDAO(root)
+        kernel = Kernel.at(r.logs.filter(l => l.event == 'DeployDAO')[0].args.dao)
+        acl = ACL.at(await kernel.acl())         
+        
+        APP_MANAGER_ROLE = await kernelBase.APP_MANAGER_ROLE()
+
+        await acl.createPermission(holder, kernel.address, APP_MANAGER_ROLE, holder, { from: root })
+
+        const receipt = await kernel.newAppInstance('0x1234', (await Datastore.new()).address, { from: holder })
+        
+        datastore = Datastore.at(receipt.logs.filter(l => l.event == 'NewAppProxy')[0].args.proxy)
+
+        //await acl.grantPermission(datastore.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE(),{ from: root })
+
+        await datastore.initialize({ from: holder })
     })
 
     it('increases lastFileId by 1 after addFile', async () => {
