@@ -38,9 +38,10 @@ library PermissionLibrary {
         return _self.fileOwners[_fileId] == _entity;
     }*/
 
-    function init(OwnerData storage _self) internal {
+    function init(OwnerData storage _self, DatastoreACL _acl) internal {
         _self.FILE_OWNER_ROLE = keccak256("FILE_OWNER_ROLE");
-        _self.acl.createPermission(this, this, _self.FILE_OWNER_ROLE, this);
+        _self.acl = _acl;
+        _acl.createPermission(this, this, _self.FILE_OWNER_ROLE, this);
     }
 
     /**

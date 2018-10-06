@@ -86,11 +86,7 @@ contract Datastore is AragonApp {
         acl = ACL(kernel().acl());
         datastoreACL = DatastoreACL(_datastoreACL);
 
-        fileOwners.init();
-        //datastoreACL.createPermission(this, this, FILE_OWNER_ROLE, this);
-        //acl.createPermission(this, this, DATASTORE_MANAGER_ROLE, this);
-
-        //acl.grantPermission(msg.sender, this, DATASTORE_MANAGER_ROLE);
+        fileOwners.init(datastoreACL);
     }      
     
     /**
@@ -102,9 +98,6 @@ contract Datastore is AragonApp {
      */
     function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external auth(DATASTORE_MANAGER_ROLE) returns (uint fileId) {
         uint fId = fileList.addFile(_storageRef, _name, _fileSize, _isPublic);
-        
-        //datastoreACL.createPermissionIfNew(this, this, fileOwnerRoles[fId], this);
-        //datastoreACL.grantPermission(msg.sender, this, fileOwnerRoles[fId]);
 
         PermissionLibrary.addOwner(fileOwners, fId, msg.sender);
         PermissionLibrary.initializePermissionAddresses(permissions, fId);
