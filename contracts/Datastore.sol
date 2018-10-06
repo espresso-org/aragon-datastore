@@ -166,9 +166,7 @@ contract Datastore is AragonApp {
     function setFileName(uint _fileId, string _newName) external {
         require(hasWriteAccess(_fileId, msg.sender));
 
-        fileList.files[_fileId].name = _newName;
-        fileList.files[_fileId].lastModification = now;
-        emit FileRename(msg.sender);
+        fileList.setFileName(_fileId, _newName);
     }
 
     /**
@@ -181,10 +179,7 @@ contract Datastore is AragonApp {
     function setFileContent(uint _fileId, string _storageRef, uint _fileSize) external {
         require(hasWriteAccess(_fileId, msg.sender));
 
-        fileList.files[_fileId].storageRef = _storageRef;
-        fileList.files[_fileId].fileSize = _fileSize;
-        fileList.files[_fileId].lastModification = now;
-        emit FileContentUpdate(msg.sender);
+        fileList.setFileContent(_fileId, _storageRef, _fileSize);
     }
 
     /**

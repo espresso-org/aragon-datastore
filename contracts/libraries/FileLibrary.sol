@@ -6,6 +6,8 @@ library FileLibrary {
     using SafeMath for uint256;
 
     event DeleteFile(address indexed entity);
+    event FileRename(address indexed entity);
+    event FileContentUpdate(address indexed entity);
 
     /**
      * File stored in the Datastore
@@ -47,11 +49,25 @@ library FileLibrary {
         return _self.lastFileId;
     }   
 
+    function setFileName(FileList storage _self, uint _fileId, string _newName) external {
+        _self.files[_fileId].name = _newName;
+        _self.files[_fileId].lastModification = now;
+        emit FileRename(msg.sender);
+    }
+
+    function setFileContent(FileList storage _self, uint _fileId, string _storageRef, uint _fileSize) external {
+
+        _self.files[_fileId].storageRef = _storageRef;
+        _self.files[_fileId].fileSize = _fileSize;
+        _self.files[_fileId].lastModification = now;
+        emit FileContentUpdate(msg.sender);
+    }    
+
 
     function deleteFile(FileList storage _self, uint _fileId) external {
         _self.files[_fileId].isDeleted = true;
         _self.files[_fileId].lastModification = now;
-        //emit DeleteFile(msg.sender);
+        emit DeleteFile(msg.sender);
     }  
 
 }
