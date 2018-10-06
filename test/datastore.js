@@ -40,7 +40,7 @@ contract('Datastore ', accounts => {
 
         await acl.createPermission(holder, kernel.address, APP_MANAGER_ROLE, holder, { from: root })
 
-        //const receipt = await kernel.newAppInstance('0x1234', (await Datastore.new()).address, { from: holder })
+        const receipt = await kernel.newAppInstance('0x1234', (await Datastore.new()).address, { from: holder })
         
         datastore = Datastore.at(receipt.logs.filter(l => l.event == 'NewAppProxy')[0].args.proxy)
 
@@ -50,7 +50,7 @@ contract('Datastore ', accounts => {
 
         datastoreACL = await DatastoreACL.new()   
         await datastoreACL.initialize(datastore.address) 
-        //await datastore.init(datastoreACL.address, { from: root })
+        await datastore.init(datastoreACL.address, { from: root })
     })
 
     it('increases lastFileId by 1 after addFile', async () => {

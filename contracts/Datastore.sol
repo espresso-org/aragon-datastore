@@ -154,6 +154,10 @@ contract Datastore is AragonApp {
         fileList.deleteFile(_fileId);
     }
 
+    function lastFileId() external view returns (uint256) {
+        return fileList.lastFileId;
+    }
+
     /**
      * @notice Changes name of file `_fileId` to `_newName`
      * @param _fileId File Id
