@@ -69,12 +69,15 @@ contract Datastore is AragonApp {
     ACL private acl;
     DatastoreACL private datastoreACL;
 
-    mapping (uint256 => bytes32) private fileOwnerRoles;
-
     modifier authD(bytes32 _role) {
         require(datastoreACL.hasPermission(msg.sender, address(this), _role, new uint256[](0)));
         _;
     }
+
+    modifier onlyFileOwner(uint256 _fileId) {
+        require(fileOwners.isOwner(_fileId, msg.sender));
+        _;
+    }    
 
     function init(address _datastoreACL) onlyInit public
     {
@@ -83,7 +86,8 @@ contract Datastore is AragonApp {
         acl = ACL(kernel().acl());
         datastoreACL = DatastoreACL(_datastoreACL);
 
-        datastoreACL.createPermission(this, this, FILE_OWNER_ROLE, this);
+        fileOwners.init();
+        //datastoreACL.createPermission(this, this, FILE_OWNER_ROLE, this);
         //acl.createPermission(this, this, DATASTORE_MANAGER_ROLE, this);
 
         //acl.grantPermission(msg.sender, this, DATASTORE_MANAGER_ROLE);
@@ -99,10 +103,8 @@ contract Datastore is AragonApp {
     function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external auth(DATASTORE_MANAGER_ROLE) returns (uint fileId) {
         uint fId = fileList.addFile(_storageRef, _name, _fileSize, _isPublic);
         
-        fileOwnerRoles[fId] = keccak256(FILE_OWNER_ROLE, fId);
-
-        datastoreACL.createPermissionIfNew(this, this, fileOwnerRoles[fId], this);
-        datastoreACL.grantPermission(msg.sender, this, fileOwnerRoles[fId]);
+        //datastoreACL.createPermissionIfNew(this, this, fileOwnerRoles[fId], this);
+        //datastoreACL.grantPermission(msg.sender, this, fileOwnerRoles[fId]);
 
         PermissionLibrary.addOwner(fileOwners, fId, msg.sender);
         PermissionLibrary.initializePermissionAddresses(permissions, fId);
@@ -150,7 +152,7 @@ contract Datastore is AragonApp {
      * @notice Delete file with Id `_fileId`
      * @param _fileId File Id
      */
-    function deleteFile(uint _fileId) public authD(fileOwnerRoles[_fileId]) {
+    function deleteFile(uint _fileId) public onlyFileOwner(_fileId) {
         fileList.deleteFile(_fileId);
     }
 
@@ -228,7 +230,7 @@ contract Datastore is AragonApp {
      * @param _entity Entity address
      * @param _hasPermission Read permission
      */
-    function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external authD(fileOwnerRoles[_fileId]) {
+    function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external onlyFileOwner(_fileId) {
         permissions.setReadPermission(_fileId, _entity, _hasPermission);
         emit NewReadPermission(msg.sender);
     }
@@ -239,7 +241,7 @@ contract Datastore is AragonApp {
      * @param _entity Entity address
      * @param _hasPermission Write permission
      */
-    function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external authD(fileOwnerRoles[_fileId]) {
+    function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external onlyFileOwner(_fileId) {
         permissions.setWritePermission(_fileId, _entity, _hasPermission);
         emit NewWritePermission(msg.sender);
     }
@@ -251,7 +253,7 @@ contract Datastore is AragonApp {
      * @param _read Read permission
      * @param _write Write permission     
      */
-    function setEntityPermissions(uint _fileId, address _entity, bool _read, bool _write) external authD(fileOwnerRoles[_fileId]) {
+    function setEntityPermissions(uint _fileId, address _entity, bool _read, bool _write) external onlyFileOwner(_fileId) {
         permissions.setEntityPermissions(_fileId, _entity, _read, _write);
         emit NewEntityPermissions(msg.sender);
     }
@@ -261,7 +263,7 @@ contract Datastore is AragonApp {
      * @param _fileId Id of the file
      * @param _entity Entity address
      */
-    function removeEntityFromFile(uint _fileId, address _entity) external authD(fileOwnerRoles[_fileId]) {
+    function removeEntityFromFile(uint _fileId, address _entity) external onlyFileOwner(_fileId) {
         permissions.removeEntityFromFile(_fileId, _entity);
         emit EntityPermissionsRemoved(msg.sender);       
     }
@@ -304,7 +306,7 @@ contract Datastore is AragonApp {
      * @param _entity Entity address     
      */
     function hasReadAccess(uint _fileId, address _entity) public view returns (bool) {
-        if (fileOwners.isOwner2(_fileId, _entity) || permissions.entityPermissions[_fileId][_entity].read)
+        if (fileOwners.isOwner(_fileId, _entity) || permissions.entityPermissions[_fileId][_entity].read)
             return true;
 
         for (uint i = 0; i < groups.groupList.length; i++) {
@@ -325,10 +327,7 @@ contract Datastore is AragonApp {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
-        //if (fileOwners.isOwner(_fileId, _entity) || permissions.entityPermissions[_fileId][_entity].write)
-        //if (datastoreACL.hasPermission(_entity, this, fileOwnerRoles[_fileId]) || permissions.entityPermissions[_fileId][_entity].write)
-        //if (datastoreACL.hasFilePermission(_entity, this, _fileId, FILE_OWNER_ROLE) || permissions.entityPermissions[_fileId][_entity].write)
-        if (fileOwners.isOwner2(_fileId, _entity) || permissions.entityPermissions[_fileId][_entity].write)
+        if (fileOwners.isOwner(_fileId, _entity) || permissions.entityPermissions[_fileId][_entity].write)
             return true;
 
         for (uint i = 0; i < groups.groupList.length; i++) {
@@ -438,7 +437,7 @@ contract Datastore is AragonApp {
      * @param _read Read permission
      * @param _write Write permission
      */
-    function setGroupPermissions(uint _fileId, uint _groupId, bool _read, bool _write) public authD(fileOwnerRoles[_fileId]) {
+    function setGroupPermissions(uint _fileId, uint _groupId, bool _read, bool _write) public onlyFileOwner(_fileId) {
         permissions.setGroupPermissions(_fileId, _groupId, _read, _write);
         emit NewGroupPermissions(msg.sender);
     }
@@ -453,7 +452,7 @@ contract Datastore is AragonApp {
      * @param _entityRead Read permission
      * @param _entityWrite Write permission      
      */
-    function setMultiplePermissions(uint256 _fileId, uint256[] _groupIds, bool[] _groupRead, bool[] _groupWrite, address[] _entities, bool[] _entityRead, bool[] _entityWrite, bool _isPublic) public authD(fileOwnerRoles[_fileId]) {
+    function setMultiplePermissions(uint256 _fileId, uint256[] _groupIds, bool[] _groupRead, bool[] _groupWrite, address[] _entities, bool[] _entityRead, bool[] _entityWrite, bool _isPublic) public onlyFileOwner(_fileId) {
         
         for(uint256 i = 0; i < _groupIds.length; i++) 
             permissions.setGroupPermissions(_fileId, _groupIds[i], _groupRead[i], _groupWrite[i]);
@@ -470,7 +469,7 @@ contract Datastore is AragonApp {
      * @param _fileId Id of the file
      * @param _groupId Id of the group
      */
-    function removeGroupFromFile(uint _fileId, uint _groupId) public authD(fileOwnerRoles[_fileId]) {
+    function removeGroupFromFile(uint _fileId, uint _groupId) public onlyFileOwner(_fileId) {
         permissions.removeGroupFromFile(_fileId, _groupId);
         emit GroupPermissionsRemoved(msg.sender);
     }

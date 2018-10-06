@@ -38,6 +38,11 @@ library PermissionLibrary {
         return _self.fileOwners[_fileId] == _entity;
     }*/
 
+    function init(OwnerData storage _self) internal {
+        _self.FILE_OWNER_ROLE = keccak256("FILE_OWNER_ROLE");
+        _self.acl.createPermission(this, this, _self.FILE_OWNER_ROLE, this);
+    }
+
     /**
      * @notice Returns true if `_entity` is owner of file `_fileId`
      * @param _self OwnerData 
@@ -55,6 +60,8 @@ library PermissionLibrary {
      */
     function addOwner(OwnerData storage _self, uint _fileId, address _entity) internal {
         _self.fileOwners[_fileId] = _entity;
+        _self.acl.createPermissionIfNew(this, this, keccak256(_self.FILE_OWNER_ROLE,_fileId), this);
+        _self.acl.grantPermission(msg.sender, this, keccak256(_self.FILE_OWNER_ROLE,_fileId));
     }
 
     // ************* PermissionData ************* //
