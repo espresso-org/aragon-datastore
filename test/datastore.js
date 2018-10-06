@@ -55,11 +55,11 @@ contract('Datastore ', accounts => {
 
     it('increases lastFileId by 1 after addFile', async () => {
         assert.equal(await datastore.lastFileId(), 0)
-        //await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
-        //assert.equal(await datastore.lastFileId(), 1)
+        await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
+        assert.equal(await datastore.lastFileId(), 1)
     })    
 
-    /*
+    
     it('getFile returns the right file data', async () => {
         const file1 = { 
             name: 'test name',
@@ -805,7 +805,7 @@ contract('Datastore ', accounts => {
             })
         })          
         
-    })*/
+    })
 })
 
 async function assertThrow(fn) {

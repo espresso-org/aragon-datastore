@@ -72,7 +72,7 @@ contract Datastore is AragonApp {
     mapping (uint256 => bytes32) private fileOwnerRoles;
 
     modifier authD(bytes32 _role) {
-        require(datastoreACL.canPerform(msg.sender, _role, new uint256[](0)));
+        require(datastoreACL.hasPermission(msg.sender, address(this), _role, new uint256[](0)));
         _;
     }
 
@@ -99,7 +99,7 @@ contract Datastore is AragonApp {
     function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external auth(DATASTORE_MANAGER_ROLE) returns (uint fileId) {
         uint fId = fileList.addFile(_storageRef, _name, _fileSize, _isPublic);
         
-        fileOwnerRoles[fileList.lastFileId] = keccak256(FILE_OWNER_ROLE, fId);
+        fileOwnerRoles[fId] = keccak256(FILE_OWNER_ROLE, fId);
 
         datastoreACL.createPermissionIfNew(this, this, fileOwnerRoles[fId], this);
         datastoreACL.grantPermission(msg.sender, this, fileOwnerRoles[fId]);
