@@ -59,7 +59,17 @@ contract DatastoreACL is ACL {
         noPermissionManager(_app, _role)
     {
         _createPermission(_entity, _app, _role, _manager);
-    }    
+    }   
+
+
+    function createPermissionIfNew(address _entity, address _app, bytes32 _role, address _manager) 
+        external 
+        auth(CREATE_PERMISSIONS_ROLE)
+        noPermissionManager(_app, _role)
+    {
+        if (getPermissionManager(_app, _role) == 0)
+            _createPermission(_entity, _app, _role, _manager);
+    }       
 
 }
 
