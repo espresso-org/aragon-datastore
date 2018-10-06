@@ -1,6 +1,6 @@
 pragma solidity ^0.4.24;
 
-import "@aragon/os/contracts/apps/AragonApp.sol";
+//import "@aragon/os/contracts/apps/AragonApp.sol";
 import "@aragon/os/contracts/lib/math/SafeMath.sol";
 import "./libraries/PermissionLibrary.sol";
 import "./libraries/GroupLibrary.sol";
@@ -132,40 +132,7 @@ contract Datastore {
         writeAccess = hasWriteAccess(_fileId, msg.sender);
     }
 
-    /**
-     * @notice Returns the file with Id `_fileId`
-     * @param _fileId File id
-     * @param _caller Caller address
-     */
-    function getFileAsCaller(uint _fileId, address _caller) 
-        external
-        view 
-        returns (
-            string storageRef,
-            string name,
-            uint fileSize,
-            bool isPublic,
-            bool isDeleted,
-            address owner,
-            bool isOwner,
-            uint lastModification,
-            address[] permissionAddresses,
-            bool writeAccess
-        ) 
-    {
-        File storage file = files[_fileId];
 
-        storageRef = file.storageRef;
-        name = file.name;
-        fileSize = file.fileSize;
-        isPublic = file.isPublic;
-        isDeleted = file.isDeleted;
-        owner = fileOwners.fileOwners[_fileId];
-        isOwner = fileOwners.isOwner(_fileId, msg.sender);
-        lastModification = file.lastModification;
-        permissionAddresses = permissions.permissionAddresses[_fileId];
-        writeAccess = hasWriteAccess(_fileId, _caller);
-    }    
 
     /**
      * @notice Delete file with Id `_fileId`
@@ -189,7 +156,7 @@ contract Datastore {
 
         files[_fileId].name = _newName;
         files[_fileId].lastModification = now;
-        emit FileRename(msg.sender, lastFileId);
+        //emit FileRename(msg.sender, lastFileId);
     }
 
     /**

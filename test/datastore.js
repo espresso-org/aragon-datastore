@@ -54,39 +54,6 @@ contract('Datastore ', accounts => {
         
     })
 
-    it('getFileAsCaller returns the right file data', async () => {
-        const file1 = { 
-            name: 'test name',
-            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
-            size: 4567,
-            isPublic: true
-        }
-
-        const file2 = { 
-            name: 'test name2',
-            storageRef: 'K4WWQSuPMS6aGCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
-            size: 9872214,
-            isPublic: false
-        }        
-
-        await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
-        await datastore.addFile(file2.storageRef, file2.name, file2.size, file2.isPublic)
-
-        const getFile1 = await datastore.getFileAsCaller(1, '0xdeadbeef')
-        assert.equal(getFile1[0], file1.storageRef)
-        assert.equal(getFile1[1], file1.name)
-        assert.equal(getFile1[2], file1.size)
-        assert.equal(getFile1[3], file1.isPublic)
-        assert.equal(getFile1[4], false) // isDeleted should be false
-
-        const getFile2 = await datastore.getFileAsCaller(2, '0xdeadbeef')
-        assert.equal(getFile2[0], file2.storageRef)
-        assert.equal(getFile2[1], file2.name)
-        assert.equal(getFile2[2], file2.size)
-        assert.equal(getFile2[3], file2.isPublic)
-        assert.equal(getFile2[4], false) // isDeleted should be false
-        
-    })
 
     describe('deleteFile', async () => {
 
