@@ -4,11 +4,13 @@ pragma solidity ^0.4.24;
 import "@aragon/os/contracts/lib/math/SafeMath.sol";
 import "./libraries/PermissionLibrary.sol";
 import "./libraries/GroupLibrary.sol";
+import "./libraries/FileLibrary.sol";
 
 contract Datastore {
     using SafeMath for uint256;
     using PermissionLibrary for PermissionLibrary.OwnerData;
     using PermissionLibrary for PermissionLibrary.PermissionData;
+    using FileLibrary for FileLibrary.File;
     using GroupLibrary for GroupLibrary.GroupData;
 
     event FileRename(address indexed entity, uint fileId);
@@ -49,25 +51,13 @@ contract Datastore {
         string protocol;        
     }
     
-    /**
-     * File stored in the Datastore
-     */
-    struct File {
-        string storageRef;      // Storage Id of IPFS (Filecoin, Swarm in the future)
-        string name;            // File name
-        uint fileSize;          // File size in bytes
-        string keepRef;         // Keep Id for encryption key
-        bool isPublic;          // True if file can be read by anyone
-        bool isDeleted;         // Is file deleted
-        uint lastModification;  // Timestamp of the last file content update
-    }
 
     /**
      * Id of the last file added to the datastore. 
      * Also represents the total number of files stored.
      */
     uint public lastFileId = 0;
-    mapping (uint => File) private files;
+    mapping (uint => FileLibrary.File) private files;
     PermissionLibrary.OwnerData private fileOwners;
     PermissionLibrary.PermissionData private permissions;
     GroupLibrary.GroupData private groups;
@@ -83,7 +73,7 @@ contract Datastore {
     function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external returns (uint fileId) {
         lastFileId = lastFileId.add(1);
 
-        files[lastFileId] = File({
+        files[lastFileId] = FileLibrary.File({
             storageRef: _storageRef,
             name: _name,
             fileSize: _fileSize,
@@ -118,7 +108,7 @@ contract Datastore {
             bool writeAccess
         ) 
     {
-        File storage file = files[_fileId];
+        FileLibrary.File storage file = files[_fileId];
 
         storageRef = file.storageRef;
         name = file.name;
@@ -156,7 +146,7 @@ contract Datastore {
 
         files[_fileId].name = _newName;
         files[_fileId].lastModification = now;
-        //emit FileRename(msg.sender, lastFileId);
+        emit FileRename(msg.sender, lastFileId);
     }
 
     /**
