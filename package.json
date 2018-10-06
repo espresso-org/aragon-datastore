@@ -39,9 +39,9 @@
     "ganache-cli": "^6.1.8",
     "jest": "^20.0.4",
     "npm-run-all": "^4.1.3",
-    "solidity-coverage": "^0.3.5",
+    "solidity-coverage": "^0.5.11",
     "standard-version": "^4.2.0",
-    "truffle": "^4.0.5",
+    "truffle": "4.1.14",
     "ts-jest": "^20.0.10",
     "ts-loader": "^2.3.3",
     "tslint": "^5.11.0",
@@ -51,7 +51,7 @@
     "webpack-node-externals": "^1.6.0"
   },
   "dependencies": {
-    "@aragon/os": "^3.1.9",
+    "@aragon/os": "^4.0.0-beta.1",
     "async": "^2.6.1",
     "bignumber.js": "^7.2.1",
     "dotenv": "^2.0.0",
