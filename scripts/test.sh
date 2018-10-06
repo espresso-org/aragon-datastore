@@ -11,7 +11,7 @@ testrpc_running() {
 }
 
 start_testrpc() {
-    ./node_modules/.bin/ganache-cli -i 15 --gasLimit 0xfffffffffff > /dev/null &
+    ./node_modules/.bin/ganache-cli -i 15 --gasLimit 0xffffffffffff > /dev/null &
   testrpc_pid=$!
 }
 

@@ -83,8 +83,10 @@ contract Datastore is AragonApp {
     ACL private acl;
     DatastoreACL private datastoreACL;
 
-    modifier authT(bytes32 _role) {
-        //require(canPerform(msg.sender, _role, new uint256[](0)));
+    mapping (uint256 => bytes32) private fileOwnerRoles;
+
+    modifier authD(bytes32 _role) {
+        require(datastoreACL.canPerform(msg.sender, _role, new uint256[](0)));
         _;
     }
 
@@ -120,6 +122,12 @@ contract Datastore is AragonApp {
             isDeleted: false,
             lastModification: now
         });
+        
+        fileOwnerRoles[lastFileId] = keccak256(FILE_OWNER_ROLE, lastFileId);
+
+        datastoreACL.createPermissionIfNew(this, this, fileOwnerRoles[lastFileId], this);
+        datastoreACL.grantPermission(msg.sender, this, fileOwnerRoles[lastFileId]);
+
         PermissionLibrary.addOwner(fileOwners, lastFileId, msg.sender);
         PermissionLibrary.initializePermissionAddresses(permissions, lastFileId);
         emit NewFile(msg.sender, lastFileId);
@@ -199,8 +207,8 @@ contract Datastore is AragonApp {
      * @notice Delete file with Id `_fileId`
      * @param _fileId File Id
      */
-    function deleteFile(uint _fileId) public {
-        require(fileOwners.isOwner(_fileId, msg.sender));
+    function deleteFile(uint _fileId) public authD(fileOwnerRoles[_fileId]) {
+        //require(fileOwners.isOwner(_fileId, msg.sender));
 
         files[_fileId].isDeleted = true;
         files[_fileId].lastModification = now;
@@ -282,8 +290,8 @@ contract Datastore is AragonApp {
      * @param _entity Entity address
      * @param _hasPermission Read permission
      */
-    function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external {
-        require(fileOwners.isOwner(_fileId, msg.sender));
+    function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external authD(fileOwnerRoles[_fileId]) {
+        //require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.setReadPermission(_fileId, _entity, _hasPermission);
         emit NewReadPermission(msg.sender, lastFileId);
     }
@@ -294,8 +302,8 @@ contract Datastore is AragonApp {
      * @param _entity Entity address
      * @param _hasPermission Write permission
      */
-    function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external {
-        require(fileOwners.isOwner(_fileId, msg.sender));
+    function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external authD(fileOwnerRoles[_fileId]) {
+        //require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.setWritePermission(_fileId, _entity, _hasPermission);
         emit NewWritePermission(msg.sender, lastFileId);
     }
@@ -307,8 +315,8 @@ contract Datastore is AragonApp {
      * @param _read Read permission
      * @param _write Write permission     
      */
-    function setEntityPermissions(uint _fileId, address _entity, bool _read, bool _write) external {
-        require(fileOwners.isOwner(_fileId, msg.sender));
+    function setEntityPermissions(uint _fileId, address _entity, bool _read, bool _write) external authD(fileOwnerRoles[_fileId]) {
+        //require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.setEntityPermissions(_fileId, _entity, _read, _write);
         emit NewEntityPermissions(msg.sender, lastFileId);
     }
@@ -318,8 +326,8 @@ contract Datastore is AragonApp {
      * @param _fileId Id of the file
      * @param _entity Entity address
      */
-    function removeEntityFromFile(uint _fileId, address _entity) external {
-        require(fileOwners.isOwner(_fileId, msg.sender));
+    function removeEntityFromFile(uint _fileId, address _entity) external authD(fileOwnerRoles[_fileId]) {
+        //require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.removeEntityFromFile(_fileId, _entity);
         emit EntityPermissionsRemoved(msg.sender);       
     }
