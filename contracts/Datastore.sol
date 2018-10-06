@@ -10,25 +10,25 @@ import "./libraries/GroupLibrary.sol";
 import "./libraries/FileLibrary.sol";
 
 contract Datastore is AragonApp {
-    using SafeMath for uint256;
+    
     using PermissionLibrary for PermissionLibrary.OwnerData;
     using PermissionLibrary for PermissionLibrary.PermissionData;
-    using FileLibrary for FileLibrary.File;
+    using FileLibrary for FileLibrary.FileList;
     using GroupLibrary for GroupLibrary.GroupData;
 
     bytes32 constant public DATASTORE_MANAGER_ROLE = keccak256("DATASTORE_MANAGER_ROLE");
     bytes32 constant public FILE_OWNER_ROLE = keccak256("FILE_OWNER_ROLE");
 
 
-    event FileRename(address indexed entity, uint fileId);
-    event FileContentUpdate(address indexed entity, uint fileId);
-    event NewFile(address indexed entity, uint fileId);
-    event NewWritePermission(address indexed entity, uint fileId);
-    event NewReadPermission(address indexed entity, uint fileId);
-    event NewEntityPermissions(address indexed entity, uint fileId);
-    event NewGroupPermissions(address indexed entity, uint fileId);
-    event NewPermissions(address indexed entity, uint fileId);
-    event DeleteFile(address indexed entity, uint fileId);
+    event FileRename(address indexed entity);
+    event FileContentUpdate(address indexed entity);
+    event NewFile(address indexed entity);
+    event NewWritePermission(address indexed entity);
+    event NewReadPermission(address indexed entity);
+    event NewEntityPermissions(address indexed entity);
+    event NewGroupPermissions(address indexed entity);
+    event NewPermissions(address indexed entity);
+    event DeleteFile(address indexed entity);
     event SettingsChanged(address indexed entity);
     event GroupChange(address indexed entity);
     event EntityPermissionsRemoved(address indexed entity);
@@ -58,13 +58,9 @@ contract Datastore is AragonApp {
         string protocol;        
     }
     
+    FileLibrary.FileList private fileList;
 
-    /**
-     * Id of the last file added to the datastore. 
-     * Also represents the total number of files stored.
-     */
-    uint public lastFileId = 0;
-    mapping (uint => FileLibrary.File) private files;
+
     PermissionLibrary.OwnerData private fileOwners;
     PermissionLibrary.PermissionData private permissions;
     GroupLibrary.GroupData private groups;
@@ -101,27 +97,17 @@ contract Datastore is AragonApp {
      * @param _isPublic Is file readable by anyone
      */
     function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external auth(DATASTORE_MANAGER_ROLE) returns (uint fileId) {
-        lastFileId = lastFileId.add(1);
-
-        files[lastFileId] = FileLibrary.File({
-            storageRef: _storageRef,
-            name: _name,
-            fileSize: _fileSize,
-            keepRef: "",
-            isPublic: _isPublic,
-            isDeleted: false,
-            lastModification: now
-        });
+        uint fId = fileList.addFile(_storageRef, _name, _fileSize, _isPublic);
         
-        fileOwnerRoles[lastFileId] = keccak256(FILE_OWNER_ROLE, lastFileId);
+        fileOwnerRoles[fileList.lastFileId] = keccak256(FILE_OWNER_ROLE, fId);
 
-        datastoreACL.createPermissionIfNew(this, this, fileOwnerRoles[lastFileId], this);
-        datastoreACL.grantPermission(msg.sender, this, fileOwnerRoles[lastFileId]);
+        datastoreACL.createPermissionIfNew(this, this, fileOwnerRoles[fId], this);
+        datastoreACL.grantPermission(msg.sender, this, fileOwnerRoles[fId]);
 
-        PermissionLibrary.addOwner(fileOwners, lastFileId, msg.sender);
-        PermissionLibrary.initializePermissionAddresses(permissions, lastFileId);
-        emit NewFile(msg.sender, lastFileId);
-        return lastFileId;
+        PermissionLibrary.addOwner(fileOwners, fId, msg.sender);
+        PermissionLibrary.initializePermissionAddresses(permissions, fId);
+        emit NewFile(msg.sender);
+        return fId;
     }
 
     /**
@@ -144,7 +130,7 @@ contract Datastore is AragonApp {
             bool writeAccess
         ) 
     {
-        FileLibrary.File storage file = files[_fileId];
+        FileLibrary.File storage file = fileList.files[_fileId];
 
         storageRef = file.storageRef;
         name = file.name;
@@ -165,11 +151,7 @@ contract Datastore is AragonApp {
      * @param _fileId File Id
      */
     function deleteFile(uint _fileId) public authD(fileOwnerRoles[_fileId]) {
-        //require(fileOwners.isOwner(_fileId, msg.sender));
-
-        files[_fileId].isDeleted = true;
-        files[_fileId].lastModification = now;
-        emit DeleteFile(msg.sender, lastFileId);
+        fileList.deleteFile(_fileId);
     }
 
     /**
@@ -180,9 +162,9 @@ contract Datastore is AragonApp {
     function setFileName(uint _fileId, string _newName) external {
         require(hasWriteAccess(_fileId, msg.sender));
 
-        files[_fileId].name = _newName;
-        files[_fileId].lastModification = now;
-        emit FileRename(msg.sender, lastFileId);
+        fileList.files[_fileId].name = _newName;
+        fileList.files[_fileId].lastModification = now;
+        emit FileRename(msg.sender);
     }
 
     /**
@@ -195,10 +177,10 @@ contract Datastore is AragonApp {
     function setFileContent(uint _fileId, string _storageRef, uint _fileSize) external {
         require(hasWriteAccess(_fileId, msg.sender));
 
-        files[_fileId].storageRef = _storageRef;
-        files[_fileId].fileSize = _fileSize;
-        files[_fileId].lastModification = now;
-        emit FileContentUpdate(msg.sender, lastFileId);
+        fileList.files[_fileId].storageRef = _storageRef;
+        fileList.files[_fileId].fileSize = _fileSize;
+        fileList.files[_fileId].lastModification = now;
+        emit FileContentUpdate(msg.sender);
     }
 
     /**
@@ -250,7 +232,7 @@ contract Datastore is AragonApp {
     function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external authD(fileOwnerRoles[_fileId]) {
         //require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.setReadPermission(_fileId, _entity, _hasPermission);
-        emit NewReadPermission(msg.sender, lastFileId);
+        emit NewReadPermission(msg.sender);
     }
 
     /**
@@ -262,7 +244,7 @@ contract Datastore is AragonApp {
     function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external authD(fileOwnerRoles[_fileId]) {
         //require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.setWritePermission(_fileId, _entity, _hasPermission);
-        emit NewWritePermission(msg.sender, lastFileId);
+        emit NewWritePermission(msg.sender);
     }
 
     /**
@@ -275,7 +257,7 @@ contract Datastore is AragonApp {
     function setEntityPermissions(uint _fileId, address _entity, bool _read, bool _write) external authD(fileOwnerRoles[_fileId]) {
         //require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.setEntityPermissions(_fileId, _entity, _read, _write);
-        emit NewEntityPermissions(msg.sender, lastFileId);
+        emit NewEntityPermissions(msg.sender);
     }
 
     /**
@@ -461,7 +443,7 @@ contract Datastore is AragonApp {
     function setGroupPermissions(uint _fileId, uint _groupId, bool _read, bool _write) public {
         require(fileOwners.isOwner(_fileId, msg.sender));
         permissions.setGroupPermissions(_fileId, _groupId, _read, _write);
-        emit NewGroupPermissions(msg.sender, _fileId);
+        emit NewGroupPermissions(msg.sender);
     }
 
     /**
@@ -483,8 +465,8 @@ contract Datastore is AragonApp {
         for(uint256 j = 0; j < _entities.length; j++) 
             permissions.setEntityPermissions(_fileId, _entities[j], _entityRead[j], _entityWrite[j]);
 
-        files[_fileId].isPublic = _isPublic;
-        emit NewPermissions(msg.sender, _fileId);
+        fileList.files[_fileId].isPublic = _isPublic;
+        emit NewPermissions(msg.sender);
     }    
 
     /**

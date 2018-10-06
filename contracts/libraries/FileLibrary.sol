@@ -1,6 +1,12 @@
 pragma solidity ^0.4.24;
 
+import "@aragon/os/contracts/lib/math/SafeMath.sol";
+
 library FileLibrary {
+    using SafeMath for uint256;
+
+    event DeleteFile(address indexed entity);
+
     /**
      * File stored in the Datastore
      */
@@ -15,10 +21,20 @@ library FileLibrary {
     }
 
 
-    function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external returns (uint fileId) {
-        lastFileId = lastFileId.add(1);
+    struct FileList {
+        /**
+        * Id of the last file added to the datastore. 
+        * Also represents the total number of files stored.
+        */
+        uint lastFileId;
+        mapping (uint => FileLibrary.File) files;
+    }
 
-        files[lastFileId] = FileLibrary.File({
+
+    function addFile(FileList storage _self, string _storageRef, string _name, uint _fileSize, bool _isPublic) external returns (uint fileId) {
+        _self.lastFileId = _self.lastFileId.add(1);
+
+        _self.files[_self.lastFileId] = FileLibrary.File({
             storageRef: _storageRef,
             name: _name,
             fileSize: _fileSize,
@@ -27,10 +43,15 @@ library FileLibrary {
             isDeleted: false,
             lastModification: now
         });
-        PermissionLibrary.addOwner(fileOwners, lastFileId, msg.sender);
-        PermissionLibrary.initializePermissionAddresses(permissions, lastFileId);
-        emit NewFile(msg.sender, lastFileId);
-        return lastFileId;
-    }    
+
+        return _self.lastFileId;
+    }   
+
+
+    function deleteFile(FileList storage _self, uint _fileId) external {
+        _self.files[_fileId].isDeleted = true;
+        _self.files[_fileId].lastModification = now;
+        //emit DeleteFile(msg.sender);
+    }  
 
 }
