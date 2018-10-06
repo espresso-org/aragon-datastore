@@ -1,11 +1,15 @@
 pragma solidity ^0.4.18;
 
+import "../DatastoreACL.sol";
+
 library PermissionLibrary {
     /**
      * Owners of files    
      */
     struct OwnerData {
         mapping (uint => address) fileOwners;
+        DatastoreACL acl;
+        bytes32 FILE_OWNER_ROLE;
     }
 
     /**
@@ -29,15 +33,20 @@ library PermissionLibrary {
 
     // ************* OwnerData ************* //
     /**
+
+    function isOwner(OwnerData storage _self, uint _fileId, address _entity) internal view returns (bool) {
+        return _self.fileOwners[_fileId] == _entity;
+    }*/
+
+    /**
      * @notice Returns true if `_entity` is owner of file `_fileId`
      * @param _self OwnerData 
      * @param _fileId File Id
      * @param _entity Entity address
      */
     function isOwner(OwnerData storage _self, uint _fileId, address _entity) internal view returns (bool) {
-        return _self.fileOwners[_fileId] == _entity;
+        return _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_OWNER_ROLE);
     }
-
     /**
      * @notice Adds an `_entity` as owner to file with `_fileId`
      * @param _self OwnerData

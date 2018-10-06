@@ -6,6 +6,10 @@ import '@aragon/os/contracts/acl/ACLSyntaxSugar.sol';
 
 contract DatastoreACL is ACL {
 
+    bytes32 constant public FILE_OWNER_ROLE = keccak256("FILE_OWNER_ROLE");
+
+    address private datastore;
+
     modifier auth(bytes32 _role) {
         require(canPerform(msg.sender, _role, new uint256[](0)));
         _;
@@ -36,7 +40,7 @@ contract DatastoreACL is ACL {
     function initialize(address _permissionsCreator) public {
         //initialized();
         // TODO: Set initialized
-
+        datastore = _permissionsCreator;
         _createPermission(_permissionsCreator, this, CREATE_PERMISSIONS_ROLE, _permissionsCreator);
     }
 
@@ -59,7 +63,38 @@ contract DatastoreACL is ACL {
         noPermissionManager(_app, _role)
     {
         _createPermission(_entity, _app, _role, _manager);
-    }   
+    }  
+
+
+
+    function createFilePermissionIfNew(address _entity, address _app, uint256 _fileId, bytes32 _role, address _manager) 
+        external 
+        auth(CREATE_PERMISSIONS_ROLE)
+        noPermissionManager(_app, _role)
+    {
+        if (getPermissionManager(_app, _role) == 0)
+            _createPermission(_entity, _app, keccak256(_role, _fileId), _manager);
+    }     
+
+    function createFilePermission(address _entity, address _app, uint256 _fileId, bytes32 _role, address _manager)
+        external
+        auth(CREATE_PERMISSIONS_ROLE)
+        noPermissionManager(_app, _role)
+    {
+        _createPermission(_entity, _app, keccak256(_role, _fileId), _manager);
+    }  
+
+    function hasFilePermission(address _entity, address _app, uint256 _fileId, bytes32 _role) public view returns (bool)
+    {
+        return hasPermission(_entity, _app, keccak256(_role, _fileId), new uint256[](0));
+    }
+
+    function hasFilePermission(address _entity, uint256 _fileId, bytes32 _role) public view returns (bool)
+    {
+        return hasPermission(_entity, datastore, keccak256(_role, _fileId), new uint256[](0));
+    }    
+
+
 
 
     function createPermissionIfNew(address _entity, address _app, bytes32 _role, address _manager) 
@@ -71,5 +106,19 @@ contract DatastoreACL is ACL {
             _createPermission(_entity, _app, _role, _manager);
     }       
 
+    function hasPermission(address _entity, address _app, bytes32 _role) public view returns (bool)
+    {
+        return hasPermission(_entity, _app, _role, new uint256[](0));
+    }
+
+    function isOwner(uint _fileId, address _entity) public view returns (bool)
+    {
+        return hasPermission(_entity, msg.sender, keccak256(keccak256("FILE_OWNER_ROLE"), _fileId));
+    }   
+
+    function isOwner2(uint _fileId, address _entity) public view returns (bool)
+    {
+        return hasPermission(_entity, msg.sender, keccak256(keccak256("FILE_OWNER_ROLE"), _fileId));
+    }     
 }
 
