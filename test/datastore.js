@@ -140,7 +140,7 @@ contract('Datastore ', accounts => {
             const newFilename = 'new file name'
 
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, { from: accounts[0] })
-            await datastore.setWritePermission(1, accounts[1], true)
+            await datastore.setEntityPermissions(1, accounts[1], false, true)
 
             await datastore.setFileName(1, newFilename, { from: accounts[1] })
             
@@ -166,7 +166,7 @@ contract('Datastore ', accounts => {
             const newFileSize = 321
 
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
-            await datastore.setWritePermission(1, accounts[1], true)
+            await datastore.setEntityPermissions(1, accounts[1], false, true)
 
             await datastore.setFileContent(1, newStorageRef, newFileSize, { from: accounts[1] })
             
@@ -209,13 +209,7 @@ contract('Datastore ', accounts => {
         await assertEvent(datastore, { event: 'NewFile' })
     })     
    
-    it('fires NewWritePermission event on setWritePermission call', async () => {
-        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
-        await datastore.setWritePermission(1, accounts[1], true)
-
-        await assertEvent(datastore, { event: 'NewWritePermission' })
-    })  
-    
+   
     describe('getEntitiesWithPermissionsOnFile', async () => {
 
         it('returns the right address list', async() => {
@@ -573,7 +567,7 @@ contract('Datastore ', accounts => {
         })       
 
     })    
-    
+
 
      describe('setMultiplePermissions', async () => {
     

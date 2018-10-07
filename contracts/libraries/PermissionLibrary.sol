@@ -77,39 +77,11 @@ library PermissionLibrary {
         view 
         returns (bool write, bool read) 
     {
-        write = _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_READ_ROLE);
-        read = _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
+        read = _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_READ_ROLE);
+        write = _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
     }
 
-    /**
-     * @notice Set read permission to `_hasPermission` for `_entity` on file `_fileId`
-     * @param _self PermissionData
-     * @param _fileId File Id
-     * @param _entity Entity address
-     * @param _hasPermission Read permission
-     */
-    function setReadPermission(PermissionData storage _self, uint _fileId, address _entity, bool _hasPermission) internal {
-        if (!_self.entityPermissions[_fileId][_entity].exists) {
-            _self.permissionAddresses[_fileId].push(_entity);
-            _self.entityPermissions[_fileId][_entity].exists = true;
-        }
-        _self.entityPermissions[_fileId][_entity].read = _hasPermission;
-    }
 
-    /**
-     * @notice Set write permission to `_hasPermission` for `_entity` on file `_fileId`
-     * @param _self PermissionData
-     * @param _fileId File Id
-     * @param _entity Entity address
-     * @param _hasPermission Write permission
-     */
-    function setWritePermission(PermissionData storage _self, uint _fileId, address _entity, bool _hasPermission) internal {
-        if (!_self.entityPermissions[_fileId][_entity].exists) {
-            _self.permissionAddresses[_fileId].push(_entity);
-            _self.entityPermissions[_fileId][_entity].exists = true;
-        }
-        _self.entityPermissions[_fileId][_entity].write = _hasPermission;
-    }
 
     /**
      * @notice Set the read and write permissions on a file for a specified group

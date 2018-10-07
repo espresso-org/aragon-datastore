@@ -94,7 +94,11 @@ contract Datastore is AragonApp {
      * @param _fileSize File size in bytes
      * @param _isPublic Is file readable by anyone
      */
-    function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external auth(DATASTORE_MANAGER_ROLE) returns (uint fileId) {
+    function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) 
+        external 
+        auth(DATASTORE_MANAGER_ROLE) 
+        returns (uint fileId) 
+    {
         uint fId = fileList.addFile(_storageRef, _name, _fileSize, _isPublic);
 
         PermissionLibrary.addOwner(permissions, fId, msg.sender);
@@ -180,7 +184,11 @@ contract Datastore is AragonApp {
      * @param _fileId File Id
      * @return addresses Array of entity addresses
      */
-    function getEntitiesWithPermissionsOnFile(uint _fileId) external view returns (address[]) {
+    function getEntitiesWithPermissionsOnFile(uint _fileId) 
+        external 
+        view 
+        returns (address[]) 
+    {
         return permissions.permissionAddresses[_fileId];
     }
 
@@ -189,7 +197,11 @@ contract Datastore is AragonApp {
      * @param _fileId File Id
      * @return Array of group ids
      */
-    function getGroupsWithPermissionsOnFile(uint _fileId) external view returns (uint256[]) {
+    function getGroupsWithPermissionsOnFile(uint _fileId) 
+        external 
+        view 
+        returns (uint256[]) 
+    {
         return permissions.groupIds[_fileId];
     }
 
@@ -198,7 +210,11 @@ contract Datastore is AragonApp {
      * @param _fileId File Id
      * @param _entity Entity address
      */
-    function getEntityPermissionsOnFile(uint256 _fileId, address _entity) external view returns (bool write, bool read) {
+    function getEntityPermissionsOnFile(uint256 _fileId, address _entity) 
+        external 
+        view 
+        returns (bool write, bool read) 
+    {
         /*
         PermissionLibrary.Permission storage permission = permissions.entityPermissions[_fileId][_entity];
         write = permission.write;
@@ -211,7 +227,11 @@ contract Datastore is AragonApp {
      * @param _fileId File Id
      * @param _groupId Group Id
      */
-    function getGroupPermissionsOnFile(uint256 _fileId, uint256 _groupId) external view returns (bool write, bool read) {
+    function getGroupPermissionsOnFile(uint256 _fileId, uint256 _groupId) 
+        external 
+        view 
+        returns (bool write, bool read) 
+    {
         PermissionLibrary.Permission storage permission = permissions.groupPermissions[_fileId][_groupId];
         write = permission.write;
         read = permission.read;
@@ -225,7 +245,10 @@ contract Datastore is AragonApp {
      * @param _read Read permission
      * @param _write Write permission     
      */
-    function setEntityPermissions(uint _fileId, address _entity, bool _read, bool _write) external onlyFileOwner(_fileId) {
+    function setEntityPermissions(uint _fileId, address _entity, bool _read, bool _write) 
+        external 
+        onlyFileOwner(_fileId) 
+    {
         permissions.setEntityPermissions(_fileId, _entity, _read, _write);
         emit NewEntityPermissions(msg.sender);
     }
