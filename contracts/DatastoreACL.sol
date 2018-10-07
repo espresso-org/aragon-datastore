@@ -66,7 +66,7 @@ contract DatastoreACL is ACL {
     }  
 
 
-
+/*
     function createFilePermissionIfNew(address _entity, uint256 _fileId, bytes32 _role, address _manager) 
         external 
         auth(CREATE_PERMISSIONS_ROLE)
@@ -74,7 +74,7 @@ contract DatastoreACL is ACL {
     {
         if (getPermissionManager(datastore, _role) == 0)
             _createPermission(_entity, datastore, keccak256(_role, _fileId), _manager);
-    }     
+    } */    
 
     function createFilePermission(address _entity, uint256 _fileId, bytes32 _role, address _manager)
         external
@@ -97,7 +97,10 @@ contract DatastoreACL is ACL {
     function grantFilePermission(address _entity, uint256 _fileId, bytes32 _role)
         external
     {
-        super.grantPermissionP(_entity, address(datastore), keccak256(_role, _fileId), new uint256[](0));
+        if (getPermissionManager(datastore, _role) == 0)
+            _createPermission(_entity, datastore, keccak256(_role, _fileId), datastore);
+
+        _setPermission(_entity, datastore, keccak256(_role, _fileId), EMPTY_PARAM_HASH);
     }
 
 

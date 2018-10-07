@@ -58,8 +58,8 @@ library PermissionLibrary {
      */
     function addOwner(PermissionData storage _self, uint _fileId, address _entity) internal {
         _self.fileOwners[_fileId] = _entity;
-        _self.acl.createPermissionIfNew(this, this, keccak256(_self.FILE_OWNER_ROLE,_fileId), this);
-        _self.acl.grantPermission(msg.sender, this, keccak256(_self.FILE_OWNER_ROLE,_fileId));
+        //_self.acl.createPermissionIfNew(this, this, keccak256(_self.FILE_OWNER_ROLE,_fileId), this);
+        _self.acl.grantFilePermission(msg.sender, _fileId, _self.FILE_OWNER_ROLE);
     }
 
     // ************* PermissionData ************* //
@@ -115,12 +115,12 @@ library PermissionLibrary {
         _self.entityPermissions[_fileId][_entity].write = _write;
 
         if (_read) {
-            _self.acl.createFilePermissionIfNew(_entity, _fileId, _self.FILE_READ_ROLE, this);
+            //_self.acl.createFilePermissionIfNew(_entity, _fileId, _self.FILE_READ_ROLE, this);
             _self.acl.grantFilePermission(_entity, _fileId, _self.FILE_READ_ROLE);
         }
 
         if (_write) {
-            _self.acl.createFilePermissionIfNew(_entity, _fileId, _self.FILE_WRITE_ROLE, this);
+            //_self.acl.createFilePermissionIfNew(_entity, _fileId, _self.FILE_WRITE_ROLE, this);
             _self.acl.grantFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
         }
 
