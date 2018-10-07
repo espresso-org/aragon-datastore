@@ -442,9 +442,10 @@ contract('Datastore ', accounts => {
         it('adds an entity to a group', async() => {
             await datastore.createGroup('My first group')
             await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
-            var entity = await datastore.getEntityInGroup(1, 0)
+            
+            const entities = (await datastore.getGroup(1))[0]
 
-            assert.equal(entity, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+            assert.equal(entities[0], '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
         })
 
         it("throws if group doesn't exist", async () => {            
@@ -459,12 +460,10 @@ contract('Datastore ', accounts => {
             await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
             await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
             
-            
-            var entity1 = await datastore.getEntityInGroup(1, 0)
-            var entity2 = await datastore.getEntityInGroup(1, 1)
+            const entities = (await datastore.getGroup(1))[0]
 
-            assert.equal(entity1, 0)
-            assert.equal(entity2, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+            assert.equal(entities[0], 0)
+            assert.equal(entities[1], '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
         })
 
         it('test', async() => {

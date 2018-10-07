@@ -48,7 +48,7 @@ library PermissionLibrary {
      * @param _entity Entity address
      */
     function isOwner(PermissionData storage _self, uint _fileId, address _entity) internal view returns (bool) {
-        return _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_OWNER_ROLE);
+        return _self.acl.hasPermissionWithArg(_entity, _fileId, _self.FILE_OWNER_ROLE);
     }
     /**
      * @notice Adds an `_entity` as owner to file with `_fileId`
@@ -58,8 +58,7 @@ library PermissionLibrary {
      */
     function addOwner(PermissionData storage _self, uint _fileId, address _entity) internal {
         _self.fileOwners[_fileId] = _entity;
-        //_self.acl.createPermissionIfNew(this, this, keccak256(_self.FILE_OWNER_ROLE,_fileId), this);
-        _self.acl.grantFilePermission(msg.sender, _fileId, _self.FILE_OWNER_ROLE);
+        _self.acl.grantPermissionWithArg(msg.sender, _fileId, _self.FILE_OWNER_ROLE);
     }
 
     // ************* PermissionData ************* //
@@ -77,8 +76,8 @@ library PermissionLibrary {
         view 
         returns (bool write, bool read) 
     {
-        read = _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_READ_ROLE);
-        write = _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
+        read = _self.acl.hasPermissionWithArg(_entity, _fileId, _self.FILE_READ_ROLE);
+        write = _self.acl.hasPermissionWithArg(_entity, _fileId, _self.FILE_WRITE_ROLE);
     }
 
     function getEntityReadPermissions(PermissionData storage _self, uint256 _fileId, address _entity)
@@ -86,7 +85,7 @@ library PermissionLibrary {
         view 
         returns (bool) 
     {
-        return _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_READ_ROLE);
+        return _self.acl.hasPermissionWithArg(_entity, _fileId, _self.FILE_READ_ROLE);
     }
 
     function getEntityWritePermissions(PermissionData storage _self, uint256 _fileId, address _entity)
@@ -94,7 +93,7 @@ library PermissionLibrary {
         view 
         returns (bool) 
     {
-        return _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
+        return _self.acl.hasPermissionWithArg(_entity, _fileId, _self.FILE_WRITE_ROLE);
     }
 
     function hasWriteAccess(PermissionData storage _self, uint256 _fileId, address _entity)
@@ -130,10 +129,10 @@ library PermissionLibrary {
         _self.entityPermissions[_fileId][_entity].write = _write;
 
         if (_read) 
-            _self.acl.grantFilePermission(_entity, _fileId, _self.FILE_READ_ROLE);        
+            _self.acl.grantPermissionWithArg(_entity, _fileId, _self.FILE_READ_ROLE);        
 
         if (_write) 
-            _self.acl.grantFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
+            _self.acl.grantPermissionWithArg(_entity, _fileId, _self.FILE_WRITE_ROLE);
         
 
         //NewWritePermission(msg.sender, _fileId);
@@ -169,8 +168,8 @@ library PermissionLibrary {
                 if (_self.permissionAddresses[_fileId][i] == _entity)
                     delete _self.permissionAddresses[_fileId][i];
             }
-            _self.acl.revokeFilePermission(_entity, _fileId, _self.FILE_READ_ROLE);
-            _self.acl.revokeFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
+            _self.acl.revokePermissionWithArg(_entity, _fileId, _self.FILE_READ_ROLE);
+            _self.acl.revokePermissionWithArg(_entity, _fileId, _self.FILE_WRITE_ROLE);
         }
     }
 
