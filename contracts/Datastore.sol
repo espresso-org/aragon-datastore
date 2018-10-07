@@ -217,27 +217,6 @@ contract Datastore is AragonApp {
         read = permission.read;
     } 
 
-    /**
-     * @notice Set read permission to `_hasPermission` for `_entity` on file `_fileId`
-     * @param _fileId File Id
-     * @param _entity Entity address
-     * @param _hasPermission Read permission
-     */
-    function setReadPermission(uint _fileId, address _entity, bool _hasPermission) external onlyFileOwner(_fileId) {
-        permissions.setReadPermission(_fileId, _entity, _hasPermission);
-        emit NewReadPermission(msg.sender);
-    }
-
-    /**
-     * @notice Set write permission to `_hasPermission` for `_entity` on file `_fileId`
-     * @param _fileId File Id
-     * @param _entity Entity address
-     * @param _hasPermission Write permission
-     */
-    function setWritePermission(uint _fileId, address _entity, bool _hasPermission) external onlyFileOwner(_fileId) {
-        permissions.setWritePermission(_fileId, _entity, _hasPermission);
-        emit NewWritePermission(msg.sender);
-    }
 
     /**
      * @notice Add/Remove permissions to an entity for a specific file

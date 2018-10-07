@@ -526,33 +526,7 @@ contract('Datastore ', accounts => {
         })
     })      
 
-    describe('setReadPermission', async () => {
-
-        it('sets read permissions on a file', async() => {
-            const file1 = { 
-                name: 'test name',
-                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
-                size: 4567,
-                isPublic: false
-            }
-            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
-            await datastore.setReadPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', false)
-            await datastore.setReadPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true)
-
-            assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
-        })
-
-        it('throws when not called by owner', async () => {
-            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
-
-            assertThrow(async () => {
-                await datastore.setReadPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 1, { from: accounts[1] })
-            })
-        })        
-
-    })
-
-    describe('hasReadAccess', async () => {
+     describe('hasReadAccess', async () => {
 
         it('returns false when entity doesnt have permissions on it and isnt in a group that has', async() => {
             const file1 = { 
@@ -599,33 +573,9 @@ contract('Datastore ', accounts => {
         })       
 
     })    
+    
 
-    describe('setWritePermission', async () => {
-
-        it('sets read permissions on a file', async() => {
-            const file1 = { 
-                name: 'test name',
-                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
-                size: 4567,
-                isPublic: false
-            }
-            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
-            await datastore.setWritePermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', false)
-            await datastore.setWritePermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true)
-
-            assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
-        })
-
-        it('throws when not called by owner', async () => {
-            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
-
-            assertThrow(async () => {
-                await datastore.setWritePermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 1, { from: accounts[1] })
-            })
-        })          
-    })
-
-    describe('setMultiplePermissions', async () => {
+     describe('setMultiplePermissions', async () => {
     
         it('sets read and write permissions on a file', async() => {
             await datastore.createGroup('My first group')
