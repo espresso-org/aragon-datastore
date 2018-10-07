@@ -73,7 +73,7 @@ library PermissionLibrary {
     }
 
     function getEntityPermissionsOnFile(PermissionData storage _self, uint256 _fileId, address _entity) 
-        external 
+        internal 
         view 
         returns (bool write, bool read) 
     {
@@ -82,7 +82,7 @@ library PermissionLibrary {
     }
 
     function getEntityReadPermissions(PermissionData storage _self, uint256 _fileId, address _entity)
-        external 
+        internal 
         view 
         returns (bool) 
     {
@@ -90,7 +90,7 @@ library PermissionLibrary {
     }
 
     function getEntityWritePermissions(PermissionData storage _self, uint256 _fileId, address _entity)
-        external 
+        internal 
         view 
         returns (bool) 
     {
