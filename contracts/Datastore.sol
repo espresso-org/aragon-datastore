@@ -11,7 +11,6 @@ import "./libraries/FileLibrary.sol";
 
 contract Datastore is AragonApp {
     
-    using PermissionLibrary for PermissionLibrary.OwnerData;
     using PermissionLibrary for PermissionLibrary.PermissionData;
     using FileLibrary for FileLibrary.FileList;
     using GroupLibrary for GroupLibrary.GroupData;
@@ -61,7 +60,6 @@ contract Datastore is AragonApp {
     FileLibrary.FileList private fileList;
 
 
-    PermissionLibrary.OwnerData private fileOwners;
     PermissionLibrary.PermissionData private permissions;
     GroupLibrary.GroupData private groups;
     Settings public settings;
@@ -75,7 +73,7 @@ contract Datastore is AragonApp {
     }
 
     modifier onlyFileOwner(uint256 _fileId) {
-        require(fileOwners.isOwner(_fileId, msg.sender));
+        require(permissions.isOwner(_fileId, msg.sender));
         _;
     }    
 
@@ -86,7 +84,7 @@ contract Datastore is AragonApp {
         acl = ACL(kernel().acl());
         datastoreACL = DatastoreACL(_datastoreACL);
 
-        fileOwners.init(datastoreACL);
+        permissions.init(datastoreACL);
     }      
     
     /**
@@ -99,7 +97,7 @@ contract Datastore is AragonApp {
     function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external auth(DATASTORE_MANAGER_ROLE) returns (uint fileId) {
         uint fId = fileList.addFile(_storageRef, _name, _fileSize, _isPublic);
 
-        PermissionLibrary.addOwner(fileOwners, fId, msg.sender);
+        PermissionLibrary.addOwner(permissions, fId, msg.sender);
         PermissionLibrary.initializePermissionAddresses(permissions, fId);
         emit NewFile(msg.sender);
         return fId;
@@ -132,8 +130,8 @@ contract Datastore is AragonApp {
         fileSize = file.fileSize;
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
-        owner = fileOwners.fileOwners[_fileId];
-        isOwner = fileOwners.isOwner(_fileId, msg.sender);
+        owner = permissions.fileOwners[_fileId];
+        isOwner = permissions.isOwner(_fileId, msg.sender);
         lastModification = file.lastModification;
         permissionAddresses = permissions.permissionAddresses[_fileId];
         writeAccess = hasWriteAccess(_fileId, msg.sender);
@@ -201,9 +199,11 @@ contract Datastore is AragonApp {
      * @param _entity Entity address
      */
     function getEntityPermissionsOnFile(uint256 _fileId, address _entity) external view returns (bool write, bool read) {
+        /*
         PermissionLibrary.Permission storage permission = permissions.entityPermissions[_fileId][_entity];
         write = permission.write;
-        read = permission.read;
+        read = permission.read;*/
+        return permissions.getEntityPermissionsOnFile(_fileId, _entity);
     } 
 
     /**
@@ -299,7 +299,7 @@ contract Datastore is AragonApp {
      * @param _entity Entity address     
      */
     function hasReadAccess(uint _fileId, address _entity) public view returns (bool) {
-        if (fileOwners.isOwner(_fileId, _entity) || permissions.entityPermissions[_fileId][_entity].read)
+        if (permissions.isOwner(_fileId, _entity) || permissions.entityPermissions[_fileId][_entity].read)
             return true;
 
         for (uint i = 0; i < groups.groupList.length; i++) {
@@ -320,7 +320,7 @@ contract Datastore is AragonApp {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
-        if (fileOwners.isOwner(_fileId, _entity) || permissions.entityPermissions[_fileId][_entity].write)
+        if (permissions.isOwner(_fileId, _entity) || permissions.entityPermissions[_fileId][_entity].write)
             return true;
 
         for (uint i = 0; i < groups.groupList.length; i++) {

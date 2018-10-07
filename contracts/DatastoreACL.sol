@@ -67,21 +67,21 @@ contract DatastoreACL is ACL {
 
 
 
-    function createFilePermissionIfNew(address _entity, address _app, uint256 _fileId, bytes32 _role, address _manager) 
+    function createFilePermissionIfNew(address _entity, uint256 _fileId, bytes32 _role, address _manager) 
         external 
         auth(CREATE_PERMISSIONS_ROLE)
-        noPermissionManager(_app, _role)
+        noPermissionManager(datastore, _role)
     {
-        if (getPermissionManager(_app, _role) == 0)
-            _createPermission(_entity, _app, keccak256(_role, _fileId), _manager);
+        if (getPermissionManager(datastore, _role) == 0)
+            _createPermission(_entity, datastore, keccak256(_role, _fileId), _manager);
     }     
 
-    function createFilePermission(address _entity, address _app, uint256 _fileId, bytes32 _role, address _manager)
+    function createFilePermission(address _entity, uint256 _fileId, bytes32 _role, address _manager)
         external
         auth(CREATE_PERMISSIONS_ROLE)
-        noPermissionManager(_app, _role)
+        noPermissionManager(datastore, _role)
     {
-        _createPermission(_entity, _app, keccak256(_role, _fileId), _manager);
+        _createPermission(_entity, datastore, keccak256(_role, _fileId), _manager);
     }  
 
     function hasFilePermission(address _entity, address _app, uint256 _fileId, bytes32 _role) public view returns (bool)
@@ -92,7 +92,13 @@ contract DatastoreACL is ACL {
     function hasFilePermission(address _entity, uint256 _fileId, bytes32 _role) public view returns (bool)
     {
         return hasPermission(_entity, datastore, keccak256(_role, _fileId), new uint256[](0));
-    }    
+    }   
+
+    function grantFilePermission(address _entity, uint256 _fileId, bytes32 _role)
+        external
+    {
+        super.grantPermissionP(_entity, address(datastore), keccak256(_role, _fileId), new uint256[](0));
+    }
 
 
 
