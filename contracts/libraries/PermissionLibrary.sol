@@ -81,6 +81,21 @@ library PermissionLibrary {
         write = _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
     }
 
+    function getEntityReadPermissions(PermissionData storage _self, uint256 _fileId, address _entity)
+        external 
+        view 
+        returns (bool) 
+    {
+        return _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_READ_ROLE);
+    }
+
+    function getEntityWritePermissions(PermissionData storage _self, uint256 _fileId, address _entity)
+        external 
+        view 
+        returns (bool) 
+    {
+        return _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
+    }
 
 
     /**

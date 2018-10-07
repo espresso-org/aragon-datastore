@@ -301,7 +301,8 @@ contract Datastore is AragonApp {
      * @param _entity Entity address     
      */
     function hasReadAccess(uint _fileId, address _entity) public view returns (bool) {
-        if (permissions.isOwner(_fileId, _entity) || permissions.entityPermissions[_fileId][_entity].read)
+        if (permissions.isOwner(_fileId, _entity) || 
+            permissions.getEntityReadPermissions(_fileId, _entity))
             return true;
 
         for (uint i = 0; i < groups.groupList.length; i++) {
@@ -322,7 +323,8 @@ contract Datastore is AragonApp {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
-        if (permissions.isOwner(_fileId, _entity) || permissions.entityPermissions[_fileId][_entity].write)
+        if (permissions.isOwner(_fileId, _entity) || 
+            permissions.getEntityWritePermissions(_fileId, _entity))
             return true;
 
         for (uint i = 0; i < groups.groupList.length; i++) {
