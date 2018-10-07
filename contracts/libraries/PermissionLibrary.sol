@@ -97,6 +97,21 @@ library PermissionLibrary {
         return _self.acl.hasFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
     }
 
+    function hasWriteAccess(PermissionData storage _self, uint256 _fileId, address _entity)
+        internal 
+        view 
+        returns (bool) 
+    {
+        return isOwner(_self, _fileId, _entity) || getEntityWritePermissions(_self, _fileId, _entity);
+    }    
+
+    function hasReadAccess(PermissionData storage _self, uint256 _fileId, address _entity)
+        internal 
+        view 
+        returns (bool) 
+    {
+        return isOwner(_self, _fileId, _entity) || getEntityReadPermissions(_self, _fileId, _entity);
+    }  
 
     /**
      * @notice Set the read and write permissions on a file for a specified group
@@ -114,15 +129,12 @@ library PermissionLibrary {
         _self.entityPermissions[_fileId][_entity].read = _read;
         _self.entityPermissions[_fileId][_entity].write = _write;
 
-        if (_read) {
-            //_self.acl.createFilePermissionIfNew(_entity, _fileId, _self.FILE_READ_ROLE, this);
-            _self.acl.grantFilePermission(_entity, _fileId, _self.FILE_READ_ROLE);
-        }
+        if (_read) 
+            _self.acl.grantFilePermission(_entity, _fileId, _self.FILE_READ_ROLE);        
 
-        if (_write) {
-            //_self.acl.createFilePermissionIfNew(_entity, _fileId, _self.FILE_WRITE_ROLE, this);
+        if (_write) 
             _self.acl.grantFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
-        }
+        
 
         //NewWritePermission(msg.sender, _fileId);
     }   

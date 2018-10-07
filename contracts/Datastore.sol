@@ -85,6 +85,7 @@ contract Datastore is AragonApp {
         datastoreACL = DatastoreACL(_datastoreACL);
 
         permissions.init(datastoreACL);
+        groups.init(datastoreACL);
     }      
     
     /**
@@ -301,8 +302,7 @@ contract Datastore is AragonApp {
      * @param _entity Entity address     
      */
     function hasReadAccess(uint _fileId, address _entity) public view returns (bool) {
-        if (permissions.isOwner(_fileId, _entity) || 
-            permissions.getEntityReadPermissions(_fileId, _entity))
+        if (permissions.hasReadAccess(_fileId, _entity))
             return true;
 
         for (uint i = 0; i < groups.groupList.length; i++) {
@@ -323,8 +323,7 @@ contract Datastore is AragonApp {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint _fileId, address _entity) public view returns (bool) {
-        if (permissions.isOwner(_fileId, _entity) || 
-            permissions.getEntityWritePermissions(_fileId, _entity))
+        if (permissions.hasWriteAccess(_fileId, _entity))
             return true;
 
         for (uint i = 0; i < groups.groupList.length; i++) {
@@ -386,24 +385,6 @@ contract Datastore is AragonApp {
         return groups.groupList;
     }
 
-    /**
-     * @notice Get an entity inside a specific group
-     * @param _groupId Id of the group to retrieve the entity from
-     * @param _entityIndex Index of the entity to retrieve from the group
-     */
-    function getEntityInGroup(uint _groupId, uint _entityIndex) public view returns (address) {
-        require(groups.groups[_groupId].exists);
-        return groups.getEntityInGroup(_groupId, _entityIndex);
-    }
-
-    /**
-     * @notice Get the number of entities in a group
-     * @param _groupId Id of the group to get the count from
-     */
-    function getGroupEntityCount(uint _groupId) public view returns(uint) {
-        require(groups.groups[_groupId].exists);
-        return groups.getGroupEntityCount(_groupId);
-    }
 
     /**
      * @notice Add an entity to a group

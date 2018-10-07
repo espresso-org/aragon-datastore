@@ -76,12 +76,12 @@ contract DatastoreACL is ACL {
             _createPermission(_entity, datastore, keccak256(_role, _fileId), _manager);
     } */    
 
-    function createFilePermission(address _entity, uint256 _fileId, bytes32 _role, address _manager)
+    function createFilePermission(uint256 _fileId, bytes32 _role)
         external
         auth(CREATE_PERMISSIONS_ROLE)
         noPermissionManager(datastore, _role)
     {
-        _createPermission(_entity, datastore, keccak256(_role, _fileId), _manager);
+        _createPermission(datastore, datastore, keccak256(_role, _fileId), datastore);
     }  
 
     function hasFilePermission(address _entity, address _app, uint256 _fileId, bytes32 _role) public view returns (bool)
@@ -130,10 +130,6 @@ contract DatastoreACL is ACL {
     {
         return hasPermission(_entity, msg.sender, keccak256(keccak256("FILE_OWNER_ROLE"), _fileId));
     }   
-
-    function isOwner2(uint _fileId, address _entity) public view returns (bool)
-    {
-        return hasPermission(_entity, msg.sender, keccak256(keccak256("FILE_OWNER_ROLE"), _fileId));
-    }     
+ 
 }
 

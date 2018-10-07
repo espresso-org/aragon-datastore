@@ -435,51 +435,8 @@ contract('Datastore ', accounts => {
         })
     })        
 
-    describe('getEntityInGroup', async () => {
-        it('returns an entity from a group', async() => {
-            await datastore.createGroup('My first group')
-            await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
-            await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
-            await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6af7')
-
-            await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6af7')
-            //await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
-            var entity1 = await datastore.getEntityInGroup(1, 0)
-            var entity2 = await datastore.getEntityInGroup(1, 1)
-            var entity3 = await datastore.getEntityInGroup(1, 2)
-
-            assert.equal(entity1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
-            assert.equal(entity2, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
-            assert.equal(entity3, 0)
-        })
-
-        it("throws if group doesn't exist", async () => {            
-            assertThrow(async () => await datastore.getEntityInGroup(2, 0))
-        })
-    })          
-
-    describe('getGroupEntityCount', async () => {
-        it('returns the number of entities in a group', async() => {
-            await datastore.createGroup('My first group')
-            await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
-            await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
-
-            assert.equal(await datastore.getGroupEntityCount(1), 2)
-        })
-
-        it("doesn't count delete entities", async() => {
-            await datastore.createGroup('My first group')
-            await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
-            await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
-            await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
-
-            assert.equal(await datastore.getGroupEntityCount(1), 1)
-        })        
-
-        it("throws if group doesn't exist", async () => {            
-            assertThrow(async () => await datastore.getGroupEntityCount(2))
-        })
-    })          
+   
+      
 
     describe('addEntityToGroup', async () => {
         it('adds an entity to a group', async() => {
