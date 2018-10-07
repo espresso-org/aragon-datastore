@@ -97,12 +97,18 @@ contract DatastoreACL is ACL {
     function grantFilePermission(address _entity, uint256 _fileId, bytes32 _role)
         external
     {
-        if (getPermissionManager(datastore, _role) == 0)
+        if (getPermissionManager(datastore, keccak256(_role, _fileId)) == 0)
             _createPermission(_entity, datastore, keccak256(_role, _fileId), datastore);
 
         _setPermission(_entity, datastore, keccak256(_role, _fileId), EMPTY_PARAM_HASH);
     }
 
+    function revokeFilePermission(address _entity, uint256 _fileId, bytes32 _role)
+        external
+    {
+        if (getPermissionManager(datastore, keccak256(_role, _fileId)) == msg.sender)
+            _setPermission(_entity, datastore, keccak256(_role, _fileId), NO_PERMISSION);
+    }
 
 
 

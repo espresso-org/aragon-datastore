@@ -157,6 +157,8 @@ library PermissionLibrary {
                 if (_self.permissionAddresses[_fileId][i] == _entity)
                     delete _self.permissionAddresses[_fileId][i];
             }
+            _self.acl.revokeFilePermission(_entity, _fileId, _self.FILE_READ_ROLE);
+            _self.acl.revokeFilePermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
         }
     }
 

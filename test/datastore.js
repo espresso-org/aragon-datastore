@@ -255,7 +255,7 @@ contract('Datastore ', accounts => {
             assert.equal(permissions[1], false)
         })
         
-    })      
+    })    *  
 
     describe('removeEntityFromFile', async () => {
 
