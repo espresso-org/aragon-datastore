@@ -59,8 +59,7 @@ contract('Datastore ', accounts => {
         assert.equal(await datastore.lastFileId(), 1)
     })    
 
-    
-    it('getFile returns the right file data', async () => {
+    it('getFileAsCaller returns the right file data', async () => {
         const file1 = { 
             name: 'test name',
             storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
@@ -78,14 +77,48 @@ contract('Datastore ', accounts => {
         await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
         await datastore.addFile(file2.storageRef, file2.name, file2.size, file2.isPublic)
 
-        const getFile1 = await datastore.getFile(1)
+        const getFile1 = await datastore.getFileAsCaller(1, '0xdeadbeef')
         assert.equal(getFile1[0], file1.storageRef)
         assert.equal(getFile1[1], file1.name)
         assert.equal(getFile1[2], file1.size)
         assert.equal(getFile1[3], file1.isPublic)
         assert.equal(getFile1[4], false) // isDeleted should be false
 
-        const getFile2 = await datastore.getFile(2)
+        const getFile2 = await datastore.getFileAsCaller(2, '0xdeadbeef')
+        assert.equal(getFile2[0], file2.storageRef)
+        assert.equal(getFile2[1], file2.name)
+        assert.equal(getFile2[2], file2.size)
+        assert.equal(getFile2[3], file2.isPublic)
+        assert.equal(getFile2[4], false) // isDeleted should be false
+        
+    })
+    
+    xit('getFile returns the right file data', async () => {
+        const file1 = { 
+            name: 'test name',
+            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+            size: 4567,
+            isPublic: true
+        }
+
+        const file2 = { 
+            name: 'test name2',
+            storageRef: 'K4WWQSuPMS6aGCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+            size: 9872214,
+            isPublic: false
+        }        
+
+        await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+        await datastore.addFile(file2.storageRef, file2.name, file2.size, file2.isPublic)
+
+        const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
+        assert.equal(getFile1[0], file1.storageRef)
+        assert.equal(getFile1[1], file1.name)
+        assert.equal(getFile1[2], file1.size)
+        assert.equal(getFile1[3], file1.isPublic)
+        assert.equal(getFile1[4], false) // isDeleted should be false
+
+        const getFile2 = await datastore.getFileAsCaller(2, accounts[0])
         assert.equal(getFile2[0], file2.storageRef)
         assert.equal(getFile2[1], file2.name)
         assert.equal(getFile2[2], file2.size)
@@ -108,7 +141,7 @@ contract('Datastore ', accounts => {
             await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
             await datastore.deleteFile(1)
 
-            const getFile1 = await datastore.getFile(1)
+            const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
             assert.equal(getFile1[0], file1.storageRef)
             assert.equal(getFile1[1], file1.name)
             assert.equal(getFile1[2], file1.size)
@@ -144,7 +177,7 @@ contract('Datastore ', accounts => {
 
             await datastore.setFileName(1, newFilename, { from: accounts[1] })
             
-            const file = await datastore.getFile(1)
+            const file = await datastore.getFileAsCaller(1, accounts[0])
 
             assert.equal(file[1], newFilename)
         })
@@ -170,7 +203,7 @@ contract('Datastore ', accounts => {
 
             await datastore.setFileContent(1, newStorageRef, newFileSize, { from: accounts[1] })
             
-            const file = await datastore.getFile(1)
+            const file = await datastore.getFileAsCaller(1, accounts[0])
 
             assert.equal(file[0], newStorageRef)
             assert.equal(file[2], newFileSize)
@@ -183,7 +216,7 @@ contract('Datastore ', accounts => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
             await datastore.setFileContent(1, newStorageRef, newFileSize)
     
-            const file = await datastore.getFile(1)
+            const file = await datastore.getFileAsCaller(1, accounts[0])
     
             assert.equal(file[0], newStorageRef)
             assert.equal(file[2], newFileSize)
@@ -356,7 +389,7 @@ contract('Datastore ', accounts => {
 
     it('tests if ownership of files works correctly', async() => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
-        const file = await datastore.getFile(1)
+        const file = await datastore.getFileAsCaller(1, accounts[0])
 
         assert.equal(file[5], accounts[0])
         assert.equal(file[6], true)
@@ -692,7 +725,7 @@ contract('Datastore ', accounts => {
             await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
             await datastore.setMultiplePermissions(1, [1], [true], [false], ['0xb4124ceb3451635dacedd11767f004d8a28c6ee8'], [false], [true], true)
 
-            assert.equal((await datastore.getFile(1))[3], true)
+            assert.equal((await datastore.getFileAsCaller(1, accounts[0]))[3], true)
         })
 
         it("throws if not called by owner", async () => {  

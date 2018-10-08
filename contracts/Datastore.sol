@@ -111,8 +111,9 @@ contract Datastore is AragonApp {
     /**
      * @notice Returns the file with Id `_fileId`
      * @param _fileId File id
+     * @param _caller Caller address
      */
-    function getFile(uint _fileId) 
+    function getFileAsCaller(uint _fileId, address _caller) 
         external
         view 
         returns (
@@ -136,10 +137,10 @@ contract Datastore is AragonApp {
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
         owner = permissions.fileOwners[_fileId];
-        isOwner = permissions.isOwner(_fileId, msg.sender);
+        isOwner = permissions.isOwner(_fileId, _caller);
         lastModification = file.lastModification;
         permissionAddresses = permissions.permissionAddresses[_fileId];
-        writeAccess = hasWriteAccess(_fileId, msg.sender);
+        writeAccess = hasWriteAccess(_fileId, _caller);
     }
 
 
