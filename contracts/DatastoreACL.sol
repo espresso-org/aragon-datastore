@@ -10,7 +10,7 @@ contract DatastoreACL is ACL {
     ACL private acl;
 
     modifier auth(bytes32 _role) {
-        require(canPerform(msg.sender, _role, new uint256[](0)));
+        require(datastoreCanPerform(msg.sender, _role, new uint256[](0)));
         _;
     }
 
@@ -29,7 +29,7 @@ contract DatastoreACL is ACL {
     }
 
 
-    function canPerform(address _sender, bytes32 _role, uint256[] _params) public view returns (bool) {
+    function datastoreCanPerform(address _sender, bytes32 _role, uint256[] _params) public view returns (bool) {
         /*if (!hasInitialized()) {
             return false;
         }*/
@@ -100,7 +100,7 @@ contract DatastoreACL is ACL {
 
   
 
-    function hasPermission(address _entity, address _app, bytes32 _role) public view returns (bool)
+    function aclHasPermission(address _entity, address _app, bytes32 _role) public view returns (bool)
     {
         return hasPermission(_entity, _app, _role, new uint256[](0));
     }
