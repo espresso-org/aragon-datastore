@@ -19,6 +19,7 @@ contract DatastoreACL is ACL {
     * @dev Initialize can only be called once. It saves the block number in which it was initialized.
     * @notice Initialize an ACL instance and set `_permissionsCreator` as the entity that can create other permissions
     * @param _permissionsCreator Entity that will be given permission over createPermission
+    * @param _acl Kernel ACL
     */
     function initialize(address _permissionsCreator, address _acl) public {
         //initialized();
@@ -102,7 +103,7 @@ contract DatastoreACL is ACL {
 
     function aclHasPermission(address _entity, address _app, bytes32 _role) public view returns (bool)
     {
-        return hasPermission(_entity, _app, _role, new uint256[](0));
+        return acl.hasPermission(_entity, _app, _role, new uint256[](0));
     }
 
 
