@@ -64,13 +64,8 @@ contract Datastore is AragonApp {
     GroupLibrary.GroupData private groups;
     Settings public settings;
 
-    ACL private acl;
     DatastoreACL private datastoreACL;
 
-    modifier authD(bytes32 _role) {
-        require(datastoreACL.aclHasPermission(msg.sender, this, _role));
-        _;
-    }
 
     modifier onlyFileOwner(uint256 _fileId) {
         require(permissions.isOwner(_fileId, msg.sender));
@@ -81,7 +76,6 @@ contract Datastore is AragonApp {
     {
         initialized();
 
-        acl = ACL(kernel().acl());
         datastoreACL = DatastoreACL(_datastoreACL);
 
         permissions.init(datastoreACL);
