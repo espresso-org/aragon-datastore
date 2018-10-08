@@ -6,9 +6,8 @@ import '@aragon/os/contracts/acl/ACLSyntaxSugar.sol';
 
 contract DatastoreACL is ACL {
 
-    bytes32 constant public FILE_OWNER_ROLE = keccak256("FILE_OWNER_ROLE");
-
     address private datastore;
+    ACL private acl;
 
     modifier auth(bytes32 _role) {
         require(canPerform(msg.sender, _role, new uint256[](0)));
@@ -21,10 +20,11 @@ contract DatastoreACL is ACL {
     * @notice Initialize an ACL instance and set `_permissionsCreator` as the entity that can create other permissions
     * @param _permissionsCreator Entity that will be given permission over createPermission
     */
-    function initialize(address _permissionsCreator) public {
+    function initialize(address _permissionsCreator, address _acl) public {
         //initialized();
         // TODO: Set initialized
         datastore = _permissionsCreator;
+        acl = ACL(_acl);
         _createPermission(_permissionsCreator, this, CREATE_PERMISSIONS_ROLE, _permissionsCreator);
     }
 
