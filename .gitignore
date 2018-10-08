@@ -4,3 +4,10 @@ node_modules
 src/build-contracts
 yarn-error.log
 .vscode
+
+# coverage
+coverage/
+coverageEnv/
+coverage.json
+allFiredEvents
+scTopics

@@ -1,6 +1,5 @@
 import * as ipfsAPI from 'ipfs-api' 
-import { IStorageProvider } from './istorage-provider'
-
+import { StorageProvider } from './storage-provider'
 
 export class IpfsOptions {
     host: string
@@ -8,7 +7,7 @@ export class IpfsOptions {
     protocol = 'http'
 }
 
-export class Ipfs {
+export class Ipfs implements StorageProvider {
     private _ipfs
 
     constructor(opts?: IpfsOptions) {
@@ -16,19 +15,20 @@ export class Ipfs {
         this._ipfs = new ipfsAPI(opts)
     }
 
-    async getFile(fileId: string): Promise<Uint8Array> {
-        let result = await this._ipfs.get(fileId)
+    async getFile(fileId: string): Promise<ArrayBuffer> {
+        const result = await this._ipfs.get(fileId)
 
-        return result.length && result[0].content
+        return result.length && result[0].content.buffer
     }
 
-    async addFile(file: Uint8Array) {
-        let result = await this._ipfs.add(this._ipfs.Buffer.from(file))
+    async addFile(file: ArrayBuffer) {
+        const addResult = await this._ipfs.add(this._ipfs.Buffer.from(file))
 
-        return result.length && result[0].hash
+        if (addResult.length > 0) {
+            await this._ipfs.pin.add(addResult[0].hash)
+            return addResult[0].hash
+        }
+        else 
+            throw new Error('Unable to add file to IPFS')
     }
-
 }
-
-
-
