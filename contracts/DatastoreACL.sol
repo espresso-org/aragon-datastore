@@ -22,8 +22,8 @@ contract DatastoreACL is ACL {
     * @param _acl Kernel ACL
     */
     function initialize(address _permissionsCreator, address _acl) public {
-        //initialized();
-        // TODO: Set initialized
+        initialized();
+
         datastore = _permissionsCreator;
         acl = ACL(_acl);
         _createPermission(_permissionsCreator, this, CREATE_PERMISSIONS_ROLE, _permissionsCreator);
@@ -31,10 +31,9 @@ contract DatastoreACL is ACL {
 
 
     function datastoreCanPerform(address _sender, bytes32 _role, uint256[] _params) public view returns (bool) {
-        /*if (!hasInitialized()) {
+        if (!hasInitialized()) {
             return false;
-        }*/
-        // TODO: check init
+        }
 
         bytes memory how; // no need to init memory as it is never used
         if (_params.length > 0) {
@@ -105,6 +104,12 @@ contract DatastoreACL is ACL {
     {
         return acl.hasPermission(_entity, _app, _role, new uint256[](0));
     }
+
+
+    /**
+    * @dev Prevents the Autopetrify of the contract
+    */
+    function petrify() internal {}    
 
 
 }
