@@ -68,7 +68,7 @@ contract Datastore is AragonApp {
     DatastoreACL private datastoreACL;
 
     modifier authD(bytes32 _role) {
-        require(datastoreACL.hasPermission(msg.sender, address(this), _role, new uint256[](0)));
+        require(datastoreACL.aclHasPermission(msg.sender, this, _role));
         _;
     }
 
