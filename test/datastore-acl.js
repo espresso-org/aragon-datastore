@@ -48,8 +48,8 @@ contract('DatastoreACL ', accounts => {
         await acl.grantPermission(holder, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
 
         datastoreACL = await DatastoreACL.new()   
-        await datastoreACL.initialize(datastore.address) 
-        await datastore.init(datastoreACL.address, { from: root })
+        await datastoreACL.initialize(datastore.address, acl.address) 
+        await datastore.init(datastoreACL.address)
     })
 
     it('increases lastFileId by 1 after addFile', async () => {
