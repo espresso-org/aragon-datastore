@@ -69,6 +69,12 @@ contract('DatastoreACL ', accounts => {
         })        
     })
 
+    describe('createPermissionWithArg', async () => {
+        it('throws if not called with CREATE_PERMISSIONS_ROLE', async () => {
+            assertThrow(async () => datastoreACL.createPermissionWithArg(1, DUMMY_ROLE))
+        })
+    })    
+
     describe('aclCreatePermission', async () => {
         it('creates a permission on the ACL', async () => {
             datastoreACL.aclCreatePermission(root, datastore.address, DUMMY_ROLE, root)
