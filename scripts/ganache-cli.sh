@@ -2,6 +2,7 @@
 
 # Exit script as soon as a command fails.
 set -o errexit
+touch ./allFiredEvents
 
 if [ "$SOLIDITY_COVERAGE" = true ]; then
   testrpc_port=8555
@@ -15,7 +16,7 @@ testrpc_running() {
 
 start_testrpc() {
   if [ "$SOLIDITY_COVERAGE" = true ]; then
-    npx testrpc-sc -i 16 --gasLimit 0xfffffffffff --port "$testrpc_port"  > /dev/null &
+    ./node_modules/.bin/testrpc-sc -i 16 --gasLimit 0xfffffffffff --port "$testrpc_port"  > /dev/null &
   else
     npx ganache-cli -i 15 --gasLimit 50000000 --port "$testrpc_port" > /dev/null &
   fi
