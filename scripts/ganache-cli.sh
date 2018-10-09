@@ -2,6 +2,7 @@
 
 # Exit script as soon as a command fails.
 set -o errexit
+touch ./allFiredEvents
 
 if [ "$SOLIDITY_COVERAGE" = true ]; then
   testrpc_port=8555
