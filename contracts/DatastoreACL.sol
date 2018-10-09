@@ -67,11 +67,24 @@ contract DatastoreACL is ACL {
         _createPermission(datastore, datastore, keccak256(_role, _arg), datastore);
     }  
 
+    /**
+    * @dev Function called to verify permission for role `_role` and uint argument `_arg`status on `_entity`
+    * @param _entity Address of the entity
+    * @param _arg Role argument
+    * @param _role Identifier for the group of actions in app given access to perform
+    * @return boolean indicating whether the ACL allows the role or not
+    */
     function hasPermissionWithArg(address _entity, uint256 _arg, bytes32 _role) public view returns (bool)
     {
         return hasPermission(_entity, datastore, keccak256(_role, _arg), new uint256[](0));
     }   
 
+    /**
+    * @dev Grants permission for role `_role` with argument `_arg`, if allowed. 
+    * @param _entity Address of the whitelisted entity that will be able to perform the role
+    * @param _arg Role argument
+    * @param _role Identifier for the group of actions in app given access to perform
+    */
     function grantPermissionWithArg(address _entity, uint256 _arg, bytes32 _role)
         external
     {
@@ -81,6 +94,12 @@ contract DatastoreACL is ACL {
         _setPermission(_entity, datastore, keccak256(_role, _arg), EMPTY_PARAM_HASH);
     }
 
+    /**
+    * @dev Revokes permission for role `_role` with argument `_arg`, if allowed. 
+    * @param _entity Address of the whitelisted entity to revoke access from
+    * @param _arg Role argument
+    * @param _role Identifier for the group of actions in app being revoked
+    */
     function revokePermissionWithArg(address _entity, uint256 _arg, bytes32 _role)
         external
     {
