@@ -7,6 +7,8 @@ const EVMScriptRegistryFactory = artifacts.require('@aragon/core/contracts/facto
 const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
 const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
 
+contract = () => null
+
 contract('DatastoreACL ', accounts => {
     let datastore
     let daoFact
@@ -19,6 +21,7 @@ contract('DatastoreACL ', accounts => {
 
     const root = accounts[0]
     const holder = accounts[1]
+    const DUMMY_ROLE = 1
 
 
     before(async () => {
@@ -46,19 +49,59 @@ contract('DatastoreACL ', accounts => {
         await acl.createPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE(), root)
         await acl.grantPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
         await acl.grantPermission(holder, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
-
+        
         datastoreACL = await DatastoreACL.new()   
         await datastoreACL.initialize(datastore.address, acl.address) 
         await datastore.init(datastoreACL.address)
+
+        await acl.grantPermission(datastoreACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
     })
 
-    it('increases lastFileId by 1 after addFile', async () => {
-        assert.equal(await datastore.lastFileId(), 0)
-        await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
-        assert.equal(await datastore.lastFileId(), 1)
-    })    
+    describe('canPerformP', async () => {
+        it('returns false if DatastoreACL is not initialized', async () => {
+            const dsAcl = await DatastoreACL.new()
+            const result = await dsAcl.canPerformP.call(root, 0, [])
+            assert.equal(result, false)
+        })
 
+        it('returns false on non-existing permission', async () => {
+            const result = await datastoreACL.canPerformP.call(root, 0, [0])
+            assert.equal(result, false)
+        })        
+    })
 
+    describe('aclCreatePermission', async () => {
+        it('creates a permission on the ACL', async () => {
+            datastoreACL.aclCreatePermission(root, datastore.address, DUMMY_ROLE, root)
+            const hasRole = await acl.hasPermission.call(root, datastore.address, DUMMY_ROLE)
+            
+            assert.equal(hasRole, true)
+        })
+    })
+
+    describe('aclGrantPermission', async () => {
+
+        it('throws if user is not the permission manager', async () => {
+            assertThrow(async () => datastoreACL.aclGrantPermission(root, datastore.address, DUMMY_ROLE))
+        })
+
+        xit('grants a permission for an entity on the ACL', async () => {
+            datastoreACL.aclCreatePermission(root, datastore.address, DUMMY_ROLE, root)
+            datastoreACL.aclGrantPermission(holder, datastore.address, DUMMY_ROLE)
+            const hasRole = await acl.hasPermission.call(holder, datastore.address, DUMMY_ROLE)
+            
+            assert.equal(hasRole, true)
+        })
+    })
+
+    describe('aclHasPermission', async () => {
+
+        it('returns the ACL permission', async () => {
+            acl.createPermission(holder, datastore.address, DUMMY_ROLE, root)
+            datastoreACL.aclHasPermission(holder, datastore.address, DUMMY_ROLE)
+        })    
+
+    })
 })
 
 async function assertThrow(fn) {

@@ -43,7 +43,7 @@
     "standard-version": "^4.2.0",
     "truffle": "4.1.14",
     "truffle-bytecode-manager": "^1.1.1",
-    "truffle-extract": "^1.2.1",    
+    "truffle-extract": "^1.2.1",
     "ts-jest": "^20.0.10",
     "ts-loader": "^2.3.3",
     "tslint": "^5.11.0",
@@ -53,7 +53,7 @@
     "webpack-node-externals": "^1.6.0"
   },
   "dependencies": {
-    "@aragon/os": "^4.0.0-beta.1",
+    "@aragon/os": "4.0.0-beta.3",
     "async": "^2.6.1",
     "bignumber.js": "^7.2.1",
     "dotenv": "^2.0.0",

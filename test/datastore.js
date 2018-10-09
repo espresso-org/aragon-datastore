@@ -747,7 +747,7 @@ async function assertThrow(fn) {
         return true
     }
     assert.fail('Should have thrown')
-}
+} 
 
 async function assertEvent(contract, filter) {
     return new Promise((resolve, reject) => {
