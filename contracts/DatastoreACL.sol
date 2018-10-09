@@ -114,7 +114,6 @@ contract DatastoreACL is ACL {
     */
     function aclGrantPermission(address _entity, address _app, bytes32 _role)
         external
-        onlyPermissionManager(_app, _role)
     {
         acl.grantPermission(_entity, _app, _role);
     }

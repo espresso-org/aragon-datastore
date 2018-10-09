@@ -7,7 +7,6 @@ const EVMScriptRegistryFactory = artifacts.require('@aragon/core/contracts/facto
 const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
 const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
 
-contract = () => null
 
 contract('DatastoreACL ', accounts => {
     let datastore
@@ -81,13 +80,9 @@ contract('DatastoreACL ', accounts => {
 
     describe('aclGrantPermission', async () => {
 
-        it('throws if user is not the permission manager', async () => {
-            assertThrow(async () => datastoreACL.aclGrantPermission(root, datastore.address, DUMMY_ROLE))
-        })
-
-        xit('grants a permission for an entity on the ACL', async () => {
-            datastoreACL.aclCreatePermission(root, datastore.address, DUMMY_ROLE, root)
-            datastoreACL.aclGrantPermission(holder, datastore.address, DUMMY_ROLE)
+        it('grants a permission for an entity on the ACL', async () => {
+            await datastoreACL.aclCreatePermission(root, datastore.address, DUMMY_ROLE, datastoreACL.address)
+            await datastoreACL.aclGrantPermission(holder, datastore.address, DUMMY_ROLE)
             const hasRole = await acl.hasPermission.call(holder, datastore.address, DUMMY_ROLE)
             
             assert.equal(hasRole, true)
@@ -98,7 +93,8 @@ contract('DatastoreACL ', accounts => {
 
         it('returns the ACL permission', async () => {
             acl.createPermission(holder, datastore.address, DUMMY_ROLE, root)
-            datastoreACL.aclHasPermission(holder, datastore.address, DUMMY_ROLE)
+            const hasRole = await datastoreACL.aclHasPermission.call(holder, datastore.address, DUMMY_ROLE, [])
+            assert(hasRole, true)
         })    
 
     })

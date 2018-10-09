@@ -7,6 +7,8 @@ const EVMScriptRegistryFactory = artifacts.require('@aragon/core/contracts/facto
 const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
 const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
 
+//contract = () => null
+
 contract('Datastore ', accounts => {
     let datastore
     let daoFact
@@ -747,7 +749,7 @@ async function assertThrow(fn) {
         return true
     }
     assert.fail('Should have thrown')
-} 
+}
 
 async function assertEvent(contract, filter) {
     return new Promise((resolve, reject) => {
