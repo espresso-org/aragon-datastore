@@ -1,5 +1,5 @@
 {
-  "name": "aragon-datastore",
+  "name": "@espresso-org/aragon-datastore",
   "version": "0.0.4",
   "description": "Datastore based on AragonOS",
   "main": "dist/index.js",
