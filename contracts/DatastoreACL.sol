@@ -82,31 +82,31 @@ contract DatastoreACL is ACL {
     }   
 
     /**
-    * @dev Grants permission for role `_role` with argument `_arg`, if allowed. 
+    * @dev Grants permission for role `_role` on object `_obj`, if allowed. 
     * @param _entity Address of the whitelisted entity that will be able to perform the role
-    * @param _arg Role argument
+    * @param _obj Object
     * @param _role Identifier for the group of actions in app given access to perform
     */
-    function grantObjectPermission(address _entity, uint256 _arg, bytes32 _role)
+    function grantObjectPermission(address _entity, uint256 _obj, bytes32 _role)
         external
     {
-        if (getPermissionManager(datastore, keccak256(_role, _arg)) == 0)
-            _createPermission(_entity, datastore, keccak256(_role, _arg), datastore);
+        if (getPermissionManager(datastore, keccak256(_role, _obj)) == 0)
+            _createPermission(_entity, datastore, keccak256(_role, _obj), datastore);
 
-        _setPermission(_entity, datastore, keccak256(_role, _arg), EMPTY_PARAM_HASH);
+        _setPermission(_entity, datastore, keccak256(_role, _obj), EMPTY_PARAM_HASH);
     }
 
     /**
-    * @dev Revokes permission for role `_role` with argument `_arg`, if allowed. 
+    * @dev Revokes permission for role `_role` on object `_obj`, if allowed. 
     * @param _entity Address of the whitelisted entity to revoke access from
-    * @param _arg Role argument
+    * @param _obj Object
     * @param _role Identifier for the group of actions in app being revoked
     */
-    function revokePermissionWithArg(address _entity, uint256 _arg, bytes32 _role)
+    function revokeObjectPermission(address _entity, uint256 _obj, bytes32 _role)
         external
     {
-        if (getPermissionManager(datastore, keccak256(_role, _arg)) == msg.sender)
-            _setPermission(_entity, datastore, keccak256(_role, _arg), NO_PERMISSION);
+        if (getPermissionManager(datastore, keccak256(_role, _obj)) == msg.sender)
+            _setPermission(_entity, datastore, keccak256(_role, _obj), NO_PERMISSION);
     }
 
 
