@@ -80,7 +80,7 @@ export class Datastore {
             if (encryptionKeyAsString !== "0") {
                 const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
                 const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
-
+                
                 fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)
             }
         }
@@ -220,6 +220,7 @@ export class Datastore {
      * @param {number} fileId 
      * @param {Object[]} entityPermissions 
      * @param {Object[]} groupPermissions 
+     * @param {boolean} isPublic
      */
     async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[], isPublic: boolean) { 
         await this._initialize()
@@ -234,12 +235,8 @@ export class Datastore {
             storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
             encryptionKeyAsString = encryptionFileData.encryptionKey
         } else if (isPublic && encryptionKeyAsString != "0" && encryptionKeyAsString != "") {
-            const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
-            const encryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
-            let decryptedFile = await this._encryption.decryptFile(file.content, encryptionKey)
-            console.log('decryptedFile: ', decryptedFile)
-            storageId = await this._storage.addFile(decryptedFile)
-            encryptionKeyAsString = "0"
+            storageId = await this._storage.addFile(file.content)
+            encryptionKeyAsString = ""
         }
 
         await this._contract.setMultiplePermissions(

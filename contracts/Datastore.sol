@@ -128,7 +128,7 @@ contract Datastore {
             uint lastModification,
             address[] permissionAddresses,
             bool writeAccess
-        ) 
+        )
     {
         File storage file = files[_fileId];
 
@@ -551,7 +551,7 @@ contract Datastore {
 
         files[_fileId].isPublic = _isPublic;
 
-        if (!_isPublic || (_isPublic && keccak256(_encryptionKey) == keccak256("0"))) {
+        if (!_isPublic || (_isPublic && keccak256(_encryptionKey) == keccak256(""))) {
             setFileContent(_fileId, _storageRef, _fileSize);
             setEncryptionKey(_fileId, _encryptionKey);
         }
