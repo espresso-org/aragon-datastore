@@ -57,9 +57,9 @@ contract DatastoreACL is ACL {
     }  
 
     /**
-    * @dev Creates a `_role` permission with a uint argument on the Datastore
+    * @dev Creates a `_role` permission with a uint object on the Datastore
     * @param _role Identifier for the group of actions in app given access to perform
-    * @param _obj Role argument
+    * @param _obj Object
     */
     function createObjectPermission(uint256 _obj, bytes32 _role)
         external
@@ -70,9 +70,9 @@ contract DatastoreACL is ACL {
     }  
 
     /**
-    * @dev Function called to verify permission for role `_role` and uint argument `_arg`status on `_entity`
+    * @dev Function called to verify permission for role `_role` and uint object `_obj` status on `_entity`
     * @param _entity Address of the entity
-    * @param _obj Role argument
+    * @param _obj Object
     * @param _role Identifier for the group of actions in app given access to perform
     * @return boolean indicating whether the ACL allows the role or not
     */
@@ -87,7 +87,7 @@ contract DatastoreACL is ACL {
     * @param _arg Role argument
     * @param _role Identifier for the group of actions in app given access to perform
     */
-    function grantPermissionWithArg(address _entity, uint256 _arg, bytes32 _role)
+    function grantObjectPermission(address _entity, uint256 _arg, bytes32 _role)
         external
     {
         if (getPermissionManager(datastore, keccak256(_role, _arg)) == 0)

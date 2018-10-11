@@ -57,7 +57,7 @@ library PermissionLibrary {
      */
     function addOwner(PermissionData storage _self, uint _fileId, address _entity) internal {
         _self.fileOwners[_fileId] = _entity;
-        _self.acl.grantPermissionWithArg(msg.sender, _fileId, _self.FILE_OWNER_ROLE);
+        _self.acl.grantObjectPermission(msg.sender, _fileId, _self.FILE_OWNER_ROLE);
     }
 
     // ************* PermissionData ************* //
@@ -128,10 +128,10 @@ library PermissionLibrary {
         _self.entityPermissions[_fileId][_entity].write = _write;
 
         if (_read) 
-            _self.acl.grantPermissionWithArg(_entity, _fileId, _self.FILE_READ_ROLE);        
+            _self.acl.grantObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE);        
 
         if (_write) 
-            _self.acl.grantPermissionWithArg(_entity, _fileId, _self.FILE_WRITE_ROLE);
+            _self.acl.grantObjectPermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
         
 
         //NewWritePermission(msg.sender, _fileId);
