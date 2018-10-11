@@ -58,8 +58,8 @@ contract DatastoreACL is ACL {
 
     /**
     * @dev Creates a `_role` permission with a uint object on the Datastore
-    * @param _role Identifier for the group of actions in app given access to perform
     * @param _obj Object
+    * @param _role Identifier for the group of actions in app given access to perform
     */
     function createObjectPermission(uint256 _obj, bytes32 _role)
         external
@@ -159,7 +159,7 @@ contract DatastoreACL is ACL {
     */
     function _createObjectPermission(address _entity, address _app, bytes32 _obj, bytes32 _role, address _manager) internal {
         _setObjectPermission(_entity, _app, _obj, _role, EMPTY_PARAM_HASH);
-        _setPObjectermissionManager(_manager, _app, _role);
+        _setObjectPermissionManager(_manager, _app, _obj, _role);
     }
 
 
@@ -167,15 +167,20 @@ contract DatastoreACL is ACL {
     * @dev Internal function called to actually save the permission
     */
     function _setObjectPermission(address _entity, address _app, bytes32 _obj, bytes32 _role, bytes32 _paramsHash) internal {
-        permissions[permissionHash(_entity, _app, _role)] = _paramsHash;
+        objectPermissions[objectPermissionHash(_entity, _app, _role)] = _paramsHash;
         bool entityHasPermission = _paramsHash != NO_PERMISSION;
         bool permissionHasParams = entityHasPermission && _paramsHash != EMPTY_PARAM_HASH;
 
+        // TODO emit new events
         emit SetPermission(_entity, _app, _role, entityHasPermission);
         if (permissionHasParams) {
             emit SetPermissionParams(_entity, _app, _role, _paramsHash);
         }
-    }    
+    }   
+
+    function objectPermissionHash(address _who, address _where, bytes32 _obj, bytes32 _what) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("PERMISSION", _who, _where, _obj, _what));
+    }     
 
     /**
     * @dev Prevents the Autopetrify of the contract
