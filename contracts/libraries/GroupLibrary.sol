@@ -81,7 +81,7 @@ library GroupLibrary {
      * @param _entity Address of the entity
      */
     function isEntityInGroup(GroupData storage _self, uint _groupId, address _entity) internal view returns (bool) {
-        return _self.acl.hasPermissionWithArg(_entity, _groupId, _self.DATASTORE_GROUP);
+        return _self.acl.hasObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP);
     }
 
     /**

@@ -47,7 +47,7 @@ library PermissionLibrary {
      * @param _entity Entity address
      */
     function isOwner(PermissionData storage _self, uint _fileId, address _entity) internal view returns (bool) {
-        return _self.acl.hasPermissionWithArg(_entity, _fileId, _self.FILE_OWNER_ROLE);
+        return _self.acl.hasObjectPermission(_entity, _fileId, _self.FILE_OWNER_ROLE);
     }
     /**
      * @notice Adds an `_entity` as owner to file with `_fileId`
@@ -75,8 +75,8 @@ library PermissionLibrary {
         view 
         returns (bool write, bool read) 
     {
-        read = _self.acl.hasPermissionWithArg(_entity, _fileId, _self.FILE_READ_ROLE);
-        write = _self.acl.hasPermissionWithArg(_entity, _fileId, _self.FILE_WRITE_ROLE);
+        read = _self.acl.hasObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE);
+        write = _self.acl.hasObjectPermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
     }
 
     function getEntityReadPermissions(PermissionData storage _self, uint256 _fileId, address _entity)
@@ -84,7 +84,7 @@ library PermissionLibrary {
         view 
         returns (bool) 
     {
-        return _self.acl.hasPermissionWithArg(_entity, _fileId, _self.FILE_READ_ROLE);
+        return _self.acl.hasObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE);
     }
 
     function getEntityWritePermissions(PermissionData storage _self, uint256 _fileId, address _entity)
@@ -92,7 +92,7 @@ library PermissionLibrary {
         view 
         returns (bool) 
     {
-        return _self.acl.hasPermissionWithArg(_entity, _fileId, _self.FILE_WRITE_ROLE);
+        return _self.acl.hasObjectPermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
     }
 
     function hasWriteAccess(PermissionData storage _self, uint256 _fileId, address _entity)
