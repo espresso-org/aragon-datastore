@@ -146,10 +146,12 @@ contract Datastore {
 
     /**
      * @notice Returns the encryption key for file with `_fileId`
-     * @param _fileId File Id    
+     * @param _fileId File Id 
      */
     function getFileEncryptionKey(uint _fileId) external view returns(string) {
-        return files[_fileId].cryptoKey;
+        if (hasReadAccess(_fileId, msg.sender)) 
+            return files[_fileId].cryptoKey;
+        return "0";
     }
 
     /**
@@ -351,13 +353,17 @@ contract Datastore {
     /**
      * @notice Sets IPFS as the storage provider for the datastore.
      * Since switching between storage providers is not supported,
-     * the method can only be called if storage isn't set or already IPFS
+     * the method can only be called if storage isn't set or already IPFS.
+     * Also sets AES as the encryption provider.
      * @param _host Host
      * @param _port Port
      * @param _protocol HTTP protocol
+     * @param _name Name of the AES encryption algorithm
+     * @param _length Length of the encryption key
      */
-    function setIpfsStorageSettings(string _host, uint16 _port, string _protocol) public {
+    function setSettings(string _host, uint16 _port, string _protocol, string _name, uint _length) public {
         require(settings.storageProvider == StorageProvider.None || settings.storageProvider == StorageProvider.Ipfs);
+        require(settings.encryptionProvider == EncryptionProvider.None || settings.encryptionProvider == EncryptionProvider.Aes);
 
         settings.ipfsHost = _host;
         settings.ipfsPort = _port;
@@ -368,29 +374,13 @@ contract Datastore {
             port: port,
             protocol: protocol
         });*/
-
         settings.storageProvider = StorageProvider.Ipfs;
-        SettingsChanged(msg.sender);
-    }
-
-    /**
-     * @notice Sets Aes as the encryption provider for the datastore.
-     * @param _name Name of the AES encryption algorithm
-     * @param _length Length of the encryption key
-     */
-    function setAesEncryptionSettings(string _name, uint _length) public {
-        require(settings.encryptionProvider == EncryptionProvider.None || settings.encryptionProvider == EncryptionProvider.Aes);
 
         settings.aesName = _name;
         settings.aesLength = _length;
-
         settings.encryptionProvider = EncryptionProvider.Aes;
-        SettingsChanged(msg.sender);
-    }
 
-    function setSettings(string _host, uint16 _port, string _protocol, string _name, uint _length) public {
-        setIpfsStorageSettings(_host, _port, _protocol);
-        setAesEncryptionSettings(_name, _length);
+        SettingsChanged(msg.sender);
     }
 
     /**
@@ -544,9 +534,13 @@ contract Datastore {
      * @param _groupWrite Write permission
      * @param _entities Ids of the groups
      * @param _entityRead Read permission
-     * @param _entityWrite Write permission      
+     * @param _entityWrite Write permission  
+     * @param _isPublic Public status
+     * @param _storageRef Storage reference
+     * @param _fileSize File size
+     * @param _encryptionKey Encryption key    
      */
-    function setMultiplePermissions(uint256 _fileId, uint256[] _groupIds, bool[] _groupRead, bool[] _groupWrite, address[] _entities, bool[] _entityRead, bool[] _entityWrite, bool _isPublic, string _storageRef, uint _fileSize, string encryptionKey) public {
+    function setMultiplePermissions(uint256 _fileId, uint256[] _groupIds, bool[] _groupRead, bool[] _groupWrite, address[] _entities, bool[] _entityRead, bool[] _entityWrite, bool _isPublic, string _storageRef, uint _fileSize, string _encryptionKey) public {
         require(fileOwners.isOwner(_fileId, msg.sender));
 
         for(uint256 i = 0; i < _groupIds.length; i++) 
@@ -557,11 +551,10 @@ contract Datastore {
 
         files[_fileId].isPublic = _isPublic;
 
-        if (!_isPublic) {
+        if (!_isPublic || (_isPublic && keccak256(_encryptionKey) == keccak256("0"))) {
             setFileContent(_fileId, _storageRef, _fileSize);
-            setEncryptionKey(_fileId, encryptionKey);
+            setEncryptionKey(_fileId, _encryptionKey);
         }
-        
         NewPermissions(msg.sender, _fileId);
     }
 

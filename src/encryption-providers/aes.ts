@@ -7,7 +7,8 @@ export class Aes implements EncryptionProvider {
         this._encryptionAlgo = {
             name: opts.name,
             length: opts.length,
-            iv: crypto.getRandomValues(new Int8Array(16))
+            // We temporarily use a fixed IV, but will eventually change to a randomly generated one for each file when Keep will be implemented
+            iv: new Int8Array([104, 5, -65, -46, 117, 38, 107, 60, 69, 4, -99, 41, 71, -35, -46, 82]) //crypto.getRandomValues(new Int8Array(16))
         }
     }
 
@@ -33,6 +34,8 @@ export class Aes implements EncryptionProvider {
      * @param {CryptoKey} encryptionKey Encryption key
      */
     async decryptFile(encryptedFile: ArrayBuffer, encryptionKey: CryptoKey) {
-        return await crypto.subtle.decrypt(this._encryptionAlgo, encryptionKey, encryptedFile)
+        let name = this._encryptionAlgo.name
+        let iv = this._encryptionAlgo.iv
+        return await crypto.subtle.decrypt({ name: name, iv: iv }, encryptionKey, encryptedFile)
     }
 }

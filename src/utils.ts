@@ -22,7 +22,6 @@ export const createPermissionFromTuple = (tuple: boolean[]) => ({
 })
 
 export const createSettingsFromTuple = (tuple: any[]): DatastoreSettings => {
-    console.log('tuple: ', tuple)
     return { 
         storageProvider: convertStringToEnum<StorageProvider>(tuple[0]),
         encryptionProvider: convertStringToEnum<EncryptionProvider>(tuple[1]),

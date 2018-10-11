@@ -756,7 +756,7 @@ contract('Datastore ', accounts => {
         })         
     })
 
-    describe('setIpfsStorageSettings', async () => {
+    /*describe('setIpfsStorageSettings', async () => {
         it('fires the SettingsChanged event', async() => {
             await datastore.setIpfsStorageSettings('localhost', 5001, 'http')
             await assertEvent(datastore, { event: 'SettingsChanged' })
@@ -769,7 +769,7 @@ contract('Datastore ', accounts => {
                 await datastore.setIpfsStorageSettings('localhost', 5001, 'http')
             })
         }) 
-    })
+    })*/
 
     describe('setMultiplePermissions', async () => {
         it('sets a file public status', async() => {

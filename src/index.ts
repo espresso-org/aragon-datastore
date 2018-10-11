@@ -47,13 +47,8 @@ export class Datastore {
 
     private async _refreshSettings() {
         this._settings = createSettingsFromTuple(await this._contract.settings())
-        this._storage = storage.getStorageProviderFromSettings(this._settings)
         this._encryption = encryption.getEncryptionProviderFromSettings(this._settings)
-        console.log('encryptionProvider: ', encryption.getEncryptionProviderFromSettings(this._settings))
-        console.log('_encryption: ', this._encryption)
-
-        console.log('storageProvider: ', storage.getStorageProviderFromSettings(this._settings))
-        console.log('_storage: ', this._storage)
+        this._storage = storage.getStorageProviderFromSettings(this._settings)
     }
 
     /**
@@ -80,16 +75,15 @@ export class Datastore {
         const fileInfo = await this.getFileInfo(fileId)
         let fileContent = await this._storage.getFile(fileInfo.storageRef)
 
-        const encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
+        if (!fileInfo.isPublic) {
+            const encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
+            if (encryptionKeyAsString !== "0") {
+                const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
+                const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
 
-        if (encryptionKeyAsString) {
-            const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
-            const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
-
-            if (!fileInfo.isPublic)
                 fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)
+            }
         }
-
         return { ...fileInfo, content: fileContent }
     }
 
@@ -142,34 +136,18 @@ export class Datastore {
     }
 
     /**
-     * Sets the settings for IPFS storage
-     * @param {string} host Host
-     * @param {number} port Port
-     * @param {string} protocol HTTP protocol
+     * Sets the storage and encryption settings for the Datastore
+     * @param host Host
+     * @param port Port 
+     * @param protocol HTTP protocol
+     * @param name Name of the AES encryption algorithm
+     * @param length Length of the encryption key
      */
-    async setIpfsStorageSettings(host: string, port: number, protocol: string) {
-        await this._initialize()
-
-        await this._contract.setIpfsStorageSettings(host, port, protocol)
-        await this._refreshSettings()
-    }
-
-    /**
-     * Sets the settings for Aes encryption
-     * @param {string} name Name of the algorithm
-     * @param {number} length Length of the encryption key
-     */
-    async setAesEncryptionSettings(name: string, length: number) {
-        await this._initialize()
-
-        await this._contract.setAesEncryptionSettings(name, length)
-        await this._refreshSettings()
-    }
-
     async setSettings(host: string, port: number, protocol: string, name: string, length: number) {
         await this._initialize()
 
         await this._contract.setSettings(host, port, protocol, name, length)
+        await this._refreshSettings()
     }
 
     /**
@@ -246,14 +224,22 @@ export class Datastore {
     async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[], isPublic: boolean) { 
         await this._initialize()
 
-        let storageId
-        let fileByteLength
-        let encryptionFileData
-        if (!isPublic) {
-            let file = await this.getFile(fileId)
-            fileByteLength = file.content.byteLength
-            encryptionFileData = await this._encryption.encryptFile(file.content)
+        let storageId = ""
+        let file = await this.getFile(fileId)
+        let fileByteLength = file.content.byteLength
+        let encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
+
+        if (!isPublic && encryptionKeyAsString != "0" && encryptionKeyAsString == "") {
+            let encryptionFileData = await this._encryption.encryptFile(file.content)
             storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
+            encryptionKeyAsString = encryptionFileData.encryptionKey
+        } else if (isPublic && encryptionKeyAsString != "0" && encryptionKeyAsString != "") {
+            const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
+            const encryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
+            let decryptedFile = await this._encryption.decryptFile(file.content, encryptionKey)
+            console.log('decryptedFile: ', decryptedFile)
+            storageId = await this._storage.addFile(decryptedFile)
+            encryptionKeyAsString = "0"
         }
 
         await this._contract.setMultiplePermissions(
@@ -267,7 +253,7 @@ export class Datastore {
             isPublic,
             storageId,
             fileByteLength,
-            encryptionFileData.encryptionKey
+            encryptionKeyAsString
         )
     }
 
