@@ -9,6 +9,7 @@ contract DatastoreACL is ACL {
     address private datastore;
     ACL private acl;
     mapping (bytes32 => mapping (uint256 => bytes32)) internal objectPermissions; 
+    mapping (bytes32 => address) internal objectPermissionManager;
 
 
     modifier auth(bytes32 _role) {
