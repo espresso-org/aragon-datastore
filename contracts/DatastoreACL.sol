@@ -8,6 +8,8 @@ contract DatastoreACL is ACL {
 
     address private datastore;
     ACL private acl;
+    mapping (bytes32 => mapping (uint256 => bytes32)) internal objectPermissions; 
+
 
     modifier auth(bytes32 _role) {
         require(canPerformP(msg.sender, _role, new uint256[](0)));
@@ -59,7 +61,7 @@ contract DatastoreACL is ACL {
     * @param _role Identifier for the group of actions in app given access to perform
     * @param _arg Role argument
     */
-    function createPermissionWithArg(uint256 _arg, bytes32 _role)
+    function createObjectPermission(uint256 _arg, bytes32 _role)
         external
         auth(CREATE_PERMISSIONS_ROLE)
         noPermissionManager(datastore, _role)

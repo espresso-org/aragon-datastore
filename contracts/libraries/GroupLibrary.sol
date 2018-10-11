@@ -40,7 +40,7 @@ library GroupLibrary {
         _self.groups[id].groupName = _groupName;
         _self.groups[id].exists = true;
         _self.groupList.push(id);
-        _self.acl.createPermissionWithArg(id, _self.DATASTORE_GROUP);
+        _self.acl.createObjectPermission(id, _self.DATASTORE_GROUP);
         return id;
     }
 
