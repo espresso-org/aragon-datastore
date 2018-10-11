@@ -78,7 +78,7 @@ contract Datastore is AragonApp {
         initialized();
 
         datastoreACL = DatastoreACL(_datastoreACL);
-
+        
         permissions.init(datastoreACL);
         groups.init(datastoreACL);
     }      
