@@ -16,6 +16,8 @@ contract Datastore is AragonApp {
 
     bytes32 constant public DATASTORE_MANAGER_ROLE = keccak256("DATASTORE_MANAGER_ROLE");
     bytes32 constant public FILE_OWNER_ROLE = keccak256("FILE_OWNER_ROLE");
+    bytes32 constant public FILE_READ_ROLE = keccak256("FILE_READ_ROLE");
+    bytes32 constant public FILE_WRITE_ROLE = keccak256("FILE_WRITE_ROLE");
 
 
     event FileRename(address indexed entity);
