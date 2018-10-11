@@ -178,9 +178,18 @@ contract DatastoreACL is ACL {
         }
     }   
 
+    function _setObjectPermissionManager(address _newManager, address _app, bytes32 _obj, bytes32 _role) internal {
+        objectPermissionManager[objectRoleHash(_app, _obj, _role)] = _newManager;
+        emit ChangePermissionManager(_app, _role, _newManager);
+    }
+
     function objectPermissionHash(address _who, address _where, bytes32 _obj, bytes32 _what) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("PERMISSION", _who, _where, _obj, _what));
-    }     
+        return keccak256(abi.encodePacked("OBJECT_PERMISSION", _who, _where, _obj, _what));
+    } 
+
+    function objectRoleHash(address _where, bytes32 _obj, bytes32 _what) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("OBJECT_ROLE", _where, _obj, _what));
+    }        
 
     /**
     * @dev Prevents the Autopetrify of the contract
