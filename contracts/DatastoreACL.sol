@@ -66,7 +66,7 @@ contract DatastoreACL is ACL {
         auth(CREATE_PERMISSIONS_ROLE)
         noPermissionManager(datastore, _role)
     {
-        _createPermission(datastore, datastore, keccak256(_role, _obj), datastore);
+        _createObjectPermission(datastore, datastore, keccak256(_obj), _role, datastore);
     }  
 
     /**
@@ -152,6 +152,30 @@ contract DatastoreACL is ACL {
         return acl.hasPermission(_who, _where, _what, _how);
     }
 
+
+
+    /**
+    * @dev Internal createPermission for access inside the kernel (on instantiation)
+    */
+    function _createObjectPermission(address _entity, address _app, bytes32 _obj, bytes32 _role, address _manager) internal {
+        _setObjectPermission(_entity, _app, _obj, _role, EMPTY_PARAM_HASH);
+        _setPObjectermissionManager(_manager, _app, _role);
+    }
+
+
+    /**
+    * @dev Internal function called to actually save the permission
+    */
+    function _setObjectPermission(address _entity, address _app, bytes32 _obj, bytes32 _role, bytes32 _paramsHash) internal {
+        permissions[permissionHash(_entity, _app, _role)] = _paramsHash;
+        bool entityHasPermission = _paramsHash != NO_PERMISSION;
+        bool permissionHasParams = entityHasPermission && _paramsHash != EMPTY_PARAM_HASH;
+
+        emit SetPermission(_entity, _app, _role, entityHasPermission);
+        if (permissionHasParams) {
+            emit SetPermissionParams(_entity, _app, _role, _paramsHash);
+        }
+    }    
 
     /**
     * @dev Prevents the Autopetrify of the contract
