@@ -133,7 +133,7 @@ contract('Datastore ', accounts => {
             const newFilename = 'new file name'
 
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, { from: accounts[0] })
-            await datastore.setWritePermission(1, accounts[1], true)
+            await datastore.setEntityPermissions(1, accounts[1], false, true)
 
             await datastore.setFileName(1, newFilename, { from: accounts[1] })
             
@@ -159,7 +159,7 @@ contract('Datastore ', accounts => {
             const newFileSize = 321
 
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
-            await datastore.setWritePermission(1, accounts[1], true)
+            await datastore.setEntityPermissions(1, accounts[1], false, true)
 
             await datastore.setFileContent(1, newStorageRef, newFileSize, { from: accounts[1] })
             
@@ -202,9 +202,9 @@ contract('Datastore ', accounts => {
         await assertEvent(datastore, { event: 'NewFile' })
     })     
    
-    it('fires NewWritePermission event on setWritePermission call', async () => {
+    it('fires NewWritePermission event on setEntityPermissions call', async () => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, { from: accounts[0] })
-        await datastore.setWritePermission(1, accounts[1], true)
+        await datastore.setEntityPermissions(1, accounts[1], false, true)
 
         await assertEvent(datastore, { event: 'NewWritePermission' })
     })  
@@ -519,7 +519,7 @@ contract('Datastore ', accounts => {
         })
     })      
 
-    describe('setReadPermission', async () => {
+    describe('setEntityPermissions', async () => {
 
         it('sets read permissions on a file', async() => {
             const file1 = { 
@@ -529,8 +529,8 @@ contract('Datastore ', accounts => {
                 isPublic: false
             }
             await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
-            await datastore.setReadPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', false)
-            await datastore.setReadPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true)
+            await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', false, false)
+            await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true, false)
 
             assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
         })
@@ -539,7 +539,7 @@ contract('Datastore ', accounts => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
 
             assertThrow(async () => {
-                await datastore.setReadPermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 1, { from: accounts[1] })
+                await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 1, 0, { from: accounts[1] })
             })
         })        
 
@@ -593,7 +593,7 @@ contract('Datastore ', accounts => {
 
     })  
 
-    describe('setWritePermission', async () => {
+    describe('setEntityPermissions', async () => {
 
         it('sets read permissions on a file', async() => {
             const file1 = { 
@@ -603,8 +603,8 @@ contract('Datastore ', accounts => {
                 isPublic: false
             }
             await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
-            await datastore.setWritePermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', false)
-            await datastore.setWritePermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true)
+            await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', false, false)
+            await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true, true)
 
             assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), true)
         })
@@ -613,7 +613,7 @@ contract('Datastore ', accounts => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true)
 
             assertThrow(async () => {
-                await datastore.setWritePermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 1, { from: accounts[1] })
+                await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', 0, 1, { from: accounts[1] })
             })
         })          
     })
