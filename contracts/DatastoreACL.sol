@@ -1,6 +1,8 @@
 pragma solidity ^0.4.24;
 
 import '@aragon/os/contracts/apps/AragonApp.sol';
+import '@aragon/os/contracts/acl/ACL.sol';
+
 
 
 contract DatastoreACL is AragonApp {
@@ -16,17 +18,18 @@ contract DatastoreACL is AragonApp {
     }
 
 
+
+
     /**
     * @dev Initialize can only be called once. It saves the block number in which it was initialized.
     * @notice Initialize an ACL instance and set `_permissionsCreator` as the entity that can create other permissions
     * @param _permissionsCreator Entity that will be given permission over createPermission
-    * @param _acl Kernel ACL
     */
     function initialize(address _permissionsCreator) public onlyInit {
         initialized();
 
         datastore = _permissionsCreator;
-        _createPermission(_permissionsCreator, this, CREATE_PERMISSIONS_ROLE, _permissionsCreator);
+        //_createPermission(_permissionsCreator, this, ACL.CREATE_PERMISSIONS_ROLE, _permissionsCreator);
     }
 
 
@@ -39,19 +42,7 @@ contract DatastoreACL is AragonApp {
     *         Always returns false if the app hasn't been initialized yet.
     */    
     function canPerformP(address _sender, bytes32 _role, uint256[] _params) public view returns (bool) {
-        if (!hasInitialized()) {
-            return false;
-        }
-
-        bytes memory how; // no need to init memory as it is never used
-        if (_params.length > 0) {
-            uint256 byteLength = _params.length * 32;
-            assembly {
-                how := _params // forced casting
-                mstore(how, byteLength)
-            }
-        }
-        return hasPermission(_sender, address(this), _role, how);
+        return true;
     }  
 
     /**
@@ -61,22 +52,27 @@ contract DatastoreACL is AragonApp {
     */
     function createObjectPermission(uint256 _obj, bytes32 _role)
         external
-        auth(CREATE_PERMISSIONS_ROLE)
-        noPermissionManager(datastore, _role)
+       // auth(ACL.CREATE_PERMISSIONS_ROLE)
+       // noPermissionManager(datastore, _role)
     {
         _createObjectPermission(datastore, keccak256(_obj), _role, datastore);
     }  
 
     /**
-    * @dev Function called to verify permission for role `_role` and uint object `_obj` status on `_entity`
-    * @param _entity Address of the entity
+    * @dev Function called to verify permission for role `_what` and uint object `_obj` status on `_who`
+    * @param _who Address of the entity
     * @param _obj Object
-    * @param _role Identifier for the group of actions in app given access to perform
+    * @param _what Identifier for the group of actions in app given access to perform
     * @return boolean indicating whether the ACL allows the role or not
     */
-    function hasObjectPermission(address _entity, uint256 _obj, bytes32 _role) public view returns (bool)
+    function hasObjectPermission(address _who, bytes32 _obj, bytes32 _what) public view returns (bool)
     {
-        return hasPermission(_entity, datastore, keccak256(_role, _obj), new uint256[](0));
+        bytes32 whoParams = objectPermissions[_obj][permissionHash(_who, _what)];
+        if (whoParams != ACL.NO_PERMISSION && ACL.evalParams(whoParams, _who, datastore, _what, new uint256[](0))) {
+            return true;
+        }
+
+        return false;
     }   
 
     /**
@@ -88,10 +84,10 @@ contract DatastoreACL is AragonApp {
     function grantObjectPermission(address _entity, uint256 _obj, bytes32 _role)
         external
     {
-        if (getPermissionManager(datastore, keccak256(_role, _obj)) == 0)
-            _createPermission(_entity, datastore, keccak256(_role, _obj), datastore);
+        if (getObjectPermissionManager(datastore, _obj, _role) == 0)
+            _createObjectPermission(_entity, _obj, _role, datastore);
 
-        _setPermission(_entity, datastore, keccak256(_role, _obj), EMPTY_PARAM_HASH);
+        _setObjectPermission(_entity, datastore, keccak256(_role, _obj), ACL.EMPTY_PARAM_HASH);
     }
 
     /**
@@ -103,19 +99,28 @@ contract DatastoreACL is AragonApp {
     function revokeObjectPermission(address _entity, uint256 _obj, bytes32 _role)
         external
     {
-        if (getPermissionManager(datastore, keccak256(_role, _obj)) == msg.sender)
-            _setPermission(_entity, datastore, keccak256(_role, _obj), NO_PERMISSION);
+        if (getObjectPermissionManager(datastore, _obj, _role) == msg.sender)
+            _setObjectPermission(_entity, _obj, _role, ACL.NO_PERMISSION);
     }
 
 
 
-
+    
+    /**
+    * @dev Get manager for permission
+    * @param _obj Object
+    * @param _role Identifier for a group of actions in app
+    * @return address of the manager for the permission
+    */
+    function getObjectPermissionManager(bytes32 _obj, bytes32 _role) public view returns (address) {
+        return objectPermissionManager[objectRoleHash(_obj, _role)];
+    }
 
     /**
     * @dev Internal createPermission for access inside the kernel (on instantiation)
     */
     function _createObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _manager) internal {
-        _setObjectPermission(_entity, _obj, _role, EMPTY_PARAM_HASH);
+        _setObjectPermission(_entity, _obj, _role, ACL.EMPTY_PARAM_HASH);
         _setObjectPermissionManager(_manager, _obj, _role);
     }
 
@@ -125,8 +130,8 @@ contract DatastoreACL is AragonApp {
     */
     function _setObjectPermission(address _entity, bytes32 _obj, bytes32 _role, bytes32 _paramsHash) internal {
         objectPermissions[_obj][permissionHash(_entity, _role)] = _paramsHash;
-        bool entityHasPermission = _paramsHash != NO_PERMISSION;
-        bool permissionHasParams = entityHasPermission && _paramsHash != EMPTY_PARAM_HASH;
+        bool entityHasPermission = _paramsHash != ACL.NO_PERMISSION;
+        bool permissionHasParams = entityHasPermission && _paramsHash != ACL.EMPTY_PARAM_HASH;
 
         // TODO emit new events
         //emit SetPermission(_entity, _app, _role, entityHasPermission);
