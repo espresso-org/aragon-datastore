@@ -8,7 +8,7 @@ contract DatastoreACL is ACL {
 
     address private datastore;
     ACL private acl;
-    mapping (bytes32 => mapping (uint256 => bytes32)) internal objectPermissions; 
+    mapping (bytes32 => mapping (bytes32 => bytes32)) internal objectPermissions;  // object => permissions hash => params hash
     mapping (bytes32 => address) internal objectPermissionManager;
 
 
@@ -168,7 +168,7 @@ contract DatastoreACL is ACL {
     * @dev Internal function called to actually save the permission
     */
     function _setObjectPermission(address _entity, address _app, bytes32 _obj, bytes32 _role, bytes32 _paramsHash) internal {
-        objectPermissions[objectPermissionHash(_entity, _app, _role)] = _paramsHash;
+        objectPermissions[_obj][permissionHash(_entity, _app, _role)] = _paramsHash;
         bool entityHasPermission = _paramsHash != NO_PERMISSION;
         bool permissionHasParams = entityHasPermission && _paramsHash != EMPTY_PARAM_HASH;
 
