@@ -75,35 +75,6 @@ contract('DatastoreACL ', accounts => {
         })
     })    
 
-    describe('aclCreatePermission', async () => {
-        it('creates a permission on the ACL', async () => {
-            datastoreACL.aclCreatePermission(root, datastore.address, DUMMY_ROLE, root)
-            const hasRole = await acl.hasPermission.call(root, datastore.address, DUMMY_ROLE)
-            
-            assert.equal(hasRole, true)
-        })
-    })
-
-    describe('aclGrantPermission', async () => {
-
-        it('grants a permission for an entity on the ACL', async () => {
-            await datastoreACL.aclCreatePermission(root, datastore.address, DUMMY_ROLE, datastoreACL.address)
-            await datastoreACL.aclGrantPermission(holder, datastore.address, DUMMY_ROLE)
-            const hasRole = await acl.hasPermission.call(holder, datastore.address, DUMMY_ROLE)
-            
-            assert.equal(hasRole, true)
-        })
-    })
-
-    describe('aclHasPermission', async () => {
-
-        it('returns the ACL permission', async () => {
-            acl.createPermission(holder, datastore.address, DUMMY_ROLE, root)
-            const hasRole = await datastoreACL.aclHasPermission.call(holder, datastore.address, DUMMY_ROLE, [])
-            assert(hasRole, true)
-        })    
-
-    })
 })
 
 async function assertThrow(fn) {

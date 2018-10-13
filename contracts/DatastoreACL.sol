@@ -1,13 +1,11 @@
 pragma solidity ^0.4.24;
 
-import '@aragon/os/contracts/acl/ACL.sol';
-import '@aragon/os/contracts/acl/ACLSyntaxSugar.sol';
+import '@aragon/os/contracts/apps/AragonApp.sol';
 
 
-contract DatastoreACL is ACL {
+contract DatastoreACL is AragonApp {
 
     address private datastore;
-    ACL private acl;
     mapping (bytes32 => mapping (bytes32 => bytes32)) internal objectPermissions;  // object => permissions hash => params hash
     mapping (bytes32 => address) internal objectPermissionManager;
 
@@ -24,11 +22,10 @@ contract DatastoreACL is ACL {
     * @param _permissionsCreator Entity that will be given permission over createPermission
     * @param _acl Kernel ACL
     */
-    function initialize(address _permissionsCreator, address _acl) public onlyInit {
+    function initialize(address _permissionsCreator) public onlyInit {
         initialized();
 
         datastore = _permissionsCreator;
-        acl = ACL(_acl);
         _createPermission(_permissionsCreator, this, CREATE_PERMISSIONS_ROLE, _permissionsCreator);
     }
 
@@ -111,47 +108,6 @@ contract DatastoreACL is ACL {
     }
 
 
-
-     /**
-    * @dev Creates a permission in the kernel ACL
-    * @notice Create a new permission granting `_entity` the ability to perform actions requiring `_role` on `_app`, setting `_manager` as the permission's manager
-    * @param _entity Address of the whitelisted entity that will be able to perform the role
-    * @param _app Address of the app in which the role will be allowed (requires app to depend on kernel for ACL)
-    * @param _role Identifier for the group of actions in app given access to perform
-    * @param _manager Address of the entity that will be able to grant and revoke the permission further.
-    */
-    function aclCreatePermission(address _entity, address _app, bytes32 _role, address _manager)
-        external
-    {
-        acl.createPermission(_entity, _app, _role, _manager);
-    } 
-
-
-    /**
-    * @dev Grants permission on the kernel ACL, if allowed. 
-    * @notice Grant `_entity` the ability to perform actions requiring `_role` on `_app`
-    * @param _entity Address of the whitelisted entity that will be able to perform the role
-    * @param _app Address of the app in which the role will be allowed (requires app to depend on kernel for ACL)
-    * @param _role Identifier for the group of actions in app given access to perform
-    */
-    function aclGrantPermission(address _entity, address _app, bytes32 _role)
-        external
-    {
-        acl.grantPermission(_entity, _app, _role);
-    }
-
-    /**
-    * @dev Function to check ACL permission on kernel
-    * @param _who Sender of the original call
-    * @param _where Address of the app
-    * @param _where Identifier for a group of actions in app
-    * @param _how Permission parameters
-    * @return boolean indicating whether the ACL allows the role or not
-    */
-    function aclHasPermission(address _who, address _where, bytes32 _what, bytes memory _how) public view returns (bool)
-    {
-        return acl.hasPermission(_who, _where, _what, _how);
-    }
 
 
 
