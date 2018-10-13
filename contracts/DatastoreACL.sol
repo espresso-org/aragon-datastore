@@ -67,7 +67,7 @@ contract DatastoreACL is ACL {
         auth(CREATE_PERMISSIONS_ROLE)
         noPermissionManager(datastore, _role)
     {
-        _createObjectPermission(datastore, datastore, keccak256(_obj), _role, datastore);
+        _createObjectPermission(datastore, keccak256(_obj), _role, datastore);
     }  
 
     /**
@@ -158,38 +158,38 @@ contract DatastoreACL is ACL {
     /**
     * @dev Internal createPermission for access inside the kernel (on instantiation)
     */
-    function _createObjectPermission(address _entity, address _app, bytes32 _obj, bytes32 _role, address _manager) internal {
-        _setObjectPermission(_entity, _app, _obj, _role, EMPTY_PARAM_HASH);
-        _setObjectPermissionManager(_manager, _app, _obj, _role);
+    function _createObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _manager) internal {
+        _setObjectPermission(_entity, _obj, _role, EMPTY_PARAM_HASH);
+        _setObjectPermissionManager(_manager, _obj, _role);
     }
 
 
     /**
     * @dev Internal function called to actually save the permission
     */
-    function _setObjectPermission(address _entity, address _app, bytes32 _obj, bytes32 _role, bytes32 _paramsHash) internal {
-        objectPermissions[_obj][permissionHash(_entity, _app, _role)] = _paramsHash;
+    function _setObjectPermission(address _entity, bytes32 _obj, bytes32 _role, bytes32 _paramsHash) internal {
+        objectPermissions[_obj][permissionHash(_entity, _role)] = _paramsHash;
         bool entityHasPermission = _paramsHash != NO_PERMISSION;
         bool permissionHasParams = entityHasPermission && _paramsHash != EMPTY_PARAM_HASH;
 
         // TODO emit new events
-        emit SetPermission(_entity, _app, _role, entityHasPermission);
+        //emit SetPermission(_entity, _app, _role, entityHasPermission);
         if (permissionHasParams) {
-            emit SetPermissionParams(_entity, _app, _role, _paramsHash);
+        //    emit SetPermissionParams(_entity, _app, _role, _paramsHash);
         }
     }   
 
-    function _setObjectPermissionManager(address _newManager, address _app, bytes32 _obj, bytes32 _role) internal {
-        objectPermissionManager[objectRoleHash(_app, _obj, _role)] = _newManager;
-        emit ChangePermissionManager(_app, _role, _newManager);
+    function _setObjectPermissionManager(address _newManager, bytes32 _obj, bytes32 _role) internal {
+        objectPermissionManager[objectRoleHash(_obj, _role)] = _newManager;
+        //emit ChangePermissionManager(_app, _role, _newManager);
     }
 
-    function objectPermissionHash(address _who, address _where, bytes32 _obj, bytes32 _what) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("OBJECT_PERMISSION", _who, _where, _obj, _what));
+    function permissionHash(address _who, bytes32 _what) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("OBJECT_PERMISSION", _who, _what));
     } 
 
-    function objectRoleHash(address _where, bytes32 _obj, bytes32 _what) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked("OBJECT_ROLE", _where, _obj, _what));
+    function objectRoleHash(bytes32 _obj, bytes32 _what) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("OBJECT_ROLE", _obj, _what));
     }        
 
     /**
