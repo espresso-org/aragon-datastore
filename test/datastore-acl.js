@@ -6,6 +6,7 @@ const DAOFactory = artifacts.require('@aragon/core/contracts/factory/DAOFactory'
 const EVMScriptRegistryFactory = artifacts.require('@aragon/core/contracts/factory/EVMScriptRegistryFactory')
 const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
 const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
+const TestDatastore = artifacts.require('TestDatastore')
 
 
 contract('DatastoreACL ', accounts => {
@@ -17,6 +18,7 @@ contract('DatastoreACL ', accounts => {
     let aclBase
     let APP_MANAGER_ROLE
     let datastoreACL
+    let helper
 
     const root = accounts[0]
     const holder = accounts[1]
@@ -26,6 +28,7 @@ contract('DatastoreACL ', accounts => {
     before(async () => {
         aclBase = await ACL.new()        
         kernelBase = await Kernel.new(true)
+        helper = await TestDatastore.new()
     })
 
     beforeEach(async () => {
@@ -41,33 +44,24 @@ contract('DatastoreACL ', accounts => {
 
         await acl.createPermission(holder, kernel.address, APP_MANAGER_ROLE, holder, { from: root })
 
-        const receipt = await kernel.newAppInstance('0x1234', (await Datastore.new()).address, { from: holder })
-        
+        const receipt = await kernel.newAppInstance(await helper.apmNamehash("datastore"), (await Datastore.new()).address, { from: holder })        
         datastore = Datastore.at(receipt.logs.filter(l => l.event == 'NewAppProxy')[0].args.proxy)
 
+        const daclReceipt = await kernel.newAppInstance(await helper.apmNamehash("datastore-acl"), (await DatastoreACL.new()).address, { from: holder })        
+        datastoreACL = DatastoreACL.at(daclReceipt.logs.filter(l => l.event == 'NewAppProxy')[0].args.proxy)
+
+        await acl.createPermission(datastore.address, datastoreACL.address, await datastoreACL.DATASTOREACL_ADMIN_ROLE(), root)
         await acl.createPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE(), root)
         await acl.grantPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
         await acl.grantPermission(holder, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
         
-        datastoreACL = await DatastoreACL.new()   
-        await datastoreACL.initialize(datastore.address, acl.address) 
+         
+        await datastoreACL.initialize() 
         await datastore.init(datastoreACL.address)
 
         await acl.grantPermission(datastoreACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
     })
 
-    describe('canPerformP', async () => {
-        it('returns false if DatastoreACL is not initialized', async () => {
-            const dsAcl = await DatastoreACL.new()
-            const result = await dsAcl.canPerformP.call(root, 0, [])
-            assert.equal(result, false)
-        })
-
-        it('returns false on non-existing permission', async () => {
-            const result = await datastoreACL.canPerformP.call(root, 0, [0])
-            assert.equal(result, false)
-        })        
-    })
 
     describe('createObjectPermission', async () => {
         it('throws if not called with CREATE_PERMISSIONS_ROLE', async () => {
