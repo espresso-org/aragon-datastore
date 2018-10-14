@@ -14,6 +14,10 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     address public constant ANY_ENTITY = address(-1);
     address public constant BURN_ENTITY = address(1); // address(0) is already used as "no permission manager"    
 
+    event SetObjectPermission(address indexed entity, bytes32 indexed obj, bytes32 indexed role, bool allowed);
+    event ChangeObjectPermissionManager(bytes32 indexed obj, bytes32 indexed role, address indexed manager);
+
+
     mapping (bytes32 => mapping (bytes32 => bytes32)) internal objectPermissions;  // object => permissions hash => params hash
     mapping (bytes32 => address) internal objectPermissionManager;
 
@@ -186,18 +190,13 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     function _setObjectPermission(address _entity, bytes32 _obj, bytes32 _role, bytes32 _paramsHash) internal {
         objectPermissions[_obj][permissionHash(_entity, _role)] = _paramsHash;
         bool entityHasPermission = _paramsHash != NO_PERMISSION;
-        bool permissionHasParams = entityHasPermission && _paramsHash != EMPTY_PARAM_HASH;
 
-        // TODO emit new events
-        //emit SetPermission(_entity, _app, _role, entityHasPermission);
-        if (permissionHasParams) {
-        //    emit SetPermissionParams(_entity, _app, _role, _paramsHash);
-        }
+        emit SetObjectPermission(_entity, _obj, _role, entityHasPermission);
     }   
 
     function _setObjectPermissionManager(address _newManager, bytes32 _obj, bytes32 _role) internal {
         objectPermissionManager[objectRoleHash(_obj, _role)] = _newManager;
-        //emit ChangePermissionManager(_app, _role, _newManager);
+        emit ChangeObjectPermissionManager(_obj, _role, _newManager);
     }
 
     function permissionHash(address _who, bytes32 _what) internal pure returns (bytes32) {
