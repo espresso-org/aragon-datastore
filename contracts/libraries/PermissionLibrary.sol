@@ -54,8 +54,8 @@ library PermissionLibrary {
      * @param _entity Entity address
      */
     function addOwner(PermissionData storage _self, uint _fileId, address _entity) internal {
-        _self.acl.createObjectPermission(_fileId, _self.FILE_READ_ROLE, _entity);
-        _self.acl.createObjectPermission(_fileId, _self.FILE_WRITE_ROLE, _entity);
+        _self.acl.createObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE, _entity);
+        _self.acl.createObjectPermission(_entity, _fileId, _self.FILE_WRITE_ROLE, _entity);
     }
 
     /**

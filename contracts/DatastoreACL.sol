@@ -38,28 +38,31 @@ contract DatastoreACL is AragonApp, ACLHelpers {
 
     /**
     * @dev Creates a `_role` permission with a uint object on the Datastore
+    * @param _entity Entity for which to set the permission
     * @param _obj Object
     * @param _role Identifier for the group of actions in app given access to perform
     * @param _permissionManager The permission manager
     */
-    function createObjectPermission(uint256 _obj, bytes32 _role, address _permissionManager)
+    function createObjectPermission(address _entity, uint256 _obj, bytes32 _role, address _permissionManager)
         external
         auth(DATASTOREACL_ADMIN_ROLE)
     {
-        createObjectPermission(keccak256(abi.encodePacked(_obj)), _role, _permissionManager);
+        createObjectPermission(_entity, keccak256(abi.encodePacked(_obj)), _role, _permissionManager);
     } 
 
     /**
     * @dev Creates a `_role` permission with an object on the Datastore
+    * @param _entity Entity for which to set the permission
     * @param _obj Object
     * @param _role Identifier for the group of actions in app given access to perform
     * @param _permissionManager The permission manager
     */
-    function createObjectPermission(bytes32 _obj, bytes32 _role, address _permissionManager)
+    function createObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _permissionManager)
         public
         auth(DATASTOREACL_ADMIN_ROLE)
     {
-        _createObjectPermission(_permissionManager, _obj, _role, _permissionManager);
+        _setObjectPermission(_entity, _obj, _role, EMPTY_PARAM_HASH);
+        _setObjectPermissionManager(_permissionManager, _obj, _role);
     }       
 
 
@@ -119,7 +122,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     {
         
         if (getObjectPermissionManager(_obj, _role) == 0)
-            _createObjectPermission(_entity, _obj, _role, _sender);
+            createObjectPermission(_entity, _obj, _role, _sender);
 
         require(getObjectPermissionManager(_obj, _role) == _sender, "Must be the object permission manager");
 
@@ -173,14 +176,6 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     */
     function getObjectPermissionManager(bytes32 _obj, bytes32 _role) public view returns (address) {
         return objectPermissionManager[objectRoleHash(_obj, _role)];
-    }
-
-    /**
-    * @dev Internal createPermission for access inside the kernel (on instantiation)
-    */
-    function _createObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _manager) internal {
-        _setObjectPermission(_entity, _obj, _role, EMPTY_PARAM_HASH);
-        _setObjectPermissionManager(_manager, _obj, _role);
     }
 
 
