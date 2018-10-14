@@ -36,6 +36,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     * @dev Creates a `_role` permission with a uint object on the Datastore
     * @param _obj Object
     * @param _role Identifier for the group of actions in app given access to perform
+    * @param _permissionManager The permission manager
     */
     function createObjectPermission(uint256 _obj, bytes32 _role, address _permissionManager)
         external
@@ -45,9 +46,10 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     } 
 
     /**
-    * @dev Creates a `_role` permission with a uint object on the Datastore
+    * @dev Creates a `_role` permission with an object on the Datastore
     * @param _obj Object
     * @param _role Identifier for the group of actions in app given access to perform
+    * @param _permissionManager The permission manager
     */
     function createObjectPermission(bytes32 _obj, bytes32 _role, address _permissionManager)
         public
@@ -70,7 +72,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     }  
 
     /**
-    * @dev Function called to verify permission for role `_what` and uint object `_obj` status on `_who`
+    * @dev Function called to verify permission for role `_what` and an object `_obj` status on `_who`
     * @param _who Address of the entity
     * @param _obj Object
     * @param _what Identifier for the group of actions in app given access to perform
@@ -91,6 +93,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     * @param _entity Address of the whitelisted entity that will be able to perform the role
     * @param _obj Object
     * @param _role Identifier for the group of actions in app given access to perform
+    * @param _sender The entity that wants to grant the permission
     */
     function grantObjectPermission(address _entity, uint256 _obj, bytes32 _role, address _sender)
         external
@@ -104,6 +107,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     * @param _entity Address of the whitelisted entity that will be able to perform the role
     * @param _obj Object
     * @param _role Identifier for the group of actions in app given access to perform
+    * @param _sender The entity that wants to grant the permission
     */
     function grantObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _sender)
         public
