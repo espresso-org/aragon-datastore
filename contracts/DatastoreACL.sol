@@ -135,11 +135,12 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     * @param _entity Address of the whitelisted entity to revoke access from
     * @param _obj Object
     * @param _role Identifier for the group of actions in app being revoked
+    * @param _sender The entity that wants to revoke the permission
     */
-    function revokeObjectPermission(address _entity, uint256 _obj, bytes32 _role)
+    function revokeObjectPermission(address _entity, uint256 _obj, bytes32 _role, address _sender)
         external
     {
-        revokeObjectPermission(_entity, keccak256(abi.encodePacked(_obj)), _role);
+        revokeObjectPermission(_entity, keccak256(abi.encodePacked(_obj)), _role, _sender);
     }    
 
     /**
@@ -147,10 +148,11 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     * @param _entity Address of the whitelisted entity to revoke access from
     * @param _obj Object
     * @param _role Identifier for the group of actions in app being revoked
+    * @param _sender The entity that wants to revoke the permission
     */
-    function revokeObjectPermission(address _entity, bytes32 _obj, bytes32 _role)
+    function revokeObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _sender)
         public
-        auth(DATASTOREACL_ADMIN_ROLE)
+        onlyPermissionManager(_sender, _obj, _role)
     {
         _setObjectPermission(_entity, _obj, _role, NO_PERMISSION);
     }

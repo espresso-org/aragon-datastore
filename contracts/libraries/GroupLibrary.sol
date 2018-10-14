@@ -108,7 +108,7 @@ library GroupLibrary {
             indexOfEntity--;
             delete _self.groups[_groupId].entities[indexOfEntity];
             delete _self.groups[_groupId].entitiesWithIndex[_entity];
-            _self.acl.revokeObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP);
+            _self.acl.revokeObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP, this);
         }
     }
 }
