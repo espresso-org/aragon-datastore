@@ -62,7 +62,6 @@ contract DatastoreACL is AragonApp, ACLHelpers {
         initialized();
 
         datastore = _permissionsCreator;
-        //_createPermission(_permissionsCreator, this, ACL.CREATE_PERMISSIONS_ROLE, _permissionsCreator);
     }
 
 
@@ -374,11 +373,6 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     function objectRoleHash(bytes32 _obj, bytes32 _what) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked("OBJECT_ROLE", _obj, _what));
     }        
-
-    /**
-    * @dev Prevents the Autopetrify of the contract
-    */
-    function petrify() internal {}    
 
 
 }
