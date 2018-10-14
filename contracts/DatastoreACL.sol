@@ -114,7 +114,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     function hasObjectPermission(address _who, bytes32 _obj, bytes32 _what) public view returns (bool)
     {
         bytes32 whoParams = objectPermissions[_obj][permissionHash(_who, _what)];
-        if (whoParams != NO_PERMISSION && evalParams(whoParams, _obj, _who, datastore, _what, new uint256[](0))) {
+        if (whoParams != NO_PERMISSION && evalParams(whoParams, _obj, _who, _what, new uint256[](0))) {
             return true;
         }
 
@@ -223,7 +223,6 @@ contract DatastoreACL is AragonApp, ACLHelpers {
         bytes32 _paramsHash,
         bytes32 _obj,
         address _who,
-        address _where,
         bytes32 _what,
         uint256[] _how
     ) public view returns (bool)
@@ -232,7 +231,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
             return true;
         }
 
-        return _evalParam(_paramsHash, 0, _obj, _who, _where, _what, _how);
+        return _evalParam(_paramsHash, 0, _obj, _who, _what, _how);
     }
 
     function _evalParam(
@@ -240,7 +239,6 @@ contract DatastoreACL is AragonApp, ACLHelpers {
         uint32 _paramId,
         bytes32 _obj,
         address _who,
-        address _where,
         bytes32 _what,
         uint256[] _how
     ) internal view returns (bool)
@@ -252,7 +250,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
         Param memory param = permissionParams[_paramsHash][_paramId];
 
         if (param.id == LOGIC_OP_PARAM_ID) {
-            return _evalLogic(param, _paramsHash, _obj, _who, _where, _what, _how);
+            return _evalLogic(param, _paramsHash, _obj, _who, _what, _how);
         }
 
         uint256 value;
@@ -260,7 +258,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
 
         // get value
         if (param.id == ORACLE_PARAM_ID) {
-            value = checkOracle(IACLOracle(param.value), _obj, _who, _where, _what, _how) ? 1 : 0;
+            value = checkOracle(IACLOracle(param.value), _obj, _who, _what, _how) ? 1 : 0;
             comparedTo = 1;
         } else if (param.id == BLOCK_NUMBER_PARAM_ID) {
             value = getBlockNumber();
@@ -282,7 +280,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
         return compare(value, Op(param.op), comparedTo);
     }
 
-    function _evalLogic(Param _param, bytes32 _paramsHash, bytes32 _obj, address _who, address _where, bytes32 _what, uint256[] _how)
+    function _evalLogic(Param _param, bytes32 _paramsHash, bytes32 _obj, address _who, bytes32 _what, uint256[] _how)
         internal
         view
         returns (bool)
@@ -293,16 +291,16 @@ contract DatastoreACL is AragonApp, ACLHelpers {
             uint32 failureParam;
 
             (conditionParam, successParam, failureParam) = decodeParamsList(uint256(_param.value));
-            bool result = _evalParam(_paramsHash, conditionParam, _obj, _who, _where, _what, _how);
+            bool result = _evalParam(_paramsHash, conditionParam, _obj, _who, _what, _how);
 
-            return _evalParam(_paramsHash, result ? successParam : failureParam, _obj, _who, _where, _what, _how);
+            return _evalParam(_paramsHash, result ? successParam : failureParam, _obj, _who, _what, _how);
         }
 
         uint32 param1;
         uint32 param2;
 
         (param1, param2,) = decodeParamsList(uint256(_param.value));
-        bool r1 = _evalParam(_paramsHash, param1, _obj, _who, _where, _what, _how);
+        bool r1 = _evalParam(_paramsHash, param1, _obj, _who, _what, _how);
 
         if (Op(_param.op) == Op.NOT) {
             return !r1;
@@ -316,7 +314,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
             return false;
         }
 
-        bool r2 = _evalParam(_paramsHash, param2, _obj, _who, _where, _what, _how);
+        bool r2 = _evalParam(_paramsHash, param2, _obj, _who, _what, _how);
 
         if (Op(_param.op) == Op.XOR) {
             return r1 != r2;
@@ -335,11 +333,11 @@ contract DatastoreACL is AragonApp, ACLHelpers {
         return false;
     }
 
-    function checkOracle(IACLOracle _oracleAddr, bytes32 _obj, address _who, address _where, bytes32 _what, uint256[] _how) internal view returns (bool) {
+    function checkOracle(IACLOracle _oracleAddr, bytes32 _obj, address _who, bytes32 _what, uint256[] _how) internal view returns (bool) {
         bytes4 sig = _oracleAddr.canPerform.selector;
 
         // a raw call is required so we can return false if the call reverts, rather than reverting
-        bytes memory checkCalldata = abi.encodeWithSelector(sig, _obj, _who, _where, _what, _how);
+        bytes memory checkCalldata = abi.encodeWithSelector(sig, _obj, _who, _what, _how);
         uint256 oracleCheckGas = ORACLE_CHECK_GAS;
 
         bool ok;
