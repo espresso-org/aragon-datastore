@@ -50,24 +50,12 @@ contract('DatastoreACL ', accounts => {
         await acl.grantPermission(holder, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
         
         datastoreACL = await DatastoreACL.new()   
-        await datastoreACL.initialize(datastore.address, acl.address) 
+        await datastoreACL.initialize(datastore.address) 
         await datastore.init(datastoreACL.address)
 
         await acl.grantPermission(datastoreACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
     })
 
-    describe('canPerformP', async () => {
-        it('returns false if DatastoreACL is not initialized', async () => {
-            const dsAcl = await DatastoreACL.new()
-            const result = await dsAcl.canPerformP.call(root, 0, [])
-            assert.equal(result, false)
-        })
-
-        it('returns false on non-existing permission', async () => {
-            const result = await datastoreACL.canPerformP.call(root, 0, [0])
-            assert.equal(result, false)
-        })        
-    })
 
     describe('createObjectPermission', async () => {
         it('throws if not called with CREATE_PERMISSIONS_ROLE', async () => {
