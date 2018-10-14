@@ -40,7 +40,7 @@ library GroupLibrary {
         _self.groups[id].groupName = _groupName;
         _self.groups[id].exists = true;
         _self.groupList.push(id);
-        _self.acl.createObjectPermission(id, _self.DATASTORE_GROUP);
+        _self.acl.createObjectPermission(id, _self.DATASTORE_GROUP, this);
         return id;
     }
 
@@ -93,7 +93,7 @@ library GroupLibrary {
     function addEntityToGroup(GroupData storage _self, uint _groupId, address _entity) internal {
         _self.groups[_groupId].entitiesWithIndex[_entity] = _self.groups[_groupId].entities.length + 1;
         _self.groups[_groupId].entities.push(_entity);
-        _self.acl.grantObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP);
+        _self.acl.grantObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP, this);
     }
 
     /**

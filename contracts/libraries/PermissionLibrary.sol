@@ -47,7 +47,7 @@ library PermissionLibrary {
      * @param _entity Entity address
      */
     function isOwner(PermissionData storage _self, uint _fileId, address _entity) internal view returns (bool) {
-        return _self.acl.hasObjectPermission(_entity, _fileId, _self.FILE_OWNER_ROLE);
+        return _self.acl.getObjectPermissionManager(_fileId, _self.FILE_WRITE_ROLE) == _entity;
     }
     /**
      * @notice Adds an `_entity` as owner to file with `_fileId`
@@ -57,7 +57,8 @@ library PermissionLibrary {
      */
     function addOwner(PermissionData storage _self, uint _fileId, address _entity) internal {
         _self.fileOwners[_fileId] = _entity;
-        _self.acl.grantObjectPermission(msg.sender, _fileId, _self.FILE_OWNER_ROLE);
+        _self.acl.createObjectPermission(_fileId, _self.FILE_READ_ROLE, msg.sender);
+        _self.acl.createObjectPermission(_fileId, _self.FILE_WRITE_ROLE, msg.sender);
     }
 
     // ************* PermissionData ************* //
@@ -128,10 +129,10 @@ library PermissionLibrary {
         _self.entityPermissions[_fileId][_entity].write = _write;
 
         if (_read) 
-            _self.acl.grantObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE);        
+            _self.acl.grantObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE, msg.sender);        
 
         if (_write) 
-            _self.acl.grantObjectPermission(_entity, _fileId, _self.FILE_WRITE_ROLE);
+            _self.acl.grantObjectPermission(_entity, _fileId, _self.FILE_WRITE_ROLE, msg.sender);
         
 
         //NewWritePermission(msg.sender, _fileId);
