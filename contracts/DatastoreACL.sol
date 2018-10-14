@@ -41,7 +41,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
         external
         auth(DATASTOREACL_ADMIN_ROLE)
     {
-        createObjectPermission(keccak256(_obj), _role, _permissionManager);
+        createObjectPermission(keccak256(abi.encodePacked(_obj)), _role, _permissionManager);
     } 
 
     /**
@@ -66,7 +66,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     */
     function hasObjectPermission(address _who, uint256 _obj, bytes32 _what) public view returns (bool)
     {
-        return hasObjectPermission(_who, keccak256(_obj), _what);
+        return hasObjectPermission(_who, keccak256(abi.encodePacked(_obj)), _what);
     }  
 
     /**
@@ -95,7 +95,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     function grantObjectPermission(address _entity, uint256 _obj, bytes32 _role, address _sender)
         external
     {
-        return grantObjectPermission(_entity, keccak256(_obj), _role, _sender);
+        return grantObjectPermission(_entity, keccak256(abi.encodePacked(_obj)), _role, _sender);
     }
 
 
@@ -128,7 +128,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     function revokeObjectPermission(address _entity, uint256 _obj, bytes32 _role)
         external
     {
-        revokeObjectPermission(_entity, keccak256(_obj), _role);
+        revokeObjectPermission(_entity, keccak256(abi.encodePacked(_obj)), _role);
     }    
 
     /**
@@ -154,7 +154,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     * @return address of the manager for the permission
     */
     function getObjectPermissionManager(uint _obj, bytes32 _role) public view returns (address) {
-        return getObjectPermissionManager(keccak256(_obj), _role);
+        return getObjectPermissionManager(keccak256(abi.encodePacked(_obj)), _role);
     }
     
     /**
