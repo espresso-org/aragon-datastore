@@ -2,48 +2,31 @@ pragma solidity ^0.4.24;
 
 import '@aragon/os/contracts/apps/AragonApp.sol';
 import '@aragon/os/contracts/acl/ACL.sol';
+import '@aragon/os/contracts/acl/ACLSyntaxSugar.sol';
 
 
 
-contract DatastoreACL is AragonApp {
+contract DatastoreACL is AragonApp, ACLHelpers {
 
-    address private datastore;
+    bytes32 public constant DATASTOREACL_ADMIN_ROLE = keccak256("DATASTOREACL_ADMIN_ROLE");
+
     mapping (bytes32 => mapping (bytes32 => bytes32)) internal objectPermissions;  // object => permissions hash => params hash
     mapping (bytes32 => address) internal objectPermissionManager;
 
 
-    modifier auth(bytes32 _role) {
-        require(canPerformP(msg.sender, _role, new uint256[](0)));
+
+    modifier onlyPermissionManager(address _sender, bytes32 _obj, bytes32 _role) {
+        require(getObjectPermissionManager(_obj, _role) == _sender, "Must be the object permission manager");
         _;
     }
 
 
-
-
     /**
     * @dev Initialize can only be called once. It saves the block number in which it was initialized.
-    * @notice Initialize an ACL instance and set `_permissionsCreator` as the entity that can create other permissions
-    * @param _permissionsCreator Entity that will be given permission over createPermission
     */
-    function initialize(address _permissionsCreator) public onlyInit {
+    function initialize() public onlyInit {
         initialized();
-
-        datastore = _permissionsCreator;
-        //_createPermission(_permissionsCreator, this, ACL.CREATE_PERMISSIONS_ROLE, _permissionsCreator);
-    }
-
-
-    /**
-    * @dev Check whether an action can be performed by a sender for a particular role 
-    * @param _sender Sender of the call
-    * @param _role Role on this app
-    * @param _params Permission params for the role
-    * @return Boolean indicating whether the sender has the permissions to perform the action.
-    *         Always returns false if the app hasn't been initialized yet.
-    */    
-    function canPerformP(address _sender, bytes32 _role, uint256[] _params) public view returns (bool) {
-        return true;
-    }  
+    } 
 
     /**
     * @dev Creates a `_role` permission with a uint object on the Datastore
