@@ -8,7 +8,7 @@ import '@aragon/os/contracts/acl/ACLSyntaxSugar.sol';
 
 contract DatastoreACL is AragonApp, ACLHelpers {
 
-    bytes32 public constant CREATE_PERMISSIONS_ROLE = keccak256("CREATE_PERMISSIONS_ROLE");
+    bytes32 public constant DATASTOREACL_ADMIN_ROLE = keccak256("DATASTOREACL_ADMIN_ROLE");
 
 
     enum Op { NONE, EQ, NEQ, GT, LT, GTE, LTE, RET, NOT, AND, OR, XOR, IF_ELSE } // op types
@@ -45,37 +45,14 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     mapping (bytes32 => address) internal objectPermissionManager;
 
 
-    modifier auth(bytes32 _role) {
-        require(canPerformP(msg.sender, _role, new uint256[](0)));
-        _;
-    }
-
-
-
 
     /**
     * @dev Initialize can only be called once. It saves the block number in which it was initialized.
-    * @notice Initialize an ACL instance and set `_permissionsCreator` as the entity that can create other permissions
-    * @param _permissionsCreator Entity that will be given permission over createPermission
     */
-    function initialize(address _permissionsCreator) public onlyInit {
+    function initialize() public onlyInit {
         initialized();
-
-        datastore = _permissionsCreator;
     }
 
-
-    /**
-    * @dev Check whether an action can be performed by a sender for a particular role 
-    * @param _sender Sender of the call
-    * @param _role Role on this app
-    * @param _params Permission params for the role
-    * @return Boolean indicating whether the sender has the permissions to perform the action.
-    *         Always returns false if the app hasn't been initialized yet.
-    */    
-    function canPerformP(address _sender, bytes32 _role, uint256[] _params) public view returns (bool) {
-        return true;
-    }  
 
     /**
     * @dev Creates a `_role` permission with a uint object on the Datastore
@@ -84,8 +61,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     */
     function createObjectPermission(uint256 _obj, bytes32 _role)
         external
-       // auth(ACL.CREATE_PERMISSIONS_ROLE)
-       // noPermissionManager(datastore, _role)
+        auth(DATASTOREACL_ADMIN_ROLE)
     {
         _createObjectPermission(datastore, keccak256(_obj), _role, datastore);
     }  
@@ -130,7 +106,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     function grantObjectPermission(address _entity, uint256 _obj, bytes32 _role)
         external
     {
-        return this.grantObjectPermission(_entity, keccak256(_obj), _role);
+        return grantObjectPermission(_entity, keccak256(_obj), _role);
     }
 
     /**
@@ -140,7 +116,8 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     * @param _role Identifier for the group of actions in app given access to perform
     */
     function grantObjectPermission(address _entity, bytes32 _obj, bytes32 _role)
-        external
+        public
+        auth(DATASTOREACL_ADMIN_ROLE)
     {
         if (getObjectPermissionManager(_obj, _role) == 0)
             _createObjectPermission(_entity, _obj, _role, datastore);
@@ -158,8 +135,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     function revokeObjectPermission(address _entity, uint256 _obj, bytes32 _role)
         external
     {
-        if (getObjectPermissionManager(keccak256(_obj), _role) == msg.sender)
-            _setObjectPermission(_entity, keccak256(abi.encodePacked(_obj)), _role, NO_PERMISSION);
+        revokeObjectPermission(_entity, keccak256(_obj), _role);
     }    
 
     /**
@@ -169,10 +145,10 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     * @param _role Identifier for the group of actions in app being revoked
     */
     function revokeObjectPermission(address _entity, bytes32 _obj, bytes32 _role)
-        external
+        public
+        auth(DATASTOREACL_ADMIN_ROLE)
     {
-        if (getObjectPermissionManager(_obj, _role) == msg.sender)
-            _setObjectPermission(_entity, _obj, _role, NO_PERMISSION);
+        _setObjectPermission(_entity, _obj, _role, NO_PERMISSION);
     }
 
 

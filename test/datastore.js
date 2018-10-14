@@ -51,12 +51,13 @@ contract('Datastore ', accounts => {
         const daclReceipt = await kernel.newAppInstance(await helper.apmNamehash("datastore-acl"), (await DatastoreACL.new()).address, { from: holder })        
         datastoreACL = DatastoreACL.at(daclReceipt.logs.filter(l => l.event == 'NewAppProxy')[0].args.proxy)
 
+        await acl.createPermission(datastore.address, datastoreACL.address, await datastoreACL.DATASTOREACL_ADMIN_ROLE(), root)
         await acl.createPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE(), root)
         await acl.grantPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
         await acl.grantPermission(holder, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
         
          
-        await datastoreACL.initialize(datastore.address) 
+        await datastoreACL.initialize() 
         await datastore.init(datastoreACL.address)
 
         await acl.grantPermission(datastoreACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
@@ -297,7 +298,7 @@ contract('Datastore ', accounts => {
             assert.equal(permissions[1], false)
         })
         
-    })    *  
+    })    
 
     describe('removeEntityFromFile', async () => {
 
