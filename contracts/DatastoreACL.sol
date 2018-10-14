@@ -33,12 +33,36 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     * @param _obj Object
     * @param _role Identifier for the group of actions in app given access to perform
     */
-    function createObjectPermission(uint256 _obj, bytes32 _role)
+    function createObjectPermission(uint256 _obj, bytes32 _role, address _permissionManager)
         external
-       // auth(ACL.CREATE_PERMISSIONS_ROLE)
-       // noPermissionManager(datastore, _role)
+        auth(DATASTOREACL_ADMIN_ROLE)
     {
-        _createObjectPermission(datastore, keccak256(_obj), _role, datastore);
+        createObjectPermission(keccak256(_obj), _role, _permissionManager);
+    } 
+
+    /**
+    * @dev Creates a `_role` permission with a uint object on the Datastore
+    * @param _obj Object
+    * @param _role Identifier for the group of actions in app given access to perform
+    */
+    function createObjectPermission(bytes32 _obj, bytes32 _role, address _permissionManager)
+        public
+        auth(DATASTOREACL_ADMIN_ROLE)
+    {
+        _createObjectPermission(_permissionManager, _obj, _role, _permissionManager);
+    }       
+
+
+    /**
+    * @dev Function called to verify permission for role `_what` and uint object `_obj` status on `_who`
+    * @param _who Address of the entity
+    * @param _obj Object
+    * @param _what Identifier for the group of actions in app given access to perform
+    * @return boolean indicating whether the ACL allows the role or not
+    */
+    function hasObjectPermission(address _who, uint256 _obj, bytes32 _what) public view returns (bool)
+    {
+        return hasObjectPermission(_who, keccak256(_obj), _what);
     }  
 
     /**
@@ -51,12 +75,12 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     function hasObjectPermission(address _who, bytes32 _obj, bytes32 _what) public view returns (bool)
     {
         bytes32 whoParams = objectPermissions[_obj][permissionHash(_who, _what)];
-        if (whoParams != ACL.NO_PERMISSION && ACL.evalParams(whoParams, _who, datastore, _what, new uint256[](0))) {
+        if (whoParams != NO_PERMISSION) {
             return true;
         }
 
         return false;
-    }   
+    }       
 
     /**
     * @dev Grants permission for role `_role` on object `_obj`, if allowed. 
@@ -64,14 +88,32 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     * @param _obj Object
     * @param _role Identifier for the group of actions in app given access to perform
     */
-    function grantObjectPermission(address _entity, uint256 _obj, bytes32 _role)
+    function grantObjectPermission(address _entity, uint256 _obj, bytes32 _role, address _sender)
         external
     {
-        if (getObjectPermissionManager(datastore, _obj, _role) == 0)
+        return grantObjectPermission(_entity, keccak256(_obj), _role, _sender);
+    }
+
+
+    /**
+    * @dev Grants permission for role `_role` on object `_obj`, if allowed. 
+    * @param _entity Address of the whitelisted entity that will be able to perform the role
+    * @param _obj Object
+    * @param _role Identifier for the group of actions in app given access to perform
+    */
+    function grantObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _sender)
+        public
+        auth(DATASTOREACL_ADMIN_ROLE)
+    {
+        
+        if (getObjectPermissionManager(_obj, _role) == 0)
             _createObjectPermission(_entity, _obj, _role, datastore);
 
-        _setObjectPermission(_entity, datastore, keccak256(_role, _obj), ACL.EMPTY_PARAM_HASH);
+        require(getObjectPermissionManager(_obj, _role) == _sender, "Must be the object permission manager");
+
+        _setObjectPermission(_entity, _obj, _role, EMPTY_PARAM_HASH);
     }
+
 
     /**
     * @dev Revokes permission for role `_role` on object `_obj`, if allowed. 
@@ -82,12 +124,34 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     function revokeObjectPermission(address _entity, uint256 _obj, bytes32 _role)
         external
     {
-        if (getObjectPermissionManager(datastore, _obj, _role) == msg.sender)
-            _setObjectPermission(_entity, _obj, _role, ACL.NO_PERMISSION);
+        revokeObjectPermission(_entity, keccak256(_obj), _role);
+    }    
+
+    /**
+    * @dev Revokes permission for role `_role` on object `_obj`, if allowed. 
+    * @param _entity Address of the whitelisted entity to revoke access from
+    * @param _obj Object
+    * @param _role Identifier for the group of actions in app being revoked
+    */
+    function revokeObjectPermission(address _entity, bytes32 _obj, bytes32 _role)
+        public
+        auth(DATASTOREACL_ADMIN_ROLE)
+    {
+        _setObjectPermission(_entity, _obj, _role, NO_PERMISSION);
     }
 
 
 
+    
+    /**
+    * @dev Get manager for permission
+    * @param _obj Object
+    * @param _role Identifier for a group of actions in app
+    * @return address of the manager for the permission
+    */
+    function getObjectPermissionManager(uint _obj, bytes32 _role) public view returns (address) {
+        return getObjectPermissionManager(keccak256(_obj), _role);
+    }
     
     /**
     * @dev Get manager for permission
@@ -103,7 +167,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     * @dev Internal createPermission for access inside the kernel (on instantiation)
     */
     function _createObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _manager) internal {
-        _setObjectPermission(_entity, _obj, _role, ACL.EMPTY_PARAM_HASH);
+        _setObjectPermission(_entity, _obj, _role, EMPTY_PARAM_HASH);
         _setObjectPermissionManager(_manager, _obj, _role);
     }
 
@@ -113,8 +177,8 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     */
     function _setObjectPermission(address _entity, bytes32 _obj, bytes32 _role, bytes32 _paramsHash) internal {
         objectPermissions[_obj][permissionHash(_entity, _role)] = _paramsHash;
-        bool entityHasPermission = _paramsHash != ACL.NO_PERMISSION;
-        bool permissionHasParams = entityHasPermission && _paramsHash != ACL.EMPTY_PARAM_HASH;
+        bool entityHasPermission = _paramsHash != NO_PERMISSION;
+        bool permissionHasParams = entityHasPermission && _paramsHash != EMPTY_PARAM_HASH;
 
         // TODO emit new events
         //emit SetPermission(_entity, _app, _role, entityHasPermission);
@@ -134,12 +198,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
 
     function objectRoleHash(bytes32 _obj, bytes32 _what) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked("OBJECT_ROLE", _obj, _what));
-    }        
-
-    /**
-    * @dev Prevents the Autopetrify of the contract
-    */
-    function petrify() internal {}    
+    }     
 
 
 }
