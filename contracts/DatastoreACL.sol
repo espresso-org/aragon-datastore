@@ -9,6 +9,10 @@ import '@aragon/os/contracts/acl/ACLSyntaxSugar.sol';
 contract DatastoreACL is AragonApp, ACLHelpers {
 
     bytes32 public constant DATASTOREACL_ADMIN_ROLE = keccak256("DATASTOREACL_ADMIN_ROLE");
+    bytes32 public constant EMPTY_PARAM_HASH = 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563;
+    bytes32 public constant NO_PERMISSION = bytes32(0);
+    address public constant ANY_ENTITY = address(-1);
+    address public constant BURN_ENTITY = address(1); // address(0) is already used as "no permission manager"    
 
     mapping (bytes32 => mapping (bytes32 => bytes32)) internal objectPermissions;  // object => permissions hash => params hash
     mapping (bytes32 => address) internal objectPermissionManager;
@@ -107,7 +111,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     {
         
         if (getObjectPermissionManager(_obj, _role) == 0)
-            _createObjectPermission(_entity, _obj, _role, datastore);
+            _createObjectPermission(_entity, _obj, _role, _sender);
 
         require(getObjectPermissionManager(_obj, _role) == _sender, "Must be the object permission manager");
 

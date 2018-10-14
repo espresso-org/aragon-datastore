@@ -97,8 +97,7 @@ contract Datastore is AragonApp {
     {
         uint fId = fileList.addFile(_storageRef, _name, _fileSize, _isPublic);
 
-        PermissionLibrary.addOwner(permissions, fId, msg.sender);
-        PermissionLibrary.initializePermissionAddresses(permissions, fId);
+        permissions.addOwner(fId, msg.sender);
         emit NewFile(msg.sender);
         return fId;
     }
@@ -131,7 +130,7 @@ contract Datastore is AragonApp {
         fileSize = file.fileSize;
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
-        owner = permissions.fileOwners[_fileId];
+        owner = permissions.getOwner(_fileId);
         isOwner = permissions.isOwner(_fileId, _caller);
         lastModification = file.lastModification;
         permissionAddresses = permissions.permissionAddresses[_fileId];
