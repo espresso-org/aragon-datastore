@@ -45,6 +45,11 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     mapping (bytes32 => address) internal objectPermissionManager;
 
 
+    modifier onlyPermissionManager(address _sender, bytes32 _obj, bytes32 _role) {
+        require(getObjectPermissionManager(_obj, _role) == _sender, "Must be an object permission manager");
+        _;
+    }
+
 
     /**
     * @dev Initialize can only be called once. It saves the block number in which it was initialized.
