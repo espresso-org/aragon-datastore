@@ -51,6 +51,7 @@ contract('DatastoreACL ', accounts => {
         datastoreACL = DatastoreACL.at(daclReceipt.logs.filter(l => l.event == 'NewAppProxy')[0].args.proxy)
 
         await acl.createPermission(datastore.address, datastoreACL.address, await datastoreACL.DATASTOREACL_ADMIN_ROLE(), root)
+        await acl.grantPermission(root, datastoreACL.address, await datastoreACL.DATASTOREACL_ADMIN_ROLE())
         await acl.createPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE(), root)
         await acl.grantPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
         await acl.grantPermission(holder, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
@@ -60,12 +61,14 @@ contract('DatastoreACL ', accounts => {
         await datastore.init(datastoreACL.address)
 
         await acl.grantPermission(datastoreACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
+
     })
 
 
-    describe('createObjectPermission', async () => {
-        it('throws if not called with CREATE_PERMISSIONS_ROLE', async () => {
-            //assertThrow(async () => datastoreACL.createObjectPermission(1, DUMMY_ROLE))
+    describe('revokeObjectPermission', async () => {
+        it('throws if not called the permission manager', async () => {
+            await datastoreACL.grantObjectPermission(root, 1, DUMMY_ROLE, root)
+            assertThrow(async () => datastoreACL.revokeObjectPermission(root, 1, DUMMY_ROLE, holder))
         })
     })    
 
