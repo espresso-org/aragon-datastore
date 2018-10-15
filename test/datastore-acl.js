@@ -70,7 +70,14 @@ contract('DatastoreACL ', accounts => {
             await datastoreACL.grantObjectPermission(root, 1, DUMMY_ROLE, root)
             assertThrow(async () => datastoreACL.revokeObjectPermission(root, 1, DUMMY_ROLE, holder))
         })
-    })    
+    })   
+    
+    describe('grantObjectPermission', async () => {
+        it('throws if not called the permission manager', async () => {
+            await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
+            assertThrow(async () => datastoreACL.grantObjectPermission(root, 1, DUMMY_ROLE, holder))
+        })
+    })       
 
 })
 
