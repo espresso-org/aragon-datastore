@@ -1,160 +1,204 @@
 pragma solidity ^0.4.24;
 
+import '@aragon/os/contracts/apps/AragonApp.sol';
 import '@aragon/os/contracts/acl/ACL.sol';
 import '@aragon/os/contracts/acl/ACLSyntaxSugar.sol';
 
 
-contract DatastoreACL is ACL {
 
-    address private datastore;
-    ACL private acl;
+contract DatastoreACL is AragonApp, ACLHelpers {
 
-    modifier auth(bytes32 _role) {
-        require(canPerformP(msg.sender, _role, new uint256[](0)));
+    bytes32 public constant DATASTOREACL_ADMIN_ROLE = keccak256("DATASTOREACL_ADMIN_ROLE");
+    bytes32 public constant EMPTY_PARAM_HASH = 0x290decd9548b62a8d60345a988386fc84ba6bc95484008f6362f93160ef3e563;
+    bytes32 public constant NO_PERMISSION = bytes32(0);
+
+    event SetObjectPermission(address indexed entity, bytes32 indexed obj, bytes32 indexed role, bool allowed);
+    event ChangeObjectPermissionManager(bytes32 indexed obj, bytes32 indexed role, address indexed manager);
+
+
+    mapping (bytes32 => mapping (bytes32 => bytes32)) internal objectPermissions; 
+    mapping (bytes32 => address) internal objectPermissionManager;
+
+
+
+    modifier onlyPermissionManager(address _sender, bytes32 _obj, bytes32 _role) {
+        require(getObjectPermissionManager(_obj, _role) == _sender, "Must be the object permission manager");
         _;
     }
 
 
     /**
     * @dev Initialize can only be called once. It saves the block number in which it was initialized.
-    * @notice Initialize an ACL instance and set `_permissionsCreator` as the entity that can create other permissions
-    * @param _permissionsCreator Entity that will be given permission over createPermission
-    * @param _acl Kernel ACL
     */
-    function initialize(address _permissionsCreator, address _acl) public onlyInit {
+    function initialize() public onlyInit {
         initialized();
-
-        datastore = _permissionsCreator;
-        acl = ACL(_acl);
-        _createPermission(_permissionsCreator, this, CREATE_PERMISSIONS_ROLE, _permissionsCreator);
-    }
-
-
-    /**
-    * @dev Check whether an action can be performed by a sender for a particular role 
-    * @param _sender Sender of the call
-    * @param _role Role on this app
-    * @param _params Permission params for the role
-    * @return Boolean indicating whether the sender has the permissions to perform the action.
-    *         Always returns false if the app hasn't been initialized yet.
-    */    
-    function canPerformP(address _sender, bytes32 _role, uint256[] _params) public view returns (bool) {
-        if (!hasInitialized()) {
-            return false;
-        }
-
-        bytes memory how; // no need to init memory as it is never used
-        if (_params.length > 0) {
-            uint256 byteLength = _params.length * 32;
-            assembly {
-                how := _params // forced casting
-                mstore(how, byteLength)
-            }
-        }
-        return hasPermission(_sender, address(this), _role, how);
-    }  
-
-    /**
-    * @dev Creates a `_role` permission with a uint argument on the Datastore
-    * @param _role Identifier for the group of actions in app given access to perform
-    * @param _arg Role argument
-    */
-    function createPermissionWithArg(uint256 _arg, bytes32 _role)
-        external
-        auth(CREATE_PERMISSIONS_ROLE)
-        noPermissionManager(datastore, _role)
-    {
-        _createPermission(datastore, datastore, keccak256(_role, _arg), datastore);
-    }  
-
-    /**
-    * @dev Function called to verify permission for role `_role` and uint argument `_arg`status on `_entity`
-    * @param _entity Address of the entity
-    * @param _arg Role argument
-    * @param _role Identifier for the group of actions in app given access to perform
-    * @return boolean indicating whether the ACL allows the role or not
-    */
-    function hasPermissionWithArg(address _entity, uint256 _arg, bytes32 _role) public view returns (bool)
-    {
-        return hasPermission(_entity, datastore, keccak256(_role, _arg), new uint256[](0));
-    }   
-
-    /**
-    * @dev Grants permission for role `_role` with argument `_arg`, if allowed. 
-    * @param _entity Address of the whitelisted entity that will be able to perform the role
-    * @param _arg Role argument
-    * @param _role Identifier for the group of actions in app given access to perform
-    */
-    function grantPermissionWithArg(address _entity, uint256 _arg, bytes32 _role)
-        external
-    {
-        if (getPermissionManager(datastore, keccak256(_role, _arg)) == 0)
-            _createPermission(_entity, datastore, keccak256(_role, _arg), datastore);
-
-        _setPermission(_entity, datastore, keccak256(_role, _arg), EMPTY_PARAM_HASH);
-    }
-
-    /**
-    * @dev Revokes permission for role `_role` with argument `_arg`, if allowed. 
-    * @param _entity Address of the whitelisted entity to revoke access from
-    * @param _arg Role argument
-    * @param _role Identifier for the group of actions in app being revoked
-    */
-    function revokePermissionWithArg(address _entity, uint256 _arg, bytes32 _role)
-        external
-    {
-        if (getPermissionManager(datastore, keccak256(_role, _arg)) == msg.sender)
-            _setPermission(_entity, datastore, keccak256(_role, _arg), NO_PERMISSION);
-    }
-
-
-
-     /**
-    * @dev Creates a permission in the kernel ACL
-    * @notice Create a new permission granting `_entity` the ability to perform actions requiring `_role` on `_app`, setting `_manager` as the permission's manager
-    * @param _entity Address of the whitelisted entity that will be able to perform the role
-    * @param _app Address of the app in which the role will be allowed (requires app to depend on kernel for ACL)
-    * @param _role Identifier for the group of actions in app given access to perform
-    * @param _manager Address of the entity that will be able to grant and revoke the permission further.
-    */
-    function aclCreatePermission(address _entity, address _app, bytes32 _role, address _manager)
-        external
-    {
-        acl.createPermission(_entity, _app, _role, _manager);
     } 
 
-
     /**
-    * @dev Grants permission on the kernel ACL, if allowed. 
-    * @notice Grant `_entity` the ability to perform actions requiring `_role` on `_app`
-    * @param _entity Address of the whitelisted entity that will be able to perform the role
-    * @param _app Address of the app in which the role will be allowed (requires app to depend on kernel for ACL)
+    * @dev Creates a `_role` permission with a uint object on the Datastore
+    * @param _entity Entity for which to set the permission
+    * @param _obj Object
     * @param _role Identifier for the group of actions in app given access to perform
+    * @param _permissionManager The permission manager
     */
-    function aclGrantPermission(address _entity, address _app, bytes32 _role)
+    function createObjectPermission(address _entity, uint256 _obj, bytes32 _role, address _permissionManager)
         external
+        auth(DATASTOREACL_ADMIN_ROLE)
     {
-        acl.grantPermission(_entity, _app, _role);
-    }
+        createObjectPermission(_entity, keccak256(abi.encodePacked(_obj)), _role, _permissionManager);
+    } 
 
     /**
-    * @dev Function to check ACL permission on kernel
-    * @param _who Sender of the original call
-    * @param _where Address of the app
-    * @param _where Identifier for a group of actions in app
-    * @param _how Permission parameters
+    * @dev Creates a `_role` permission with an object on the Datastore
+    * @param _entity Entity for which to set the permission
+    * @param _obj Object
+    * @param _role Identifier for the group of actions in app given access to perform
+    * @param _permissionManager The permission manager
+    */
+    function createObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _permissionManager)
+        public
+        auth(DATASTOREACL_ADMIN_ROLE)
+    {
+        _setObjectPermission(_entity, _obj, _role, EMPTY_PARAM_HASH);
+        _setObjectPermissionManager(_permissionManager, _obj, _role);
+    }       
+
+
+    /**
+    * @dev Function called to verify permission for role `_what` and uint object `_obj` status on `_who`
+    * @param _who Address of the entity
+    * @param _obj Object
+    * @param _what Identifier for the group of actions in app given access to perform
     * @return boolean indicating whether the ACL allows the role or not
     */
-    function aclHasPermission(address _who, address _where, bytes32 _what, bytes memory _how) public view returns (bool)
+    function hasObjectPermission(address _who, uint256 _obj, bytes32 _what) public view returns (bool)
     {
-        return acl.hasPermission(_who, _where, _what, _how);
+        return hasObjectPermission(_who, keccak256(abi.encodePacked(_obj)), _what);
+    }  
+
+    /**
+    * @dev Function called to verify permission for role `_what` and an object `_obj` status on `_who`
+    * @param _who Address of the entity
+    * @param _obj Object
+    * @param _what Identifier for the group of actions in app given access to perform
+    * @return boolean indicating whether the ACL allows the role or not
+    */
+    function hasObjectPermission(address _who, bytes32 _obj, bytes32 _what) public view returns (bool)
+    {
+        bytes32 whoParams = objectPermissions[_obj][permissionHash(_who, _what)];
+        if (whoParams != NO_PERMISSION) {
+            return true;
+        }
+
+        return false;
+    }       
+
+    /**
+    * @dev Grants permission for role `_role` on object `_obj`, if allowed. 
+    * @param _entity Address of the whitelisted entity that will be able to perform the role
+    * @param _obj Object
+    * @param _role Identifier for the group of actions in app given access to perform
+    * @param _sender The entity that wants to grant the permission
+    */
+    function grantObjectPermission(address _entity, uint256 _obj, bytes32 _role, address _sender)
+        external
+    {
+        return grantObjectPermission(_entity, keccak256(abi.encodePacked(_obj)), _role, _sender);
     }
 
 
     /**
-    * @dev Prevents the Autopetrify of the contract
+    * @dev Grants permission for role `_role` on object `_obj`, if allowed. 
+    * @param _entity Address of the whitelisted entity that will be able to perform the role
+    * @param _obj Object
+    * @param _role Identifier for the group of actions in app given access to perform
+    * @param _sender The entity that wants to grant the permission
     */
-    function petrify() internal {}    
+    function grantObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _sender)
+        public
+        auth(DATASTOREACL_ADMIN_ROLE)
+    {
+        
+        if (getObjectPermissionManager(_obj, _role) == 0)
+            createObjectPermission(_entity, _obj, _role, _sender);
+
+        _setObjectPermission(_entity, _obj, _role, EMPTY_PARAM_HASH);
+    }
+
+
+    /**
+    * @dev Revokes permission for role `_role` on object `_obj`, if allowed. 
+    * @param _entity Address of the whitelisted entity to revoke access from
+    * @param _obj Object
+    * @param _role Identifier for the group of actions in app being revoked
+    * @param _sender The entity that wants to revoke the permission
+    */
+    function revokeObjectPermission(address _entity, uint256 _obj, bytes32 _role, address _sender)
+        external
+    {
+        revokeObjectPermission(_entity, keccak256(abi.encodePacked(_obj)), _role, _sender);
+    }    
+
+    /**
+    * @dev Revokes permission for role `_role` on object `_obj`, if allowed. 
+    * @param _entity Address of the whitelisted entity to revoke access from
+    * @param _obj Object
+    * @param _role Identifier for the group of actions in app being revoked
+    * @param _sender The entity that wants to revoke the permission
+    */
+    function revokeObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _sender)
+        public
+        onlyPermissionManager(_sender, _obj, _role)
+    {
+        _setObjectPermission(_entity, _obj, _role, NO_PERMISSION);
+    }
+
+
+
+    
+    /**
+    * @dev Get manager for permission
+    * @param _obj Object
+    * @param _role Identifier for a group of actions in app
+    * @return address of the manager for the permission
+    */
+    function getObjectPermissionManager(uint _obj, bytes32 _role) public view returns (address) {
+        return getObjectPermissionManager(keccak256(abi.encodePacked(_obj)), _role);
+    }
+    
+    /**
+    * @dev Get manager for permission
+    * @param _obj Object
+    * @param _role Identifier for a group of actions in app
+    * @return address of the manager for the permission
+    */
+    function getObjectPermissionManager(bytes32 _obj, bytes32 _role) public view returns (address) {
+        return objectPermissionManager[objectRoleHash(_obj, _role)];
+    }
+
+
+    /**
+    * @dev Internal function called to actually save the permission
+    */
+    function _setObjectPermission(address _entity, bytes32 _obj, bytes32 _role, bytes32 _paramsHash) internal {
+        objectPermissions[_obj][permissionHash(_entity, _role)] = _paramsHash;
+        bool entityHasPermission = _paramsHash != NO_PERMISSION;
+
+        emit SetObjectPermission(_entity, _obj, _role, entityHasPermission);
+    }   
+
+    function _setObjectPermissionManager(address _newManager, bytes32 _obj, bytes32 _role) internal {
+        objectPermissionManager[objectRoleHash(_obj, _role)] = _newManager;
+        emit ChangeObjectPermissionManager(_obj, _role, _newManager);
+    }
+
+    function permissionHash(address _who, bytes32 _what) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("OBJECT_PERMISSION", _who, _what));
+    } 
+
+    function objectRoleHash(bytes32 _obj, bytes32 _what) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("OBJECT_ROLE", _obj, _what));
+    }     
 
 
 }
