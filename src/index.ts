@@ -56,12 +56,20 @@ export class Datastore {
      * @param {string} name - File name
      * @param {ArrayBuffer} file - File content
      */
-    async addFile(name: string, file: ArrayBuffer) {
+    async addFile(name: string, publicStatus: boolean, file: ArrayBuffer) {
         await this._initialize()
 
-        const storageId = await this._storage.addFile(file)
-        const fileId = await this._contract.addFile(storageId, name, file.byteLength, true)
-        return fileId
+        let encryptionKey = ""
+        let storageId
+        if (!publicStatus) {
+            let encryptionFileData = await this._encryption.encryptFile(file)
+            encryptionKey = encryptionFileData.encryptionKey
+            storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
+            await this._contract.addFile(storageId, name, file.byteLength, publicStatus, encryptionKey)
+        } else {
+            storageId = await this._storage.addFile(file)
+            await this._contract.addFile(storageId, name, file.byteLength, publicStatus, encryptionKey)
+        }
     }
 
     /**
@@ -77,8 +85,10 @@ export class Datastore {
 
         if (!fileInfo.isPublic) {
             const encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
-            if (encryptionKeyAsString !== "0") {
+            console.log('encryptionKeyAsString: ', encryptionKeyAsString)
+            if (encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
                 const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
+                console.log('encryptionKeyAsJSON: ', encryptionKeyAsJSON)
                 const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
                 
                 fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)

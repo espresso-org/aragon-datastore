@@ -3,7 +3,7 @@ import { settings } from 'cluster';
 
 export interface RpcProviderContract {
     lastFileId(): Promise<BigNumber>
-    addFile(storageRef: string, name: string, fileSize: number, isPublic: boolean): Promise<{}>
+    addFile(storageRef: string, name: string, fileSize: number, isPublic: boolean, encryptionKey: string): Promise<{}>
     getFile(fileId: number): Promise<any[]>
     getFileEncryptionKey(fileId: number): Promise<string>
     deleteFile(fileId: number): Promise<{}>

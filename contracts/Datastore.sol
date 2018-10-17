@@ -77,15 +77,15 @@ contract Datastore {
      * @param _name File name
      * @param _fileSize File size in bytes
      * @param _isPublic Is file readable by anyone
+     * @param _encryptionKey File encryption key
      */
-    function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic) external returns (uint fileId) 
+    function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic, string _encryptionKey) external
     {
-        uint fId = fileList.addFile(_storageRef, _name, _fileSize, _isPublic);
+        uint fId = fileList.addFile(_storageRef, _name, _fileSize, _isPublic, _encryptionKey);
 
         fileOwners.addOwner(fId, msg.sender);
         PermissionLibrary.initializePermissionAddresses(permissions, fId);
         emit NewFile(msg.sender, fId);
-        return fId;
     }
 
     /**
@@ -378,10 +378,9 @@ contract Datastore {
      * @notice Add a group to the datastore
      * @param _groupName Name of the group
      */
-    function createGroup(string _groupName) external returns (uint) {
-        uint id = groups.createGroup(_groupName);
+    function createGroup(string _groupName) external {
+        groups.createGroup(_groupName);
         emit GroupChange(msg.sender);
-        return id;
     }
 
     /**
@@ -399,7 +398,7 @@ contract Datastore {
      * @param _groupId Id of the group to rename
      * @param _newGroupName New name for the group
      */
-    function renameGroup(uint _groupId, string _newGroupName) external  {
+    function renameGroup(uint _groupId, string _newGroupName) external {
         require(groups.groups[_groupId].exists);
         groups.renameGroup(_groupId, _newGroupName);
         emit GroupChange(msg.sender);
@@ -417,7 +416,7 @@ contract Datastore {
     /**
      * @notice Get a list of all the groups Id's
      */
-    function getGroupIds() public view returns (uint[]){
+    function getGroupIds() public view returns (uint[]) {
         return groups.groupList;
     }
 
@@ -482,11 +481,11 @@ contract Datastore {
      * @param _groupWrite Write permission
      * @param _entities Ids of the groups
      * @param _entityRead Read permission
-     * @param _entityWrite Write permission  
+     * @param _entityWrite Write permission
      * @param _isPublic Public status
      * @param _storageRef Storage reference
      * @param _fileSize File size
-     * @param _encryptionKey Encryption key    
+     * @param _encryptionKey Encryption key
      */
     function setMultiplePermissions(
         uint256 _fileId, uint256[] _groupIds, bool[] _groupRead, bool[] _groupWrite, 

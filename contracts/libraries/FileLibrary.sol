@@ -28,7 +28,7 @@ library FileLibrary {
         mapping (uint => FileLibrary.File) files;
     }
 
-    function addFile(FileList storage _self, string _storageRef, string _name, uint _fileSize, bool _isPublic) internal returns (uint fileId) {
+    function addFile(FileList storage _self, string _storageRef, string _name, uint _fileSize, bool _isPublic, string _encryptionKey) internal returns (uint fileId) {
         _self.lastFileId = _self.lastFileId.add(1);
 
         _self.files[_self.lastFileId] = FileLibrary.File({
@@ -39,9 +39,8 @@ library FileLibrary {
             isPublic: _isPublic,
             isDeleted: false,
             lastModification: now,
-            cryptoKey: ""
+            cryptoKey: _encryptionKey
         });
-
         return _self.lastFileId;
     }   
 
