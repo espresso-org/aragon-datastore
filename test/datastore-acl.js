@@ -67,7 +67,7 @@ contract('DatastoreACL ', accounts => {
 
     describe('revokeObjectPermission', async () => {
         it('throws if not called the permission manager', async () => {
-            await datastoreACL.grantObjectPermission(root, 1, DUMMY_ROLE, root)
+            await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
             assertThrow(async () => await datastoreACL.revokeObjectPermission(root, 1, DUMMY_ROLE, holder))
         })
     })   
