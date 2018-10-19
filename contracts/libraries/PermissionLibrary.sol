@@ -128,11 +128,15 @@ library PermissionLibrary {
         _self.entityPermissions[_fileId][_entity].read = _read;
         _self.entityPermissions[_fileId][_entity].write = _write;
 
-        if (_read) 
+        if (_read) {
+            _self.acl.createObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE, msg.sender);
             _self.acl.grantObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE, msg.sender);        
+        }
 
-        if (_write) 
+        if (_write) {
+            _self.acl.createObjectPermission(_entity, _fileId, _self.FILE_WRITE_ROLE, msg.sender);
             _self.acl.grantObjectPermission(_entity, _fileId, _self.FILE_WRITE_ROLE, msg.sender);
+        }
         
 
         //NewWritePermission(msg.sender, _fileId);
