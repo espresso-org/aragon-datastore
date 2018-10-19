@@ -31,7 +31,7 @@ library PermissionLibrary {
     // ************* PermissionData ************* //
 
 
-    function init(PermissionData storage _self, DatastoreACL _acl) internal {
+    function initialize(PermissionData storage _self, DatastoreACL _acl) internal {
         _self.FILE_READ_ROLE = keccak256("FILE_READ_ROLE");
         _self.FILE_WRITE_ROLE = keccak256("FILE_WRITE_ROLE");
         _self.acl = _acl;

@@ -25,7 +25,7 @@ library GroupLibrary {
     }
 
 
-    function init(GroupData storage _self, DatastoreACL _acl) internal {
+    function initialize(GroupData storage _self, DatastoreACL _acl) internal {
         _self.DATASTORE_GROUP = keccak256("DATASTORE_GROUP");
         _self.acl = _acl;
     }

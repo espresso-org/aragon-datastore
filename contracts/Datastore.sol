@@ -15,7 +15,6 @@ contract Datastore is AragonApp {
     using GroupLibrary for GroupLibrary.GroupData;
 
     bytes32 constant public DATASTORE_MANAGER_ROLE = keccak256("DATASTORE_MANAGER_ROLE");
-    bytes32 constant public FILE_OWNER_ROLE = keccak256("FILE_OWNER_ROLE");
     bytes32 constant public FILE_READ_ROLE = keccak256("FILE_READ_ROLE");
     bytes32 constant public FILE_WRITE_ROLE = keccak256("FILE_WRITE_ROLE");
 
@@ -73,14 +72,14 @@ contract Datastore is AragonApp {
         _;
     }    
 
-    function init(address _datastoreACL) onlyInit public
+    function initialize(address _datastoreACL) onlyInit public
     {
         initialized();
 
         datastoreACL = DatastoreACL(_datastoreACL);
         
-        permissions.init(datastoreACL);
-        groups.init(datastoreACL);
+        permissions.initialize(datastoreACL);
+        groups.initialize(datastoreACL);
     }      
     
     /**
