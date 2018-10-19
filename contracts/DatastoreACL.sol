@@ -41,7 +41,6 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     */
     function createObjectPermission(address _entity, uint256 _obj, bytes32 _role, address _permissionManager)
         external
-        auth(DATASTOREACL_ADMIN_ROLE)
     {
         createObjectPermission(_entity, keccak256(abi.encodePacked(_obj)), _role, _permissionManager);
     } 
@@ -146,6 +145,7 @@ contract DatastoreACL is AragonApp, ACLHelpers {
     */
     function revokeObjectPermission(address _entity, bytes32 _obj, bytes32 _role, address _sender)
         public
+        auth(DATASTOREACL_ADMIN_ROLE)
         onlyPermissionManager(_sender, _obj, _role)
     {
         _setObjectPermission(_entity, _obj, _role, NO_PERMISSION);
