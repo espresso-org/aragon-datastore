@@ -64,7 +64,7 @@ library PermissionLibrary {
      * @param _fileId File Id
      */
     function getOwner(PermissionData storage _self, uint _fileId) internal view returns (address) {
-        return _self.acl.getObjectPermissionManager(_fileId, _self.FILE_READ_ROLE);
+        return _self.acl.getObjectPermissionManager(_fileId, _self.FILE_WRITE_ROLE);
     }
 
 
