@@ -118,8 +118,10 @@ contract DatastoreACL is AragonApp, ACLHelpers {
         
         if (getObjectPermissionManager(_obj, _role) == 0)
             createObjectPermission(_entity, _obj, _role, _sender);
-
-        _setObjectPermission(_entity, _obj, _role, EMPTY_PARAM_HASH);
+        else {
+            require(getObjectPermissionManager(_obj, _role) == _sender, "Must be the object permission manager");
+            _setObjectPermission(_entity, _obj, _role, EMPTY_PARAM_HASH);
+        }
     }
 
 
