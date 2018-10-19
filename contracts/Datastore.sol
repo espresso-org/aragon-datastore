@@ -17,6 +17,7 @@ contract Datastore is AragonApp {
     bytes32 constant public DATASTORE_MANAGER_ROLE = keccak256("DATASTORE_MANAGER_ROLE");
     bytes32 constant public FILE_READ_ROLE = keccak256("FILE_READ_ROLE");
     bytes32 constant public FILE_WRITE_ROLE = keccak256("FILE_WRITE_ROLE");
+    bytes32 constant public DATASTORE_GROUP = keccak256("DATASTORE_GROUP");
 
 
     event FileRename(address indexed entity);
@@ -78,8 +79,8 @@ contract Datastore is AragonApp {
 
         datastoreACL = DatastoreACL(_datastoreACL);
         
-        permissions.initialize(datastoreACL);
-        groups.initialize(datastoreACL);
+        permissions.initialize(datastoreACL, FILE_READ_ROLE, FILE_WRITE_ROLE);
+        groups.initialize(datastoreACL, DATASTORE_GROUP);
     }      
     
     /**

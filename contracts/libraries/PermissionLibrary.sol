@@ -31,10 +31,10 @@ library PermissionLibrary {
     // ************* PermissionData ************* //
 
 
-    function initialize(PermissionData storage _self, DatastoreACL _acl) internal {
-        _self.FILE_READ_ROLE = keccak256("FILE_READ_ROLE");
-        _self.FILE_WRITE_ROLE = keccak256("FILE_WRITE_ROLE");
+    function initialize(PermissionData storage _self, DatastoreACL _acl, bytes32 _FILE_READ_ROLE, bytes32 _FILE_WRITE_ROLE) internal {
         _self.acl = _acl;
+        _self.FILE_READ_ROLE = _FILE_READ_ROLE;
+        _self.FILE_WRITE_ROLE = _FILE_WRITE_ROLE;
     }
 
     /**
