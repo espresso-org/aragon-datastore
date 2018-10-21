@@ -3,7 +3,7 @@ import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 
-import { 
+import {
     createFileFromTuple, 
     createPermissionFromTuple, 
     createSettingsFromTuple } from './utils'
@@ -18,7 +18,7 @@ export class DatastoreOptions {
 
 export class Datastore {
     private _storage: storage.StorageProvider
-    private _encryption
+    private _encryption: encryption.EncryptionProvider
     private _rpc: RpcProvider
     private _contract: rpc.RpcProviderContract
     private _settings: DatastoreSettings
@@ -47,8 +47,8 @@ export class Datastore {
 
     private async _refreshSettings() {
         this._settings = createSettingsFromTuple(await this._contract.settings())
+        this._encryption = encryption.getEncryptionProviderFromSettings(this._settings)
         this._storage = storage.getStorageProviderFromSettings(this._settings)
-        this._encryption = new providers.encryption.Aes()
     }
 
     /**
@@ -56,12 +56,20 @@ export class Datastore {
      * @param {string} name - File name
      * @param {ArrayBuffer} file - File content
      */
-    async addFile(name: string, file: ArrayBuffer) {
+    async addFile(name: string, publicStatus: boolean, file: ArrayBuffer) {
         await this._initialize()
 
-        const storageId = await this._storage.addFile(file)
-        const fileId = await this._contract.addFile(storageId, name, file.byteLength, true)
-        return fileId
+        let encryptionKey = ""
+        let storageId
+        if (!publicStatus) {
+            let encryptionFileData = await this._encryption.encryptFile(file)
+            encryptionKey = encryptionFileData.encryptionKey
+            storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
+            await this._contract.addFile(storageId, name, file.byteLength, publicStatus, encryptionKey)
+        } else {
+            storageId = await this._storage.addFile(file)
+            await this._contract.addFile(storageId, name, file.byteLength, publicStatus, encryptionKey)
+        }
     }
 
     /**
@@ -73,7 +81,19 @@ export class Datastore {
         await this._initialize()
 
         const fileInfo = await this.getFileInfo(fileId)
-        const fileContent = await this._storage.getFile(fileInfo.storageRef)
+        let fileContent = await this._storage.getFile(fileInfo.storageRef)
+
+        if (!fileInfo.isPublic) {
+            const encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
+            console.log('encryptionKeyAsString: ', encryptionKeyAsString)
+            if (encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
+                const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
+                console.log('encryptionKeyAsJSON: ', encryptionKeyAsJSON)
+                const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
+                
+                fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)
+            }
+        }
         return { ...fileInfo, content: fileContent }
     }
 
@@ -126,15 +146,17 @@ export class Datastore {
     }
 
     /**
-     * Sets the settings for IPFS storage
-     * @param {string} host Host
-     * @param {number} port Port
-     * @param {string} protocol HTTP protocol
+     * Sets the storage and encryption settings for the Datastore
+     * @param host Host
+     * @param port Port 
+     * @param protocol HTTP protocol
+     * @param name Name of the AES encryption algorithm
+     * @param length Length of the encryption key
      */
-    async setIpfsStorageSettings(host: string, port: number, protocol: string) {
+    async setSettings(host: string, port: number, protocol: string, name: string, length: number) {
         await this._initialize()
 
-        await this._contract.setIpfsStorageSettings(host, port, protocol)
+        await this._contract.setSettings(host, port, protocol, name, length)
         await this._refreshSettings()
     }
 
@@ -208,10 +230,25 @@ export class Datastore {
      * @param {number} fileId 
      * @param {Object[]} entityPermissions 
      * @param {Object[]} groupPermissions 
+     * @param {boolean} isPublic
      */
     async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[], isPublic: boolean) { 
         await this._initialize()
-        
+
+        let storageId = ""
+        let file = await this.getFile(fileId)
+        let fileByteLength = file.content.byteLength
+        let encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
+
+        if (!isPublic && encryptionKeyAsString != "0" && encryptionKeyAsString == "") {
+            let encryptionFileData = await this._encryption.encryptFile(file.content)
+            storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
+            encryptionKeyAsString = encryptionFileData.encryptionKey
+        } else if (isPublic && encryptionKeyAsString != "0" && encryptionKeyAsString != "") {
+            storageId = await this._storage.addFile(file.content)
+            encryptionKeyAsString = ""
+        }
+
         await this._contract.setMultiplePermissions(
             fileId,
             groupPermissions.map(perm => perm.groupId),
@@ -220,7 +257,10 @@ export class Datastore {
             entityPermissions.map(perm => perm.entity),
             entityPermissions.map(perm => perm.read),
             entityPermissions.map(perm => perm.write),
-            isPublic
+            isPublic,
+            storageId,
+            fileByteLength,
+            encryptionKeyAsString
         )
     }
 
