@@ -584,7 +584,7 @@ contract('Datastore ', accounts => {
                 size: 4567,
                 isPublic: false
             }
-            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic)
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic, '')
 
             assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
         })

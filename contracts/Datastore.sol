@@ -185,6 +185,18 @@ contract Datastore is AragonApp {
     }
 
     /**
+     * @notice Changes encryption key of file `_fileId` to `_cryptoKey`
+     * @param _fileId File Id
+     * @param _cryptoKey Encryption key    
+     */
+    function setEncryptionKey(uint _fileId, string _cryptoKey) public {
+        require(hasWriteAccess(_fileId, msg.sender));
+
+        fileList.setEncryptionKey(_fileId, _cryptoKey);
+        emit FileContentUpdate(msg.sender, lastFileId());
+    }    
+
+    /**
      * @notice Change file content of file `_fileId` to content stored at `_storageRef`
      * with size of `_fileSize` bytes
      * @param _fileId File Id
