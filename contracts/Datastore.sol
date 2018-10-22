@@ -193,7 +193,7 @@ contract Datastore is AragonApp {
         require(hasWriteAccess(_fileId, msg.sender));
 
         fileList.setEncryptionKey(_fileId, _cryptoKey);
-        emit FileContentUpdate(msg.sender, lastFileId());
+        emit FileContentUpdate(msg.sender);
     }    
 
     /**
