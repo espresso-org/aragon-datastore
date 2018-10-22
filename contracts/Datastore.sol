@@ -102,7 +102,7 @@ contract Datastore is AragonApp {
      * @param _isPublic Is file readable by anyone
      * @param _encryptionKey File encryption key
      */
-    function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic, string _encryptionKey) external
+    function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic, string _encryptionKey) 
         external 
         auth(DATASTORE_MANAGER_ROLE) 
         returns (uint fileId) 
@@ -483,7 +483,7 @@ contract Datastore is AragonApp {
             fileList.setFileContent(_fileId, _storageRef, _fileSize);
             fileList.setEncryptionKey(_fileId, _encryptionKey);
         }
-        emit NewPermissions(msg.sender, _fileId);
+        emit NewPermissions(msg.sender);
     }
 
     /**
