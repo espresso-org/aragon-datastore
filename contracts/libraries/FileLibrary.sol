@@ -71,6 +71,6 @@ library FileLibrary {
     }
 
     function permanentlyDeleteFile(FileList storage _self, uint _fileId) internal {
-        delete _self[files[_fileId]];
+        delete _self.files[_fileId];
     }
 }
