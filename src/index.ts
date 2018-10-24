@@ -115,8 +115,18 @@ export class Datastore {
     async deleteFile(fileId: number) {
         await this._initialize() 
 
-        await this._contract.deleteFile(fileId)
+        await this._contract.deleteFile(fileId, true)
     }
+
+    /**
+     * Undelete the specified file
+     * @param {number} fileId 
+     */
+    async undeleteFile(fileId: number) {
+        await this._initialize() 
+
+        await this._contract.deleteFile(fileId, false)
+    }    
 
     /**
      * Returns the permissions on file with `fileId`

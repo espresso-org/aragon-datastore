@@ -170,7 +170,7 @@ contract Datastore {
     } 
 
     /**
-     * @notice Delete file with Id `_fileId`. File can be restored
+     * @notice Set file `_fileId` as deleted or not.
      * @param _fileId File Id
      */
     function deleteFile(uint _fileId, bool _isDeleted) public onlyFileOwner(_fileId) {

@@ -48,7 +48,7 @@ export class AragonContract implements RpcProviderContract {
     return convertCallToPromise(this._aragonApp, 'getFileEncryptionKey', fileId)
   }
 
-  async deleteFile(fileId) {
+  async deleteFile(fileId, isDeleted) {
     return convertTransactionToPromise(this._aragonApp, 'deleteFile', fileId)
   }
 
