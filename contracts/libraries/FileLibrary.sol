@@ -70,16 +70,6 @@ library FileLibrary {
         _self.files[_fileId].lastModification = now;
     }    
 
-    function deleteFile(FileList storage _self, uint _fileId) internal {
-        _self.files[_fileId].isDeleted = true;
-        _self.files[_fileId].lastModification = now;
-    }
-
-    function unDeleteFile(FileList storage _self, uint _fileId) internal {
-        _self.files[_fileId].isDeleted = false;
-        _self.files[_fileId].lastModification = now;
-    }
-
 
     function permanentlyDeleteFile(FileList storage _self, uint _fileId) internal {
         delete _self.files[_fileId];

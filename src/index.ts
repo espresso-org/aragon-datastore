@@ -85,10 +85,8 @@ export class Datastore {
 
         if (!fileInfo.isPublic) {
             const encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
-            console.log('encryptionKeyAsString: ', encryptionKeyAsString)
             if (encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
                 const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
-                console.log('encryptionKeyAsJSON: ', encryptionKeyAsJSON)
                 const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
                 
                 fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)
@@ -105,7 +103,10 @@ export class Datastore {
         await this._initialize() 
 
         const fileTuple = await this._contract.getFile(fileId)
-        return { id: fileId, ...createFileFromTuple(fileTuple) }
+        const fileInfo = { id: fileId, ...createFileFromTuple(fileTuple) }
+
+        // If lastModification is 0, the file has been permanently deleted
+        return fileInfo.lastModification > 0 ? fileInfo : undefined
     }
 
     /**
@@ -173,7 +174,7 @@ export class Datastore {
     /**
      * Returns files information
      */
-    async listFiles() {
+    async listFiles(includeDeletedFiles: boolean = false) {
         await this._initialize()
 
         const lastFileId = (await this._contract.lastFileId()).toNumber()
@@ -181,7 +182,9 @@ export class Datastore {
         
         // TODO: Optimize this code
         for (let i = 1; i <= lastFileId; i++) {
-            files[i] = await this.getFileInfo(i)
+            const file = await this.getFileInfo(i)
+            if (file && (!file.isDeleted || includeDeletedFiles))
+                files.push(file)
         }
         return files
     }
