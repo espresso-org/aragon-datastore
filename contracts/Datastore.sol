@@ -173,9 +173,10 @@ contract Datastore {
      * @notice Delete file with Id `_fileId`. File can be restored
      * @param _fileId File Id
      */
-    function deleteFile(uint _fileId) public onlyFileOwner(_fileId) {
-        fileList.deleteFile(_fileId);
+    function deleteFile(uint _fileId, bool _isDeleted) public onlyFileOwner(_fileId) {
+        fileList.setIsDeleted(_fileId, _isDeleted);
     }
+
 
     /**
      * @notice Delete file with Id `_fileId`. File cannot be restored
