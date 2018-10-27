@@ -123,7 +123,7 @@ export class Datastore {
      * Undelete the specified file
      * @param {number} fileId 
      */
-    async undeleteFile(fileId: number) {
+    async restoreFile(fileId: number) {
         await this._initialize() 
 
         await this._contract.deleteFile(fileId, false)
@@ -174,7 +174,7 @@ export class Datastore {
     /**
      * Returns files information
      */
-    async listFiles(includeDeletedFiles: boolean = false) {
+    async listFiles() {
         await this._initialize()
 
         const lastFileId = (await this._contract.lastFileId()).toNumber()
@@ -183,7 +183,7 @@ export class Datastore {
         // TODO: Optimize this code
         for (let i = 1; i <= lastFileId; i++) {
             const file = await this.getFileInfo(i)
-            if (file && (!file.isDeleted || includeDeletedFiles))
+            if (file)
                 files.push(file)
         }
         return files
