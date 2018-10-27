@@ -187,6 +187,15 @@ contract Datastore {
     }    
 
     /**
+     * @notice Delete file with Id `_fileId`. File cannot be restored
+     * @param _fileId File Id
+     */
+    function permanentlyDeleteFiles(uint256[] _fileIds) public  {
+        for(uint256 i = 0; i < _fileIds.length; i++)
+            fileList.permanentlyDeleteFile(_fileIds[i]);
+    }      
+
+    /**
      * @notice Returns the last file Id
      */
     function lastFileId() public view returns (uint256) {

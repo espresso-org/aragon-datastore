@@ -119,6 +119,12 @@ export class Datastore {
         await this._contract.deleteFile(fileId, true)
     }
 
+    async deleteFilePermanently(fileId: number) {
+        await this._initialize() 
+
+        await this._contract.permanentlyDeleteFile(fileId)        
+    }
+
     /**
      * Undelete the specified file
      * @param {number} fileId 
