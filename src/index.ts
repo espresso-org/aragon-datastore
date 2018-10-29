@@ -110,25 +110,33 @@ export class Datastore {
     }
 
     /**
-     * Delete the specified file
+     * Delete the specified file. File can be restored
      * @param {number} fileId 
      */
     async deleteFile(fileId: number) {
         await this._initialize() 
 
-        await this._contract.deleteFiles([fileId], true)
+        await this._contract.deleteFile(fileId, true, false)
     }
 
+    /**
+     * Delete the specified file. File cannot be restored
+     * @param fileId 
+     */
     async deleteFilePermanently(fileId: number) {
         await this._initialize() 
 
-        await this._contract.deleteFiles(fileId, true, true)        
+        await this._contract.deleteFile(fileId, true, true)        
     }
 
+    /**
+     * Delete the specified files. Files cannot be restored.
+     * @param fileIds 
+     */
     async deleteFilesPermanently(fileIds: number[]) {
         await this._initialize() 
 
-        await this._contract.deleteFiles(fileIds, true, true)        
+        await this._contract.deleteFilesPermanently(fileIds)        
     }
 
     /**
