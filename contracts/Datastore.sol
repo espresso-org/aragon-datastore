@@ -171,27 +171,32 @@ contract Datastore {
     } 
 
     /**
-     * @notice Set files as deleted or not.
-     * @param _fileIds File Ids
+     * @notice Set file `_fileId` as deleted or not.
+     * @param _fileId File Id
      * @param _isDeleted Is file deleted or not
      * @param _deletePermanently If true, will delete file permanently
      */
-    function deleteFiles(uint[] _fileIds, bool _isDeleted, bool _deletePermanently) public onlyFileOwner(_fileId) {
+    function deleteFile(uint _fileId, bool _isDeleted, bool _deletePermanently) public onlyFileOwner(_fileId) {
         if (_isDeleted && _deletePermanently) {
-            for(uint256 i = 0; i < _fileIds.length; i++)
-                fileList.permanentlyDeleteFile(_fileId);
-
+            fileList.permanentlyDeleteFile(_fileId);
             emit DeleteFilePermanently(msg.sender, _fileId);            
         }
         else {
-            for(uint256 i = 0; i < _fileIds.length; i++)
-                fileList.setIsDeleted(_fileId, _isDeleted);
-
+            fileList.setIsDeleted(_fileId, _isDeleted);
             emit DeleteFile(msg.sender, _fileId);
         }
     }
 
-    
+
+    /**
+     * @notice Delete files in `_fileIds`. Files cannot be restored
+     * @param _fileIds File Ids
+     */
+    function deleteFilesPermanently(uint256[] _fileIds) public {
+        for(uint256 i = 0; i < _fileIds.length; i++)
+            fileList.permanentlyDeleteFile(_fileIds[i]);
+        emit DeleteFilePermanently(msg.sender, 0);
+    }      
 
     /**
      * @notice Returns the last file Id

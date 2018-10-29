@@ -8,13 +8,12 @@ export interface RpcProviderContract {
     getFileEncryptionKey(fileId: number): Promise<string>
 
     /**
-     * Set file as deleted or not
-     * @param fileId File Id
-     * @param isDeleted 
+     * Set files as deleted or not
+     * @param fileIds File Ids
+     * @param isDeleted
+     * @param deletePermanently Will delete file permanently if true
      */
-    deleteFile(fileId: number, isDeleted: boolean): Promise<{}>
-    deleteFilePermanently(fileId: number): Promise<{}>
-    deleteFilesPermanently(fileIds: number[]): Promise<{}>
+    deleteFiles(fileIds: number[], isDeleted: boolean, deletePermanently: boolean): Promise<{}>
     setFileName(fileId: number, newName: string): Promise<{}>
     setEncryptionKey(fileId: number, cryptoKey: string): Promise<{}>
     setFileContent(fileId: number, storageRef: string, fileSize: number): Promise<{}>

@@ -116,19 +116,19 @@ export class Datastore {
     async deleteFile(fileId: number) {
         await this._initialize() 
 
-        await this._contract.deleteFile(fileId, true)
+        await this._contract.deleteFiles([fileId], true)
     }
 
     async deleteFilePermanently(fileId: number) {
         await this._initialize() 
 
-        await this._contract.deleteFilePermanently(fileId)        
+        await this._contract.deleteFiles(fileId, true, true)        
     }
 
     async deleteFilesPermanently(fileIds: number[]) {
         await this._initialize() 
 
-        await this._contract.deleteFilesPermanently(fileIds)        
+        await this._contract.deleteFiles(fileIds, true, true)        
     }
 
     /**
