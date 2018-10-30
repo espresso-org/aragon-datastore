@@ -1,8 +1,6 @@
 pragma solidity ^0.4.24;
 
 import "@aragon/os/contracts/apps/AragonApp.sol";
-import "@aragon/os/contracts/acl/ACL.sol";
-import "@aragon/os/contracts/acl/ACLSyntaxSugar.sol";
 import "./DatastoreACL.sol";
 import "./libraries/PermissionLibrary.sol";
 import "./libraries/GroupLibrary.sol";
@@ -18,7 +16,6 @@ contract Datastore is AragonApp {
     bytes32 constant public FILE_READ_ROLE = keccak256("FILE_READ_ROLE");
     bytes32 constant public FILE_WRITE_ROLE = keccak256("FILE_WRITE_ROLE");
     bytes32 constant public DATASTORE_GROUP = keccak256("DATASTORE_GROUP");
-
 
     event FileRename(address indexed entity);
     event FileContentUpdate(address indexed entity);
