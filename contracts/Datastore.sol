@@ -6,7 +6,6 @@ import "./libraries/GroupLibrary.sol";
 import "./libraries/FileLibrary.sol";
 
 contract Datastore {
-
     using PermissionLibrary for PermissionLibrary.OwnerData;
     using PermissionLibrary for PermissionLibrary.PermissionData;
     using FileLibrary for FileLibrary.FileList;
@@ -187,7 +186,6 @@ contract Datastore {
         }
     }
 
-
     /**
      * @notice Delete files in `_fileIds`. Files cannot be restored
      * @param _fileIds File Ids
@@ -290,8 +288,7 @@ contract Datastore {
      * @param _read Read permission
      * @param _write Write permission     
      */
-    function setEntityPermissions(uint _fileId, address _entity, bool _read, bool _write) external onlyFileOwner(_fileId) 
-    {
+    function setEntityPermissions(uint _fileId, address _entity, bool _read, bool _write) external onlyFileOwner(_fileId) {
         permissions.setEntityPermissions(_fileId, _entity, _read, _write);
         emit NewEntityPermissions(msg.sender, _fileId);
     }

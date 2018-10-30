@@ -146,8 +146,8 @@ export class Datastore {
     async restoreFile(fileId: number) {
         await this._initialize() 
 
-        await this._contract.deleteFile(fileId, false)
-    }    
+        await this._contract.deleteFile(fileId, false, false)
+    } 
 
     /**
      * Returns the permissions on file with `fileId`
