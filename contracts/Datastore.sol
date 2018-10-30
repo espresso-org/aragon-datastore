@@ -1,8 +1,6 @@
 pragma solidity ^0.4.24;
 
 import "@aragon/os/contracts/apps/AragonApp.sol";
-import "@aragon/os/contracts/acl/ACL.sol";
-import "@aragon/os/contracts/acl/ACLSyntaxSugar.sol";
 import "./DatastoreACL.sol";
 import "./libraries/PermissionLibrary.sol";
 import "./libraries/GroupLibrary.sol";
@@ -15,9 +13,9 @@ contract Datastore is AragonApp {
     using GroupLibrary for GroupLibrary.GroupData;
 
     bytes32 constant public DATASTORE_MANAGER_ROLE = keccak256("DATASTORE_MANAGER_ROLE");
-    bytes32 constant public FILE_OWNER_ROLE = keccak256("FILE_OWNER_ROLE");
     bytes32 constant public FILE_READ_ROLE = keccak256("FILE_READ_ROLE");
     bytes32 constant public FILE_WRITE_ROLE = keccak256("FILE_WRITE_ROLE");
+    bytes32 constant public DATASTORE_GROUP = keccak256("DATASTORE_GROUP");
 
     event FileRename(address indexed entity);
     event FileContentUpdate(address indexed entity);
@@ -72,14 +70,14 @@ contract Datastore is AragonApp {
         _;
     }    
 
-    function init(address _datastoreACL) onlyInit public
+    function initialize(address _datastoreACL) onlyInit public
     {
         initialized();
 
         datastoreACL = DatastoreACL(_datastoreACL);
         
-        permissions.init(datastoreACL);
-        groups.init(datastoreACL);
+        permissions.initialize(datastoreACL, FILE_READ_ROLE, FILE_WRITE_ROLE);
+        groups.initialize(datastoreACL, DATASTORE_GROUP);
     }      
     
     /**

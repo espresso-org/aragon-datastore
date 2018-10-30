@@ -22,6 +22,7 @@ contract('DatastoreACL ', accounts => {
 
     const root = accounts[0]
     const holder = accounts[1]
+    const account3 = accounts[2]
     const DUMMY_ROLE = 1
 
 
@@ -58,18 +59,34 @@ contract('DatastoreACL ', accounts => {
         
          
         await datastoreACL.initialize() 
-        await datastore.init(datastoreACL.address)
+        await datastore.initialize(datastoreACL.address)
 
         await acl.grantPermission(datastoreACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
 
     })
 
 
+    describe('createObjectPermission', async () => {
+        it('fires SetObjectPermission event', async () => {
+            await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
+    
+            await assertEvent(datastoreACL, { event: 'SetObjectPermission' })
+        }) 
+
+        it('fires ChangeObjectPermissionManager event', async () => {
+            await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
+    
+            await assertEvent(datastoreACL, { event: 'ChangeObjectPermissionManager' })
+        })         
+    }) 
+ 
+
     describe('revokeObjectPermission', async () => {
         it('throws if not called the permission manager', async () => {
-            await datastoreACL.grantObjectPermission(root, 1, DUMMY_ROLE, root)
+            await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
             assertThrow(async () => await datastoreACL.revokeObjectPermission(root, 1, DUMMY_ROLE, holder))
         })
+      
     })   
     
     describe('grantObjectPermission', async () => {
@@ -77,7 +94,15 @@ contract('DatastoreACL ', accounts => {
             await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
             assertThrow(async () => datastoreACL.grantObjectPermission(root, 1, DUMMY_ROLE, holder), { from: holder} )
         })
-    })       
+    })   
+    
+    describe('hasObjectPermission', async () => {
+        it('returns the right permission', async () => {
+            await datastoreACL.createObjectPermission(holder, 1, DUMMY_ROLE, root)
+            assert.equal(await datastoreACL.hasObjectPermission.call(holder, 1, DUMMY_ROLE), true)
+            assert.equal(await datastoreACL.hasObjectPermission.call(account3, 1, DUMMY_ROLE), false)
+        })
+    })      
 
 })
 
