@@ -176,7 +176,6 @@ contract Datastore is AragonApp {
         }
     }
 
-
     /**
      * @notice Delete files in `_fileIds`. Files cannot be restored
      * @param _fileIds File Ids
