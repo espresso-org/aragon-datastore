@@ -63,6 +63,7 @@ contract('Datastore ', accounts => {
         await acl.grantPermission(datastoreACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
     })
 
+
     it('increases lastFileId by 1 after addFile', async () => {
         assert.equal(await datastore.lastFileId(), 0)
         await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, "")
