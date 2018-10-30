@@ -150,7 +150,7 @@ contract('Datastore ', accounts => {
             }       
 
             await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic, '')
-            await datastore.deleteFile(1, true)
+            await datastore.deleteFile(1, true, false)
 
             const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
             assert.equal(getFile1[0], file1.storageRef)
@@ -169,8 +169,8 @@ contract('Datastore ', accounts => {
             }       
 
             await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic, '')
-            await datastore.deleteFile(1, true)
-            await datastore.deleteFile(1, false)
+            await datastore.deleteFile(1, true, false)
+            await datastore.deleteFile(1, false, false)
 
             const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
             assert.equal(getFile1[0], file1.storageRef)
@@ -185,7 +185,7 @@ contract('Datastore ', accounts => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, '')
 
             assertThrow(async () => {
-                await datastore.deleteFile(1, { from: accounts[1] })
+                await datastore.deleteFile(1, true, false, { from: accounts[1] })
             })
         })
 
