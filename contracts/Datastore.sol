@@ -26,7 +26,7 @@ contract Datastore is AragonApp {
     event NewGroupPermissions(address indexed entity);
     event NewPermissions(address indexed entity);
     event DeleteFile(address indexed entity);
-    event DeleteFilePermanently(address indexed entity, uint fileId);
+    event DeleteFilePermanently(address indexed entity);
     event SettingsChanged(address indexed entity);
     event GroupChange(address indexed entity);
     event EntityPermissionsRemoved(address indexed entity);
@@ -168,11 +168,11 @@ contract Datastore is AragonApp {
     function deleteFile(uint _fileId, bool _isDeleted, bool _deletePermanently) public onlyFileOwner(_fileId) {
         if (_isDeleted && _deletePermanently) {
             fileList.permanentlyDeleteFile(_fileId);
-            emit DeleteFilePermanently(msg.sender, _fileId);            
+            emit DeleteFilePermanently(msg.sender);            
         }
         else {
             fileList.setIsDeleted(_fileId, _isDeleted);
-            emit DeleteFile(msg.sender, _fileId);
+            emit DeleteFile(msg.sender);
         }
     }
 
@@ -184,7 +184,7 @@ contract Datastore is AragonApp {
     function deleteFilesPermanently(uint256[] _fileIds) public {
         for(uint256 i = 0; i < _fileIds.length; i++)
             fileList.permanentlyDeleteFile(_fileIds[i]);
-        emit DeleteFilePermanently(msg.sender, 0);
+        emit DeleteFilePermanently(msg.sender);
     }      
 
     /**
