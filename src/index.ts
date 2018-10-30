@@ -85,10 +85,8 @@ export class Datastore {
 
         if (!fileInfo.isPublic) {
             const encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
-            console.log('encryptionKeyAsString: ', encryptionKeyAsString)
             if (encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
                 const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
-                console.log('encryptionKeyAsJSON: ', encryptionKeyAsJSON)
                 const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
                 
                 fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)
@@ -105,18 +103,51 @@ export class Datastore {
         await this._initialize() 
 
         const fileTuple = await this._contract.getFile(fileId)
-        return { id: fileId, ...createFileFromTuple(fileTuple) }
+        const fileInfo = { id: fileId, ...createFileFromTuple(fileTuple) }
+
+        // If lastModification is 0, the file has been permanently deleted
+        return fileInfo.lastModification > 0 ? fileInfo : undefined
     }
 
     /**
-     * Delete the specified file
+     * Delete the specified file. File can be restored
      * @param {number} fileId 
      */
     async deleteFile(fileId: number) {
         await this._initialize() 
 
-        await this._contract.deleteFile(fileId)
+        await this._contract.deleteFile(fileId, true, false)
     }
+
+    /**
+     * Delete the specified file. File cannot be restored
+     * @param fileId 
+     */
+    async deleteFilePermanently(fileId: number) {
+        await this._initialize() 
+
+        await this._contract.deleteFile(fileId, true, true)        
+    }
+
+    /**
+     * Delete the specified files. Files cannot be restored.
+     * @param fileIds 
+     */
+    async deleteFilesPermanently(fileIds: number[]) {
+        await this._initialize() 
+
+        await this._contract.deleteFilesPermanently(fileIds)        
+    }
+
+    /**
+     * Undelete the specified file
+     * @param {number} fileId 
+     */
+    async restoreFile(fileId: number) {
+        await this._initialize() 
+
+        await this._contract.deleteFile(fileId, false)
+    }    
 
     /**
      * Returns the permissions on file with `fileId`
@@ -171,7 +202,9 @@ export class Datastore {
         
         // TODO: Optimize this code
         for (let i = 1; i <= lastFileId; i++) {
-            files[i] = await this.getFileInfo(i)
+            const file = await this.getFileInfo(i)
+            if (file)
+                files.push(file)
         }
         return files
     }
