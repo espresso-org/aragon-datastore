@@ -20,6 +20,7 @@ export class Aragon implements RpcProvider {
 }
 
 export class AragonContract implements RpcProviderContract {
+
   private _aragonApp
   private _ethAccounts
 
@@ -48,9 +49,13 @@ export class AragonContract implements RpcProviderContract {
     return convertCallToPromise(this._aragonApp, 'getFileEncryptionKey', fileId)
   }
 
-  async deleteFile(fileId) {
-    return convertTransactionToPromise(this._aragonApp, 'deleteFile', fileId)
+  async deleteFile(fileId, isDeleted, deletePermanently) {
+    return convertTransactionToPromise(this._aragonApp, 'deleteFile', fileId, isDeleted, deletePermanently)
   }
+
+  async deleteFilesPermanently(fileIds: number[]): Promise<{}> {
+    return convertTransactionToPromise(this._aragonApp, 'deleteFilesPermanently', fileIds)
+  }    
 
   async setFileName(fileId, newName) {
     return convertTransactionToPromise(this._aragonApp, 'setFileName', fileId, newName)
