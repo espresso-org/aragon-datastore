@@ -18,10 +18,8 @@ export class Aes implements EncryptionProvider {
      */
     async encryptFile(file: ArrayBuffer) {
         const encryptionKey = await crypto.subtle.generateKey(this._encryptionAlgo, true, ['encrypt', 'decrypt'])
-        console.log('encryptionKey: ', encryptionKey)
         const encryptionKeyAsJSON = await crypto.subtle.exportKey('jwk', <CryptoKey>encryptionKey)
         const encryptionKeyAsString = JSON.stringify(encryptionKeyAsJSON)
-        console.log('encryptionKeyAsString: ', encryptionKeyAsString)
         const encryptedFile = await crypto.subtle.encrypt(this._encryptionAlgo, <CryptoKey>encryptionKey, file)
 
         return {

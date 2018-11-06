@@ -7,7 +7,6 @@ import "./libraries/GroupLibrary.sol";
 import "./libraries/FileLibrary.sol";
 
 contract Datastore is AragonApp {
-    
     using PermissionLibrary for PermissionLibrary.PermissionData;
     using FileLibrary for FileLibrary.FileList;
     using GroupLibrary for GroupLibrary.GroupData;
@@ -100,7 +99,7 @@ contract Datastore is AragonApp {
      * @param _isPublic Is file readable by anyone
      * @param _encryptionKey File encryption key
      */
-    function addFile(string _storageRef, string _name, uint _fileSize, bool _isPublic, string _encryptionKey) 
+    function addFile(string _storageRef, string _name, uint128 _fileSize, bool _isPublic, string _encryptionKey) 
         external 
         auth(DATASTORE_MANAGER_ROLE) 
         returns (uint fileId) 
@@ -123,12 +122,12 @@ contract Datastore is AragonApp {
         returns (
             string storageRef,
             string name,
-            uint fileSize,
+            uint128 fileSize,
             bool isPublic,
             bool isDeleted,
             address owner,
             bool isOwner,
-            uint lastModification,
+            uint64 lastModification,
             address[] permissionAddresses,
             bool writeAccess
         )
@@ -223,7 +222,7 @@ contract Datastore is AragonApp {
      * @param _storageRef Storage Id (IPFS)
      * @param _fileSize File size in bytes
      */
-    function setFileContent(uint _fileId, string _storageRef, uint _fileSize) external {
+    function setFileContent(uint _fileId, string _storageRef, uint128 _fileSize) external {
         require(hasWriteAccess(_fileId, msg.sender));
 
         fileList.setFileContent(_fileId, _storageRef, _fileSize);
@@ -359,7 +358,7 @@ contract Datastore is AragonApp {
         emit SettingsChanged(msg.sender);
     }
 
-  /**
+    /**
      * @notice Returns true if `_entity` has read access on file `_fileId`
      * @param _fileId File Id
      * @param _entity Entity address     
@@ -447,7 +446,6 @@ contract Datastore is AragonApp {
         return groups.groupList;
     }
 
-
     /**
      * @notice Add an entity to a group
      * @param _groupId Id of the group to add the entity in
@@ -499,7 +497,7 @@ contract Datastore is AragonApp {
     function setMultiplePermissions(
         uint256 _fileId, uint256[] _groupIds, bool[] _groupRead, bool[] _groupWrite, 
         address[] _entities, bool[] _entityRead, bool[] _entityWrite, bool _isPublic, string _storageRef, 
-        uint _fileSize, string _encryptionKey) 
+        uint128 _fileSize, string _encryptionKey) 
         public 
         onlyFileOwner(_fileId) 
     {
