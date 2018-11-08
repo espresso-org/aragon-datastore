@@ -234,7 +234,7 @@ contract('Datastore ', accounts => {
             }       
 
             await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic, '')
-            await datastore.deleteFilesPermanently([ file1 ])
+            await datastore.deleteFilesPermanently([ 1 ])
 
             const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
             assert.equal(getFile1[0], '')
