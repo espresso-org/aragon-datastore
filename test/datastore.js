@@ -223,6 +223,29 @@ contract('Datastore ', accounts => {
 
     })
 
+    describe('deleteFilesPermanently', async () => {
+
+        it('deletes files from the datastore parmanently', async () => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: true
+            }       
+
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic, '')
+            await datastore.deleteFilesPermanently([ files ])
+
+            const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
+            assert.equal(getFile1[0], '')
+            assert.equal(getFile1[1], '')
+            assert.equal(getFile1[2], 0)
+            assert.equal(getFile1[3], false)
+            assert.equal(getFile1[4], false) // isDeleted should be false      
+        })   
+        
+    })
+
     describe('setFileContent', async () => {
 
         it('changes file content when setFileContent is called with write access', async () => {
