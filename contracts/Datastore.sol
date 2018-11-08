@@ -67,26 +67,19 @@ contract Datastore is AragonApp {
     }
         
     FileLibrary.FileList private fileList;
-
-
     PermissionLibrary.PermissionData private permissions;
     GroupLibrary.GroupData private groups;
     Settings public settings;
-
     DatastoreACL private datastoreACL;
-
 
     modifier onlyFileOwner(uint256 _fileId) {
         require(permissions.isOwner(_fileId, msg.sender));
         _;
     }    
 
-    function initialize(address _datastoreACL) onlyInit public
-    {
+    function initialize(address _datastoreACL) onlyInit public {
         initialized();
-
         datastoreACL = DatastoreACL(_datastoreACL);
-        
         permissions.initialize(datastoreACL, FILE_READ_ROLE, FILE_WRITE_ROLE);
         groups.initialize(datastoreACL, DATASTORE_GROUP);
     }      
