@@ -867,8 +867,8 @@ contract('Datastore ', accounts => {
         })
     })
 
-    describe('test encryption keys', async () => {
-        it('setEncryptionKey', async() => {
+    describe('setEncryptionKey', async () => {
+        it('correctly store the encryption key', async() => {
             const file1 = { 
                 name: 'test name',
                 storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
@@ -880,10 +880,32 @@ contract('Datastore ', accounts => {
 
             assert.equal((await datastore.getFileEncryptionKey(1)), JSON.stringify({"alg":"A256CBC","ext":true,"k":"GV8Vjmq-8_Em0lyrDVo-3YdFkTFrAKyg2UWIwTcolxY","key_ops":["encrypt","decrypt"],"kty":"oct"}))
         })
+
+        it('throws if user does not have write access', async() => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: false
+            }
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic, '', { from: root })
+            
+            assertThrow(async () => datastore.setEncryptionKey(1, 'key', { from: holder }))
+
+            
+        })        
+    })
+
+    describe('setEncryptionProvider', async () => {
+        it('throws if encryption provider is already set', async() => {
+            await datastore.setEncryptionProvider(1)
+            assertThrow(async () => await datastore.setEncryptionProvider(0))
+        })   
+        
     })
 
     describe('getFileEncryptionKey', async () => {
-        it('should not return the key if user does not have read access', async () => {
+        it('does not return the key if user does not have read access', async () => {
             const key = 'mykey'
 
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, key, { from: root })
