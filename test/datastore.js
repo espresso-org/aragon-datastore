@@ -157,7 +157,7 @@ contract('Datastore ', accounts => {
             assert.equal(getFile1[1], file1.name)
             assert.equal(getFile1[2], file1.size)
             assert.equal(getFile1[3], file1.isPublic)
-            assert.equal(getFile1[4], true) // isDeleted should be false      
+            assert.equal(getFile1[4], true) // isDeleted should be true      
         })
 
         it('restores a file if second param is false', async () => {
@@ -178,6 +178,24 @@ contract('Datastore ', accounts => {
             assert.equal(getFile1[2], file1.size)
             assert.equal(getFile1[3], file1.isPublic)
             assert.equal(getFile1[4], false) // isDeleted should be false      
+        })    
+        
+        it('deletes a file permanently if third param is true', async () => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: true
+            }       
+
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic, '')
+            await datastore.deleteFile(1, true, true)
+
+            const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
+            assert.equal(getFile1[0], '')
+            assert.equal(getFile1[1], '')
+            assert.equal(getFile1[2], 0)
+            assert.equal(getFile1[3], false)    
         })        
 
 
@@ -862,6 +880,18 @@ contract('Datastore ', accounts => {
 
             assert.equal((await datastore.getFileEncryptionKey(1)), JSON.stringify({"alg":"A256CBC","ext":true,"k":"GV8Vjmq-8_Em0lyrDVo-3YdFkTFrAKyg2UWIwTcolxY","key_ops":["encrypt","decrypt"],"kty":"oct"}))
         })
+    })
+
+    describe('getFileEncryptionKey', async () => {
+        it('should not return the key if user does not have read access', async () => {
+            const key = 'mykey'
+
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, key, { from: root })
+            const fileKey = await datastore.getFileEncryptionKey(1, { from: holder })
+
+            assert.equal(fileKey, '0')
+        })
+
     })
 })
 
