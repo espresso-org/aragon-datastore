@@ -157,7 +157,7 @@ contract('Datastore ', accounts => {
             assert.equal(getFile1[1], file1.name)
             assert.equal(getFile1[2], file1.size)
             assert.equal(getFile1[3], file1.isPublic)
-            assert.equal(getFile1[4], true) // isDeleted should be false      
+            assert.equal(getFile1[4], true) // isDeleted should be true      
         })
 
         it('restores a file if second param is false', async () => {
@@ -178,6 +178,24 @@ contract('Datastore ', accounts => {
             assert.equal(getFile1[2], file1.size)
             assert.equal(getFile1[3], file1.isPublic)
             assert.equal(getFile1[4], false) // isDeleted should be false      
+        })    
+        
+        it('deletes a file permanently if third param is true', async () => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: true
+            }       
+
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic, '')
+            await datastore.deleteFile(1, true, true)
+
+            const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
+            assert.equal(getFile1[0], '')
+            assert.equal(getFile1[1], '')
+            assert.equal(getFile1[2], 0)
+            assert.equal(getFile1[3], false)    
         })        
 
 
@@ -221,6 +239,29 @@ contract('Datastore ', accounts => {
             await assertEvent(datastore, { event: 'FileRename' })
         })          
 
+    })
+
+    describe('deleteFilesPermanently', async () => {
+
+        it('deletes files from the datastore parmanently', async () => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: true
+            }       
+
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic, '')
+            await datastore.deleteFilesPermanently([ 1 ])
+
+            const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
+            assert.equal(getFile1[0], '')
+            assert.equal(getFile1[1], '')
+            assert.equal(getFile1[2], 0)
+            assert.equal(getFile1[3], false)
+            assert.equal(getFile1[4], false) // isDeleted should be false      
+        })   
+        
     })
 
     describe('setFileContent', async () => {
@@ -663,6 +704,23 @@ contract('Datastore ', accounts => {
             assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), true)
             assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), false)
         })
+
+        it('sets read and write permissions on a file', async() => {
+            await datastore.createGroup('My first group')
+            await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
+
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: false
+            }
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic, '')
+            await datastore.setMultiplePermissions(1, [1], [true], [false], ['0xb4124ceb3451635dacedd11767f004d8a28c6ee8'], [false], [true], true, file1.storageRef, file1.size, 'key')
+
+            assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), true)
+            assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')), false)
+        })        
         
     })
 
@@ -826,8 +884,8 @@ contract('Datastore ', accounts => {
         })
     })
 
-    describe('test encryption keys', async () => {
-        it('setEncryptionKey', async() => {
+    describe('setEncryptionKey', async () => {
+        it('correctly store the encryption key', async() => {
             const file1 = { 
                 name: 'test name',
                 storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
@@ -839,6 +897,61 @@ contract('Datastore ', accounts => {
 
             assert.equal((await datastore.getFileEncryptionKey(1)), JSON.stringify({"alg":"A256CBC","ext":true,"k":"GV8Vjmq-8_Em0lyrDVo-3YdFkTFrAKyg2UWIwTcolxY","key_ops":["encrypt","decrypt"],"kty":"oct"}))
         })
+
+        it('throws if user does not have write access', async() => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: false
+            }
+            await datastore.addFile(file1.storageRef, file1.name, file1.size, file1.isPublic, '', { from: root })
+            
+            assertThrow(async () => datastore.setEncryptionKey(1, 'key', { from: holder }))
+
+            
+        })        
+    })
+
+    describe('setEncryptionProvider', async () => {
+
+        it('throws if encryption provider is already set', async() => {
+            await datastore.setEncryptionProvider(1)
+            assertThrow(async () => await datastore.setEncryptionProvider(0))
+        })   
+        
+
+    })
+
+    describe('setSettings', async () => {
+
+        it('throws if storage provider is already set', async() => {
+            await datastore.setStorageProvider(2)
+            assertThrow(async () => await datastore.setSettings('', 45, 'http', 'aewf', 128));
+        })   
+
+        it('throws if encryption provider is already set', async() => {
+            await datastore.setEncryptionProvider(2)
+            assertThrow(async () => await datastore.setSettings('', 45, 'http', 'aewf', 128))
+        })          
+        
+
+        it('correctly sets the Settings', async() => {
+            await datastore.setSettings('', 45, 'http', 'aewf', 128)
+        }) 
+
+    })    
+
+    describe('getFileEncryptionKey', async () => {
+        it('does not return the key if user does not have read access', async () => {
+            const key = 'mykey'
+
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, key, { from: root })
+            const fileKey = await datastore.getFileEncryptionKey(1, { from: holder })
+
+            assert.equal(fileKey, '0')
+        })
+
     })
 })
 

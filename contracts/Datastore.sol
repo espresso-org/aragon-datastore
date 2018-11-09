@@ -35,7 +35,7 @@ contract Datastore is AragonApp {
      * Datastore settings
      */
     enum StorageProvider { None, Ipfs, Filecoin, Swarm }
-    enum EncryptionProvider { None, Aes }
+    enum EncryptionProvider { None, Aes, Twofish }
 
     struct Settings {
         StorageProvider storageProvider;
