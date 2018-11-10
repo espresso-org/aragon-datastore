@@ -82,7 +82,7 @@ contract('DatastoreACL ', accounts => {
     
             await assertEvent(datastoreACL, { event: 'ChangeObjectPermissionManager' })
         }) 
-                
+
         it('fires SetObjectPermission event', async () => {
             await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
     
@@ -93,7 +93,7 @@ contract('DatastoreACL ', accounts => {
     
      
 
-    xdescribe('revokeObjectPermission', async () => {
+    describe('revokeObjectPermission', async () => {
         it('throws if not called the permission manager', async () => {
             await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
             assertThrow(async () => await datastoreACL.revokeObjectPermission(root, 1, DUMMY_ROLE, holder))
@@ -101,14 +101,14 @@ contract('DatastoreACL ', accounts => {
       
     })   
     
-    xdescribe('grantObjectPermission', async () => {
+    describe('grantObjectPermission', async () => {
         it('throws if not called the permission manager', async () => {
             await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
             assertThrow(async () => datastoreACL.grantObjectPermission(root, 1, DUMMY_ROLE, holder), { from: holder} )
         })
     })   
     
-    xdescribe('hasObjectPermission', async () => {
+    describe('hasObjectPermission', async () => {
         it('returns the right permission', async () => {
             await datastoreACL.createObjectPermission(holder, 1, DUMMY_ROLE, root)
             assert.equal(await datastoreACL.hasObjectPermission.call(holder, 1, DUMMY_ROLE), true)
