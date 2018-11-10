@@ -8,7 +8,7 @@ const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
 const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
 const TestDatastore = artifacts.require('TestDatastore')
 
-//contract = () => 0
+contract = () => 0
 
 contract('Datastore ', accounts => {
     let datastore

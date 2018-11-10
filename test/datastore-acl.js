@@ -1,4 +1,5 @@
 const _ = require('lodash')
+const { GasTracker } = require('../src/utils/gas-tracker')
 
 const Datastore = artifacts.require('Datastore')
 const DatastoreACL = artifacts.require('DatastoreACL')
@@ -9,6 +10,8 @@ const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
 const TestDatastore = artifacts.require('TestDatastore')
 
 //contract = () => 0
+
+
 
 contract('DatastoreACL ', accounts => {
     let datastore
@@ -25,12 +28,17 @@ contract('DatastoreACL ', accounts => {
     const holder = accounts[1]
     const account3 = accounts[2]
     const DUMMY_ROLE = 1
+    const gasTracker = new GasTracker()
 
 
     before(async () => {
         aclBase = await ACL.new()        
         kernelBase = await Kernel.new(true)
         helper = await TestDatastore.new()
+    })
+
+    after(async () => {
+        console.log(gasTracker.summary())
     })
 
     beforeEach(async () => {
@@ -68,21 +76,24 @@ contract('DatastoreACL ', accounts => {
 
 
     describe('createObjectPermission', async () => {
+        it('fires ChangeObjectPermissionManager event', async () => {
+            gasTracker.track('createObjectPermission', await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root))
+            
+    
+            await assertEvent(datastoreACL, { event: 'ChangeObjectPermissionManager' })
+        }) 
+                
         it('fires SetObjectPermission event', async () => {
             await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
     
             await assertEvent(datastoreACL, { event: 'SetObjectPermission' })
         }) 
 
-        it('fires ChangeObjectPermissionManager event', async () => {
-            await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
+    })
     
-            await assertEvent(datastoreACL, { event: 'ChangeObjectPermissionManager' })
-        })         
-    }) 
- 
+     
 
-    describe('revokeObjectPermission', async () => {
+    xdescribe('revokeObjectPermission', async () => {
         it('throws if not called the permission manager', async () => {
             await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
             assertThrow(async () => await datastoreACL.revokeObjectPermission(root, 1, DUMMY_ROLE, holder))
@@ -90,14 +101,14 @@ contract('DatastoreACL ', accounts => {
       
     })   
     
-    describe('grantObjectPermission', async () => {
+    xdescribe('grantObjectPermission', async () => {
         it('throws if not called the permission manager', async () => {
             await datastoreACL.createObjectPermission(root, 1, DUMMY_ROLE, root)
             assertThrow(async () => datastoreACL.grantObjectPermission(root, 1, DUMMY_ROLE, holder), { from: holder} )
         })
     })   
     
-    describe('hasObjectPermission', async () => {
+    xdescribe('hasObjectPermission', async () => {
         it('returns the right permission', async () => {
             await datastoreACL.createObjectPermission(holder, 1, DUMMY_ROLE, root)
             assert.equal(await datastoreACL.hasObjectPermission.call(holder, 1, DUMMY_ROLE), true)
