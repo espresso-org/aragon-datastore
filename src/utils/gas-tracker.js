@@ -20,7 +20,7 @@ class GasTracker {
                 return call.gasUsed
         }
 
-        return `${this.calls.map(call => `${call.description}: ${call.gasUsed} gas\n`)}`
+        return `${this.calls.map(call => `${call.description}: ${call.gasUsed} gas\n`).join('')}`
     }
 
     summary() {
@@ -29,7 +29,7 @@ class GasTracker {
             Gas Usage Summary
             ${this.calls.map(call => 
                 `   ${call.description}: ${call.gasUsed} gas\n`
-            )}
+            ).join('')}
         `
     }
 }
