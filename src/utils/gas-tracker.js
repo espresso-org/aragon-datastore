@@ -1,4 +1,6 @@
-export class GasTracker {
+const outdent = require('outdent')
+
+class GasTracker {
 
     constructor() {
         this.calls = []
@@ -31,3 +33,5 @@ export class GasTracker {
         `
     }
 }
+
+module.exports = { GasTracker }
