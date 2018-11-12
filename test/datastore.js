@@ -2,12 +2,13 @@ const _ = require('lodash')
 const { GasTracker } = require('../src/utils/gas-tracker')
 
 const Datastore = artifacts.require('Datastore')
-const DatastoreACL = artifacts.require('DatastoreACL')
+const DatastoreACL = artifacts.require('@espresso-org/object-acl/contracts/DatastoreACL')
 const DAOFactory = artifacts.require('@aragon/core/contracts/factory/DAOFactory')
 const EVMScriptRegistryFactory = artifacts.require('@aragon/core/contracts/factory/EVMScriptRegistryFactory')
 const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
 const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
 const TestDatastore = artifacts.require('TestDatastore')
+
 
 //contract = () => 0
 

@@ -1,7 +1,8 @@
 pragma solidity ^0.4.24;
 
 import "@aragon/os/contracts/apps/AragonApp.sol";
-import "./DatastoreACL.sol";
+//import "./DatastoreACL.sol";
+import "@espresso-org/object-acl/contracts/DatastoreACL.sol";
 import "./libraries/PermissionLibrary.sol";
 import "./libraries/GroupLibrary.sol";
 import "./libraries/FileLibrary.sol";

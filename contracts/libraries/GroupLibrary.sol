@@ -1,6 +1,7 @@
 pragma solidity ^0.4.24;
 
-import "../DatastoreACL.sol";
+//import "../DatastoreACL.sol";
+import "@espresso-org/object-acl/contracts/DatastoreACL.sol";
 import "@aragon/os/contracts/lib/math/SafeMath.sol";
 
 library GroupLibrary {

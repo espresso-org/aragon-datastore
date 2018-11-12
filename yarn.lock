@@ -10,6 +10,12 @@
     truffle-hdwallet-provider "0.0.3"
     truffle-hdwallet-provider-privkey "0.3.0"
 
+"@espresso-org/object-acl@^0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@espresso-org/object-acl/-/object-acl-0.0.1.tgz#5e42b620850fc3c5a36519203439aeb2f962f12d"
+  dependencies:
+    "@aragon/os" "4.0.0-beta.3"
+
 "@types/detect-indent@0.1.30":
   version "0.1.30"
   resolved "https://registry.yarnpkg.com/@types/detect-indent/-/detect-indent-0.1.30.tgz#dc682bb412b4e65ba098e70edad73b4833fb910d"
