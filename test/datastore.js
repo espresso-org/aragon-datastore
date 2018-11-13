@@ -2,12 +2,13 @@ const _ = require('lodash')
 const { GasTracker } = require('../src/utils/gas-tracker')
 
 const Datastore = artifacts.require('Datastore')
-const DatastoreACL = artifacts.require('DatastoreACL')
+const ObjectACL = artifacts.require('@espresso-org/object-acl/contracts/ObjectACL')
 const DAOFactory = artifacts.require('@aragon/core/contracts/factory/DAOFactory')
 const EVMScriptRegistryFactory = artifacts.require('@aragon/core/contracts/factory/EVMScriptRegistryFactory')
 const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
 const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
 const TestDatastore = artifacts.require('TestDatastore')
+
 
 //contract = () => 0
 
@@ -19,7 +20,7 @@ contract('Datastore ', accounts => {
     let kernelBase
     let aclBase
     let APP_MANAGER_ROLE
-    let datastoreACL
+    let objectACL
     let helper
 
     const root = accounts[0]
@@ -54,19 +55,19 @@ contract('Datastore ', accounts => {
         const receipt = await kernel.newAppInstance(await helper.apmNamehash("datastore"), (await Datastore.new()).address, { from: holder })        
         datastore = Datastore.at(receipt.logs.filter(l => l.event == 'NewAppProxy')[0].args.proxy)
 
-        const daclReceipt = await kernel.newAppInstance(await helper.apmNamehash("datastore-acl"), (await DatastoreACL.new()).address, { from: holder })        
-        datastoreACL = DatastoreACL.at(daclReceipt.logs.filter(l => l.event == 'NewAppProxy')[0].args.proxy)
+        const daclReceipt = await kernel.newAppInstance(await helper.apmNamehash("datastore-acl"), (await ObjectACL.new()).address, { from: holder })        
+        objectACL = ObjectACL.at(daclReceipt.logs.filter(l => l.event == 'NewAppProxy')[0].args.proxy)
 
-        await acl.createPermission(datastore.address, datastoreACL.address, await datastoreACL.DATASTOREACL_ADMIN_ROLE(), root)
+        await acl.createPermission(datastore.address, objectACL.address, await objectACL.OBJECTACL_ADMIN_ROLE(), root)
         await acl.createPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE(), root)
         await acl.grantPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
         await acl.grantPermission(holder, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
         
          
-        await datastoreACL.initialize() 
-        await datastore.initialize(datastoreACL.address)
+        await objectACL.initialize() 
+        await datastore.initialize(objectACL.address)
 
-        await acl.grantPermission(datastoreACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
+        await acl.grantPermission(objectACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
     })
 
 
