@@ -67,6 +67,7 @@ contract Datastore is AragonApp {
     }
         
     FileLibrary.FileList private fileList;
+    FileLibrary.LabelList private labelList;
     PermissionLibrary.PermissionData private permissions;
     GroupLibrary.GroupData private groups;
     Settings public settings;
