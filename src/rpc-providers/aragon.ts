@@ -165,6 +165,22 @@ export class AragonContract implements RpcProviderContract {
   async removeGroupFromFile(fileId: number, groupId: number) {
     return convertTransactionToPromise(this._aragonApp, 'removeGroupFromFile', fileId, groupId)
   }
+
+  async createLabel(name: string, color: string) {
+    return convertTransactionToPromise(this._aragonApp, 'createLabel', name, color)
+  }
+
+  async deleteLabel(labelId: number) {
+    return convertTransactionToPromise(this._aragonApp, 'deleteLabel', labelId)
+  }
+
+  async assignLabel(fileId: number, labelId: number) {
+    return convertTransactionToPromise(this._aragonApp, 'assignLabel', fileId, labelId)
+  }
+  
+  async unassignLabel(fileId: number, labelIdPosition: number) {
+    return convertTransactionToPromise(this._aragonApp, 'unassignLabel', fileId, labelIdPosition)
+  }
 }
 
 function convertCallToPromise(aragonApp, methodName, ...args): Promise<any> {

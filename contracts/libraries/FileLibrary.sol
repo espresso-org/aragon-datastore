@@ -8,7 +8,6 @@ library FileLibrary {
     event DeleteFile(address indexed entity);
     event FileRename(address indexed entity);
     event FileContentUpdate(address indexed entity);
-    event LabelChange(address indexed entity);
 
     /**
      * Label for files
@@ -25,6 +24,7 @@ library FileLibrary {
          */
         uint lastLabelId;
         mapping (uint => FileLibrary.Label) labels;
+        uint[] labelIds;                                    // Internal references for list of labels
     }
 
     /**
@@ -40,7 +40,7 @@ library FileLibrary {
         uint64 lastModification;                            // Timestamp of the last file content update
         bool isPublic;                                      // True if file can be read by anyone
         bool isDeleted;                                     // Is file deleted
-        mapping (uint => FileLibrary.Label) labels;         // File's labels Ids
+        uint[] labels;                                      // Label Ids
     }
 
     struct FileList {
@@ -55,7 +55,7 @@ library FileLibrary {
     function addFile(FileList storage _self, string _storageRef, string _name, uint128 _fileSize, bool _isPublic, string _encryptionKey) internal returns (uint fileId) {
         _self.lastFileId = _self.lastFileId.add(1);
 
-        _self.files[_self.lastFileId] = FileLibrary.File({
+        /*_self.files[_self.lastFileId] = FileLibrary.File({
             storageRef: _storageRef,
             name: _name,
             fileSize: _fileSize,
@@ -63,8 +63,15 @@ library FileLibrary {
             isPublic: _isPublic,
             isDeleted: false,
             lastModification: uint64(now),
-            cryptoKey: _encryptionKey
-        });
+            cryptoKey: _encryptionKey,
+        });*/
+        _self.files[_self.lastFileId].storageRef = _storageRef;
+        _self.files[_self.lastFileId].name = _name;
+        _self.files[_self.lastFileId].fileSize = _fileSize;
+        _self.files[_self.lastFileId].isPublic = _isPublic;
+        _self.files[_self.lastFileId].isDeleted = false;
+        _self.files[_self.lastFileId].lastModification = uint64(now);
+        _self.files[_self.lastFileId].cryptoKey = _encryptionKey;
         return _self.lastFileId;
     }   
 
@@ -103,27 +110,23 @@ library FileLibrary {
     function createLabel(LabelList storage _self, bytes28 _name, bytes4 _color) internal {
         _self.lastLabelId = _self.lastLabelId.add(1);
 
+        _self.labelIds.push(_self.lastLabelId);
         _self.labels[_self.lastLabelId] = FileLibrary.Label({
             name: _name,
             color: _color
         });
     }
 
-    function modifyLabel(LabelList storage _self, uint _labelId, bytes28 _name, bytes4 _color) internal {
-        _self.labels[_labelId].name = _name;
-        _self.labels[_labelId].color = _color;
-        emit LabelChange(msg.sender);
-    }
-
     function deleteLabel(LabelList storage _self, uint _labelId) internal {
-        delete _self.labels[_id];
+        delete _self.labelIds[_labelId.sub(1)];
+        delete _self.labels[_labelId];
     }
 
     function assignLabel(FileList storage _self, uint _fileId, uint _labelId) internal {
-        _self.files[_fileId].labels[_labelId] = _self.labels[_labelId];
+        _self.files[_fileId].labels.push(_labelId);
     }
 
-    function unassignLabel(FileList storage _self, uint _fileId, uint _labelId) internal {
-        delete _self.files[_fileId].labels[_labelId];
+    function unassignLabel(FileList storage _self, uint _fileId, uint _labelIdPosition) internal {
+        delete _self.files[_fileId].labels[_labelIdPosition];
     }
 }

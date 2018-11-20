@@ -40,5 +40,9 @@ export interface RpcProviderContract {
     removeEntityFromFile(fileId: number, entity: string): Promise<{}>
     setGroupPermissions(fileId: number, groupId: number, read: boolean, write: boolean): Promise<{}>
     removeGroupFromFile(fileId: number, groupId: number): Promise<{}>
+    createLabel(name: string, color: string): Promise<{}>
+    deleteLabel(labelId: number): Promise<{}>
+    assignLabel(fileId: number, labelId: number): Promise<{}>
+    unassignLabel(fileId: number, labelIdPosition: number): Promise<{}>
     events(...args): any
 }

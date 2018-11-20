@@ -450,6 +450,49 @@ export class Datastore {
     }
 
     /**
+     * Add a new label to the Datastore
+     * @param {string} name Label name
+     * @param {string} file Label color
+     */
+    async createLabel(name: string, color: string) {
+        await this._initialize()
+
+        await this._contract.createLabel(name, color)
+    }
+
+    /**
+     * Delete a label from the Datastore
+     * @param {number} labelId Label Id
+     */
+    async deleteLabel(labelId: number) {
+        await this._initialize()
+
+        await this._contract.deleteLabel(labelId)
+    }
+
+    /**
+     * Assign a label to a file
+     * @param {number} fileId File Id
+     * @param {number} labelId Label Id
+     */
+    async assignLabel(fileId: number, labelId: number) {
+        await this._initialize()
+
+        await this._contract.assignLabel(fileId, labelId)
+    }
+
+    /**
+     * Unassign a label from a file
+     * @param {number} fileId File Id
+     * @param {number} labelIdPosition Label Id's position
+     */
+    async unassignLabel(fileId: number, labelIdPosition: number) {
+        await this._initialize()
+
+        await this._contract.unassignLabel(fileId, labelIdPosition)
+    }
+
+    /**
      * Datastore events
      */
     async events(...args) {
