@@ -44,5 +44,7 @@ export interface RpcProviderContract {
     deleteLabel(labelId: number): Promise<{}>
     assignLabel(fileId: number, labelId: number): Promise<{}>
     unassignLabel(fileId: number, labelIdPosition: number): Promise<{}>
+    getLabel(labelId: number): Promise<any>
+    getFileLabelList(fileId: number): Promise<any>
     events(...args): any
 }

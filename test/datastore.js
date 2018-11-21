@@ -9,7 +9,6 @@ const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
 const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
 const TestDatastore = artifacts.require('TestDatastore')
 
-
 //contract = () => 0
 
 contract('Datastore ', accounts => {
@@ -27,7 +26,6 @@ contract('Datastore ', accounts => {
     const holder = accounts[1]
     const DUMMY_ROLE = 1
     const gasTracker = new GasTracker()
-
 
     before(async () => {
         aclBase = await ACL.new()        
@@ -69,7 +67,6 @@ contract('Datastore ', accounts => {
 
         await acl.grantPermission(objectACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
     })
-
 
     it('increases lastFileId by 1 after addFile', async () => {
         assert.equal(await datastore.lastFileId(), 0)
@@ -145,7 +142,6 @@ contract('Datastore ', accounts => {
         
     })
 
-
     describe('deleteFile', async () => {
 
         it('deletes a file from the datastore if second param is true', async () => {
@@ -204,7 +200,6 @@ contract('Datastore ', accounts => {
             assert.equal(getFile1[2], 0)
             assert.equal(getFile1[3], false)    
         })        
-
 
         it('throws when not called by owner', async () => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, '')
@@ -522,7 +517,6 @@ contract('Datastore ', accounts => {
         })
     })
 
-
     it('getGroupIds returns the list of Id of the groups', async() => {
         await datastore.createGroup('My first group')
         await datastore.createGroup('My second group')
@@ -552,9 +546,6 @@ contract('Datastore ', accounts => {
             assertThrow(async () => await datastore.getGroup(2))
         })
     })        
-
-   
-      
 
     describe('addEntityToGroup', async () => {
         it('adds an entity to a group', async() => {
@@ -693,7 +684,7 @@ contract('Datastore ', accounts => {
         })          
     })
 
-     describe('setMultiplePermissions', async () => {
+    describe('setMultiplePermissions', async () => {
     
         it('sets read and write permissions on a file', async() => {
             await datastore.createGroup('My first group')
@@ -959,6 +950,56 @@ contract('Datastore ', accounts => {
             assert.equal(fileKey, '0')
         })
 
+    })
+
+    describe('createLabel', async () => {
+        it('creates a new label', async () => {
+            await datastore.createLabel("Important", "0xff000000")
+            let label = await datastore.getLabel(1)
+
+            await assertEvent(datastore, { event: 'LabelChange' })
+            assert.equal(web3.toUtf8(label[0]), "Important")
+            assert.equal(label[1], "0xff000000")
+        })
+    })
+
+    describe('deleteLabel', async () => {
+        it('deletes an existing label', async () => {
+            await datastore.createLabel("Important", "0xff000000")
+            await datastore.deleteLabel(1)
+            let label = await datastore.getLabel(1)
+
+            await assertEvent(datastore, { event: 'FileRename' })
+            assert.equal(label[0], 0)
+            assert.equal(label[1], 0)
+        })
+    })
+
+    describe('assignLabel', async () => {
+        it('assigns a label to a file', async () => {
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, "")
+            await datastore.createLabel("Important", "0xff000000")
+            await datastore.assignLabel(1, 1)
+            const fileLabelList = await datastore.getFileLabelList(1)
+            let label = await datastore.getLabel(fileLabelList[0])
+
+            await assertEvent(datastore, { event: 'FileRename' })
+            assert.equal(web3.toUtf8(label[0]), "Important")
+            assert.equal(label[1], "0xff000000")
+        })
+    })
+
+    describe('unassignLabel', async () => {
+        it('unassigns a label from a file', async () => {
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, "")
+            await datastore.createLabel("Important", "0xff000000")
+            await datastore.assignLabel(1, 1)
+            await datastore.unassignLabel(1, 1)
+            const fileLabelList = await datastore.getFileLabelList(1)
+
+            await assertEvent(datastore, { event: 'FileRename' })
+            assert.equal(fileLabelList.length, 0)
+        })
     })
 })
 

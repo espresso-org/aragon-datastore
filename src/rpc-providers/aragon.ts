@@ -181,6 +181,14 @@ export class AragonContract implements RpcProviderContract {
   async unassignLabel(fileId: number, labelIdPosition: number) {
     return convertTransactionToPromise(this._aragonApp, 'unassignLabel', fileId, labelIdPosition)
   }
+
+  async getLabel(labelId: number) {
+    return convertCallToPromise(this._aragonApp, 'getLabel', labelId)
+  }
+
+  async getFileLabelList(fileId: number) {
+    return convertCallToPromise(this._aragonApp, 'getFileLabelList', fileId)
+  }
 }
 
 function convertCallToPromise(aragonApp, methodName, ...args): Promise<any> {

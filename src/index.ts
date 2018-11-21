@@ -2,6 +2,7 @@ import * as async from 'async'
 import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
+var Web3 = require('web3');
 
 import {
     createFileFromTuple, 
@@ -490,6 +491,28 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.unassignLabel(fileId, labelIdPosition)
+    }
+
+    /**
+     * Returns the wanted label
+     * @param labelId Label Id
+     */
+    async getLabel(labelId: number) {
+        await this._initialize()
+
+        let label = await this._contract.getLabel(labelId)
+        let labelName = Buffer.from(label[0]).toString('utf8');
+        let labelColor = label[1]
+        return {
+            labelName,
+            labelColor
+        }
+    }
+
+    async getFileLabelList(fileId: number) {
+        await this._initialize()
+
+        return await this._contract.getFileLabelList(fileId)
     }
 
     /**

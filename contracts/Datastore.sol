@@ -565,10 +565,18 @@ contract Datastore is AragonApp {
      * @notice Returns the label with Id `_labelId`
      * @param _labelId Label id
      */
-    function getLabel(uint _labelId) external view returns (string name, string color) {
+    function getLabel(uint _labelId) external view returns (bytes28 name, bytes4 color) {
         FileLibrary.Label storage label = labelList.labels[_labelId];
-
         name = label.name;
         color = label.color;
+    }
+
+    /**
+     * @notice Returns a file's label list
+     * @param _fileId Label id
+     */
+    function getFileLabelList(uint _fileId) external view returns (uint[]) {
+        FileLibrary.File storage file = fileList.files[_fileId];
+        return file.labels;
     }
 }
