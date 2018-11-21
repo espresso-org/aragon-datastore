@@ -487,10 +487,17 @@ export class Datastore {
      * @param {number} fileId File Id
      * @param {number} labelIdPosition Label Id's position
      */
-    async unassignLabel(fileId: number, labelIdPosition: number) {
+    async unassignLabel(fileId: number, labelId: number) {
         await this._initialize()
 
-        await this._contract.unassignLabel(fileId, labelIdPosition)
+        let fileLabels = await this._contract.getFileLabelList(fileId)
+        let labelIdPosition
+        for (let i = 0; i < fileLabels.length; i++) {
+            if (labelId === fileLabels[i])
+                labelIdPosition = i
+        }
+        if (labelIdPosition)
+            await this._contract.unassignLabel(fileId, labelIdPosition)
     }
 
     /**
@@ -501,14 +508,34 @@ export class Datastore {
         await this._initialize()
 
         let label = await this._contract.getLabel(labelId)
-        let labelName = Buffer.from(label[0]).toString('utf8');
-        let labelColor = label[1]
+        let name = Buffer.from(label[0]).toString('utf8');
+        let color = label[1]
         return {
-            labelName,
-            labelColor
+            labelId,
+            name,
+            color
         }
     }
 
+    /**
+     * Returns every label created in the Datastore
+     */
+    async getLabels() {
+        await this._initialize()
+
+        let labelIds = await this._contract.getLabels()
+        let labels = []
+        for (let i = 0; i < labelIds.length; i++) {
+            let label = await this._contract.getLabel(labelIds[i])
+            labels.push(label)
+        }
+        return labels
+    }
+
+    /**
+     * Returns the array of label's Ids on the requested file
+     * @param fileId File Id
+     */
     async getFileLabelList(fileId: number) {
         await this._initialize()
 

@@ -572,6 +572,13 @@ contract Datastore is AragonApp {
     }
 
     /**
+     * @notice Returns every label Ids    
+     */
+    function getLabels() external view returns (uint[]) {
+        return labelList.labelIds;
+    }
+
+    /**
      * @notice Returns a file's label list
      * @param _fileId Label id
      */
