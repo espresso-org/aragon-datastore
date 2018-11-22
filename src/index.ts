@@ -2,6 +2,7 @@ import * as async from 'async'
 import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
+import { Color } from 'color'
 var Web3 = require('web3');
 
 import {
@@ -10,6 +11,7 @@ import {
     createSettingsFromTuple } from './utils'
 import { DatastoreSettings } from './datastore-settings';
 import { RpcProvider } from './rpc-providers/rpc-provider';
+import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants';
 
 export const providers = { storage, encryption, rpc }
 
@@ -453,12 +455,16 @@ export class Datastore {
     /**
      * Add a new label to the Datastore
      * @param {string} name Label name
-     * @param {string} file Label color
+     * @param {string} color Label color
      */
     async createLabel(name: string, color: string) {
         await this._initialize()
 
-        await this._contract.createLabel(name, color)
+        if (name.length > 28)
+            throw 'Label name must not exceed 28 characters.'
+        
+        let hexColor = Color(color).hex()
+        await this._contract.createLabel(name, hexColor)
     }
 
     /**
@@ -507,9 +513,10 @@ export class Datastore {
     async getLabel(labelId: number) {
         await this._initialize()
 
+        const web3 = (window as any).web3
         let label = await this._contract.getLabel(labelId)
-        let name = Buffer.from(label[0]).toString('utf8');
-        let color = label[1]
+        let name = web3.toUtf8(label[0]);
+        let color = label[1].slice(2)
         return {
             labelId,
             name,
@@ -540,6 +547,25 @@ export class Datastore {
         await this._initialize()
 
         return await this._contract.getFileLabelList(fileId)
+    }
+
+    /**
+     * Returns the files tagged with the specified label
+     * @param labelId Label Id
+     */
+    async sortFilesByLabel(labelId: number) {
+        await this._initialize()
+
+        let sortedFiles = []
+        let files = await this.listFiles()
+        for (let i = 0; i < files.length; i++) {
+            let fileLabels = await this.getFileLabelList(files[i].id)
+            for (let j = 0; j < fileLabels.length; j++) {
+                if (fileLabels[j] === labelId)
+                    sortedFiles.push(files[i])
+            }
+        }
+        return sortedFiles
     }
 
     /**
