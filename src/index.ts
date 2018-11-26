@@ -532,7 +532,7 @@ export class Datastore {
         let labelIds = await this._contract.getLabels()
         let labels = []
         for (let i = 0; i < labelIds.length; i++) {
-            let label = await this._contract.getLabel(labelIds[i])
+            let label = await this.getLabel(labelIds[i])
             if (label)
                 labels.push(label)
         }
