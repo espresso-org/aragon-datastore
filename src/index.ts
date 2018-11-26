@@ -497,9 +497,9 @@ export class Datastore {
     async unassignLabel(fileId: number, labelId: number) {
         await this._initialize()
 
-        let fileLabels = await this._contract.getFileLabelList(fileId)
+        let fileLabels = await this.getFileLabelList(fileId)
         const labelIdPosition = fileLabels.findIndex(id => id === labelId)
-        if (labelIdPosition)
+        if (labelIdPosition >= 0)
             await this._contract.unassignLabel(fileId, labelIdPosition)
     }
 
@@ -513,7 +513,7 @@ export class Datastore {
         const web3 = (window as any).web3
         let label = await this._contract.getLabel(labelId)
         let name = web3.toUtf8(label[0]);
-        let color = label[1].slice(2)
+        let color = label[1].substring(2,8)
         if (name !== '' && color !== 0) {
             return {
                 id: labelId,
@@ -561,7 +561,7 @@ export class Datastore {
         for (let i = 0; i < files.length; i++) {
             let fileLabels = await this.getFileLabelList(files[i].id)
             for (let j = 0; j < fileLabels.length; j++) {
-                if (fileLabels[j] === labelId)
+                if (fileLabels[j] === String(labelId))
                     sortedFiles.push(files[i])
             }
         }
