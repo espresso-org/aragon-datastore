@@ -527,7 +527,7 @@ contract Datastore is AragonApp {
      * @param _name Name of the label
      * @param _color Color of the label
      */
-    function createLabel(bytes28 _name, bytes4 _color) external {
+    function createLabel(bytes28 _name, bytes4 _color) external auth(DATASTORE_MANAGER_ROLE) {
         labelList.createLabel(_name, _color);
         emit LabelChange(msg.sender);
     }
@@ -546,7 +546,7 @@ contract Datastore is AragonApp {
      * @param _fileId Id of the file
      * @param _labelId Id of the label
      */
-    function assignLabel(uint _fileId, uint _labelId) external {
+    function assignLabel(uint _fileId, uint _labelId) external onlyFileOwner(_fileId) {
         fileList.assignLabel(_fileId, _labelId);
         emit FileRename(msg.sender);
     }
@@ -556,7 +556,7 @@ contract Datastore is AragonApp {
      * @param _fileId Id of the file
      * @param _labelIdPosition Position of the label's Id
      */
-    function unassignLabel(uint _fileId, uint _labelIdPosition) external {
+    function unassignLabel(uint _fileId, uint _labelIdPosition) external onlyFileOwner(_fileId) {
         fileList.unassignLabel(_fileId, _labelIdPosition);
         emit FileRename(msg.sender);
     }

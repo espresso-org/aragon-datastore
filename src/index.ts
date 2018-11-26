@@ -2,7 +2,7 @@ import * as async from 'async'
 import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
-import { Color } from 'color'
+import * as Color from 'color'
 var Web3 = require('web3');
 
 import {
@@ -11,7 +11,6 @@ import {
     createSettingsFromTuple } from './utils'
 import { DatastoreSettings } from './datastore-settings';
 import { RpcProvider } from './rpc-providers/rpc-provider';
-import { SSL_OP_SSLEAY_080_CLIENT_DH_BUG } from 'constants';
 
 export const providers = { storage, encryption, rpc }
 
@@ -463,8 +462,10 @@ export class Datastore {
         if (name.length > 28)
             throw 'Label name must not exceed 28 characters.'
         
-        let hexColor = Color(color).hex()
-        await this._contract.createLabel(name, hexColor)
+        const web3 = (window as any).web3        
+        let bytesName = web3.fromAscii(name)
+        let hexColor = Color(color).hex().replace('#', '0x')
+        await this._contract.createLabel(bytesName, hexColor)
     }
 
     /**
@@ -491,17 +492,13 @@ export class Datastore {
     /**
      * Unassign a label from a file
      * @param {number} fileId File Id
-     * @param {number} labelIdPosition Label Id's position
+     * @param {number} labelId Label Id
      */
     async unassignLabel(fileId: number, labelId: number) {
         await this._initialize()
 
         let fileLabels = await this._contract.getFileLabelList(fileId)
-        let labelIdPosition
-        for (let i = 0; i < fileLabels.length; i++) {
-            if (labelId === fileLabels[i])
-                labelIdPosition = i
-        }
+        const labelIdPosition = fileLabels.findIndex(id => id === labelId)
         if (labelIdPosition)
             await this._contract.unassignLabel(fileId, labelIdPosition)
     }
@@ -517,10 +514,12 @@ export class Datastore {
         let label = await this._contract.getLabel(labelId)
         let name = web3.toUtf8(label[0]);
         let color = label[1].slice(2)
-        return {
-            labelId,
-            name,
-            color
+        if (name !== '' && color !== 0) {
+            return {
+                id: labelId,
+                name,
+                color
+            }
         }
     }
 
@@ -534,7 +533,8 @@ export class Datastore {
         let labels = []
         for (let i = 0; i < labelIds.length; i++) {
             let label = await this._contract.getLabel(labelIds[i])
-            labels.push(label)
+            if (label)
+                labels.push(label)
         }
         return labels
     }

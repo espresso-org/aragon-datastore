@@ -956,8 +956,10 @@ contract('Datastore ', accounts => {
         it('creates a new label', async () => {
             await datastore.createLabel("Important", "0xff000000")
             let label = await datastore.getLabel(1)
+            let labelCount = await datastore.getLabels()
 
             await assertEvent(datastore, { event: 'LabelChange' })
+            assert.equal(labelCount, 1)
             assert.equal(web3.toUtf8(label[0]), "Important")
             assert.equal(label[1], "0xff000000")
         })
