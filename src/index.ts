@@ -546,7 +546,7 @@ export class Datastore {
     async getFileLabelList(fileId: number) {
         await this._initialize()
 
-        return await this._contract.getFileLabelList(fileId)
+        return (await this._contract.getFileLabelList(fileId)).filter(labelId => labelId > 0)
     }
 
     /**
