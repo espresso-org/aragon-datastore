@@ -1,4 +1,5 @@
 import * as async from 'async'
+import * as JSZip from 'jszip'
 import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
@@ -59,6 +60,12 @@ export class Datastore {
     async addFile(name: string, publicStatus: boolean, file: ArrayBuffer) {
         await this._initialize()
 
+        if (JSZip.support.arraybuffer) {
+            let zip = JSZip()
+            await zip.file(name, file)
+            file = await zip.generateAsync({type : "arraybuffer"})
+        }
+
         let encryptionKey = ""
         let storageId
         if (!publicStatus) {
@@ -91,6 +98,12 @@ export class Datastore {
                 
                 fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)
             }
+        }
+
+        if (JSZip.support.arraybuffer) {
+            let zip = JSZip()
+            let newZip = await zip.loadAsync(fileContent)
+            fileContent = await newZip.file(fileInfo.name).async("arraybuffer")
         }
         return { ...fileInfo, content: fileContent }
     }
@@ -217,6 +230,12 @@ export class Datastore {
     async setFileContent(fileId: number, file: ArrayBuffer) {
         await this._initialize()
 
+        if (JSZip.support.arraybuffer) {
+            let zip = JSZip()
+            zip.file('zippedFile', file)
+            file = await zip.generateAsync({type : 'arraybuffer'})
+        }
+
         const storageId = await this._storage.addFile(file)
         await this._contract.setFileContent(fileId, storageId, file.byteLength)
     }
@@ -270,6 +289,11 @@ export class Datastore {
 
         let storageId = ""
         let file = await this.getFile(fileId)
+        if (JSZip.support.arraybuffer) {
+            let zip = JSZip()
+            await zip.file(file.name, file.content)
+            file.content = await zip.generateAsync({type : "arraybuffer"})
+        }
         let fileByteLength = file.content.byteLength
         let encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
 
