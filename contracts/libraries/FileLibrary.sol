@@ -5,10 +5,6 @@ import "@aragon/os/contracts/lib/math/SafeMath.sol";
 library FileLibrary {
     using SafeMath for uint256;
 
-    event DeleteFile(address indexed entity);
-    event FileRename(address indexed entity);
-    event FileContentUpdate(address indexed entity);
-
     /**
      * Label for files
      */
@@ -78,7 +74,6 @@ library FileLibrary {
     function setFileName(FileList storage _self, uint _fileId, string _newName) internal {
         _self.files[_fileId].name = _newName;
         _self.files[_fileId].lastModification = uint64(now);
-        emit FileRename(msg.sender);
     }
 
     function setEncryptionKey(FileList storage _self, uint _fileId, string _cryptoKey) internal {
@@ -90,7 +85,6 @@ library FileLibrary {
         _self.files[_fileId].storageRef = _storageRef;
         _self.files[_fileId].fileSize = _fileSize;
         _self.files[_fileId].lastModification = uint64(now);
-        emit FileContentUpdate(msg.sender);
     }
 
     function setPublic(FileList storage _self, uint _fileId, bool _isPublic) internal {
