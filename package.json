@@ -58,6 +58,7 @@
     "@espresso-org/object-acl": "0.0.2",
     "async": "^2.6.1",
     "bignumber.js": "^7.2.1",
+    "color": "^3.1.0",
     "dotenv": "^2.0.0",
     "ipfs-api": "^26.1.2",
     "jsdoc": "^3.5.5",

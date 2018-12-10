@@ -3,6 +3,8 @@ import * as JSZip from 'jszip'
 import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
+import * as Color from 'color'
+var Web3 = require('web3');
 
 import {
     createFileFromTuple, 
@@ -476,6 +478,123 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.removeGroupFromFile(fileId, groupId)
+    }
+
+    /**
+     * Add a new label to the Datastore
+     * @param {string} name Label name
+     * @param {string} color Label color
+     */
+    async createLabel(name: string, color: string) {
+        await this._initialize()
+
+        if (name.length > 28)
+            throw 'Label name must not exceed 28 characters.'
+        
+        const web3 = (window as any).web3        
+        let bytesName = web3.fromAscii(name)
+        let hexColor = Color(color).hex().replace('#', '0x')
+        await this._contract.createLabel(bytesName, hexColor)
+    }
+
+    /**
+     * Delete a label from the Datastore
+     * @param {number} labelId Label Id
+     */
+    async deleteLabel(labelId: number) {
+        await this._initialize()
+
+        await this._contract.deleteLabel(labelId)
+    }
+
+    /**
+     * Assign a label to a file
+     * @param {number} fileId File Id
+     * @param {number} labelId Label Id
+     */
+    async assignLabel(fileId: number, labelId: number) {
+        await this._initialize()
+
+        await this._contract.assignLabel(fileId, labelId)
+    }
+
+    /**
+     * Unassign a label from a file
+     * @param {number} fileId File Id
+     * @param {number} labelId Label Id
+     */
+    async unassignLabel(fileId: number, labelId: number) {
+        await this._initialize()
+
+        let fileLabels = await this.getFileLabelList(fileId)
+        const labelIdPosition = fileLabels.findIndex(id => id === labelId)
+        if (labelIdPosition >= 0)
+            await this._contract.unassignLabel(fileId, labelIdPosition)
+    }
+
+    /**
+     * Returns the wanted label
+     * @param labelId Label Id
+     */
+    async getLabel(labelId: number) {
+        await this._initialize()
+
+        const web3 = (window as any).web3
+        let label = await this._contract.getLabel(labelId)
+        let name = web3.toUtf8(label[0]);
+        let color = label[1].substring(2,8)
+        if (name !== '' && color !== 0) {
+            return {
+                id: labelId,
+                name,
+                color
+            }
+        }
+    }
+
+    /**
+     * Returns every label created in the Datastore
+     */
+    async getLabels() {
+        await this._initialize()
+
+        let labelIds = await this._contract.getLabels()
+        let labels = []
+        for (let i = 0; i < labelIds.length; i++) {
+            let label = await this.getLabel(labelIds[i])
+            if (label)
+                labels.push(label)
+        }
+        return labels
+    }
+
+    /**
+     * Returns the array of label's Ids on the requested file
+     * @param fileId File Id
+     */
+    async getFileLabelList(fileId: number) {
+        await this._initialize()
+
+        return (await this._contract.getFileLabelList(fileId)).filter(labelId => labelId > 0)
+    }
+
+    /**
+     * Returns the files tagged with the specified label
+     * @param labelId Label Id
+     */
+    async sortFilesByLabel(labelId: number) {
+        await this._initialize()
+
+        let sortedFiles = []
+        let files = await this.listFiles()
+        for (let i = 0; i < files.length; i++) {
+            let fileLabels = await this.getFileLabelList(files[i].id)
+            for (let j = 0; j < fileLabels.length; j++) {
+                if (fileLabels[j] === String(labelId))
+                    sortedFiles.push(files[i])
+            }
+        }
+        return sortedFiles
     }
 
     /**
