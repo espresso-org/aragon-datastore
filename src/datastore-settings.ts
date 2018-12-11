@@ -6,7 +6,7 @@ export class DatastoreSettings {
     aes: AesSettings
 }
 
-export enum StorageProvider { None, Ipfs, Filecoin, Swarm }
+export enum StorageProvider { None, Ipfs, Swarm, Filecoin }
 export enum EncryptionProvider { None, Aes }
 
 export class IpfsSettings {

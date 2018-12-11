@@ -27,7 +27,7 @@ export interface RpcProviderContract {
     setEntityPermissions(fileId: number, entity: string, read: boolean, write: boolean): Promise<{}>
     setMultiplePermissions(fileId: number, groupIds: number[], groupRead: boolean[], groupWrite: boolean[], entities: string[], entityRead: boolean[], entityWrite: boolean[], isPublic: boolean, storageRef: string, fileSize: number, encryptionKey: string): Promise<{}>
     settings(): Promise<any[]>
-    setSettings(host: string, port: number, protocol: string, name: string, length: number): Promise<{}>
+    setSettings(storageProvider: number, host: string, port: number, protocol: string, name: string, length: number): Promise<{}>
     createGroup(groupName: string): Promise<{}>
     deleteGroup(groupId: number): Promise<{}>
     renameGroup(groupId: number, newGroupName: string): Promise<{}>
