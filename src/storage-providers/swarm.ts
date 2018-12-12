@@ -8,7 +8,6 @@ const get = promisify(swarm.get)
 export class Swarm implements StorageProvider {
     async getFile(fileId: string): Promise<ArrayBuffer> {
         let file = await get('bzz-raw://' + fileId)
-        console.log('SWARM RETURN TYPE: ', typeof file)
         return this.str2ab(file)
     }
 

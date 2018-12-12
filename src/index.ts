@@ -84,7 +84,6 @@ export class Datastore {
 
         const fileInfo = await this.getFileInfo(fileId)
         let fileContent = await this._storage.getFile(fileInfo.storageRef)
-        console.log('STORAGEREF: ', fileInfo.storageRef)
         console.log('fileContent HERE!!: ', fileContent)
 
         if (!fileInfo.isPublic) {
