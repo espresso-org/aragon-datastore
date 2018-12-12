@@ -13,6 +13,7 @@ export class Swarm implements StorageProvider {
 
     async addFile(file: ArrayBuffer): Promise<string> { 
         const fileAsString = this.ab2str(file)
+        console.log('fileAsString: ', fileAsString)
         return await put(fileAsString)
     }
 
