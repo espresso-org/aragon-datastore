@@ -84,7 +84,6 @@ export class Datastore {
 
         const fileInfo = await this.getFileInfo(fileId)
         let fileContent = await this._storage.getFile(fileInfo.storageRef)
-        console.log('fileContent HERE!!: ', fileContent)
 
         if (!fileInfo.isPublic) {
             const encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
@@ -93,7 +92,6 @@ export class Datastore {
                 const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
                 
                 fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)
-                console.log('decryptedFileContent: ', fileContent)
             }
         }
         return { ...fileInfo, content: fileContent }

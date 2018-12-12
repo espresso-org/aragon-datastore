@@ -31,6 +31,7 @@
   "devDependencies": {
     "@types/jasmine": "^2.8.7",
     "@types/node": "^8.0.24",
+    "base64-arraybuffer": "^0.1.5",
     "browserify": "^16.2.3",
     "copyfiles": "^2.0.0",
     "coveralls": "^3.0.2",

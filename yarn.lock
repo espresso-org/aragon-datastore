@@ -1026,6 +1026,11 @@ base-x@^1.1.0:
   resolved "https://registry.yarnpkg.com/base-x/-/base-x-1.1.0.tgz#42d3d717474f9ea02207f6d1aa1f426913eeb7ac"
   integrity sha1-QtPXF0dPnqAiB/bRqh9CaRPut6w=
 
+base64-arraybuffer@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/base64-arraybuffer/-/base64-arraybuffer-0.1.5.tgz#73926771923b5a19747ad666aa5cd4bf9c6e9ce8"
+  integrity sha1-c5JncZI7Whl0etZmqlzUv5xunOg=
+
 base64-js@0.0.8:
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/base64-js/-/base64-js-0.0.8.tgz#1101e9544f4a76b1bc3b26d452ca96d7a35e7978"
