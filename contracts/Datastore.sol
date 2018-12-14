@@ -337,7 +337,7 @@ contract Datastore is AragonApp {
      */
     function setSettings(string _host, uint16 _port, string _protocol, string _name, uint _length) public {
         require(settings.storageProvider == StorageProvider.None || settings.storageProvider == StorageProvider.Ipfs);
-        require(settings.encryptionProvider == EncryptionProvider.None || settings.encryptionProvider == EncryptionProvider.Aes);
+        require(settings.encryptionProvider == EncryptionProvider.None);
 
         settings.ipfsHost = _host;
         settings.ipfsPort = _port;
