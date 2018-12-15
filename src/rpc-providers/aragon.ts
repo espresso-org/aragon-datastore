@@ -102,8 +102,8 @@ export class AragonContract implements RpcProviderContract {
     }
   }
 
-  async setSettings(host: string, port: number, protocol: string, name: string, length: number) {
-    return convertTransactionToPromise(this._aragonApp, 'setSettings', host, port, protocol, name, length)
+  async setSettings(storageProvider: number, host: string, port: number, protocol: string, name: string, length: number) {
+    return convertTransactionToPromise(this._aragonApp, 'setSettings', storageProvider, host, port, protocol, name, length)
   }
 
   async createGroup(groupName: string) {
