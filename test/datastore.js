@@ -794,35 +794,6 @@ contract('Datastore ', accounts => {
         assert.equal((await datastore.getGroupIds())[2], 3)
     })
 
-    describe('setStorageProvider', async () => {
-        it('fires the SettingsChange event', async() => {
-            gasTracker.track('setStorageProvider', await datastore.setStorageProvider(1))
-            await assertEvent(datastore, { event: 'SettingsChange' })
-        })  
-        
-        it('throws if storage settings are set to another storage provider', async () => {
-            await datastore.setStorageProvider(1)
-            
-            assertThrow(async () => {
-                await datastore.setStorageProvider(2)
-            })
-        })         
-    })
-
-    /*describe('setIpfsStorageSettings', async () => {
-        it('fires the SettingsChange event', async() => {
-            await datastore.setIpfsStorageSettings('localhost', 5001, 'http')
-            await assertEvent(datastore, { event: 'SettingsChange' })
-        })
-
-        it('throws if storage settings are set to another storage provider', async () => {
-            await datastore.setStorageProvider(2)
-
-            assertThrow(async () => {
-                await datastore.setIpfsStorageSettings('localhost', 5001, 'http')
-            })
-        }) 
-    })*/
 
     describe('setMultiplePermissions', async () => {
         it('sets a file public status', async() => {
@@ -878,24 +849,12 @@ contract('Datastore ', accounts => {
         })        
     })
 
-    describe('setEncryptionProvider', async () => {
-        it('throws if encryption provider is already set', async() => {
-            gasTracker.track('setEncryptionProvider', await datastore.setEncryptionProvider(1))
-            assertThrow(async () => await datastore.setEncryptionProvider(0))
-        })   
-    })
-
     describe('setSettings', async () => {
         xit('throws if storage provider is already set', async() => {
             await datastore.setStorageProvider(2)
             assertThrow(async () => await datastore.setSettings(2, '', 45, 'http', 'aewf', 128));
         })   
         
-        xit('throws if encryption provider is already set', async() => {
-            await datastore.setEncryptionProvider(2)
-            assertThrow(async () => await datastore.setSettings(2, '', 45, 'http', 'aewf', 128))
-        })
-
         it('correctly sets the Settings', async() => {
             gasTracker.track('setSettings', await datastore.setSettings(2, '', 45, 'http', 'aewf', 128))
         })
