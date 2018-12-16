@@ -310,15 +310,6 @@ contract Datastore is AragonApp {
         emit SettingsChange();
     }
 
-    /**
-     * @notice Change the encryption provider
-     * @param _encryptionProvider Encryption provider
-     */
-    function setEncryptionProvider(EncryptionProvider _encryptionProvider) public {
-        require(settings.encryptionProvider == EncryptionProvider.None);
-        settings.encryptionProvider = _encryptionProvider;
-        emit SettingsChange();
-    }
 
     /**
      * @notice Sets the storage provider for the datastore

@@ -878,24 +878,12 @@ contract('Datastore ', accounts => {
         })        
     })
 
-    describe('setEncryptionProvider', async () => {
-        it('throws if encryption provider is already set', async() => {
-            gasTracker.track('setEncryptionProvider', await datastore.setEncryptionProvider(1))
-            assertThrow(async () => await datastore.setEncryptionProvider(0))
-        })   
-    })
-
     describe('setSettings', async () => {
         xit('throws if storage provider is already set', async() => {
             await datastore.setStorageProvider(2)
             assertThrow(async () => await datastore.setSettings(2, '', 45, 'http', 'aewf', 128));
         })   
         
-        xit('throws if encryption provider is already set', async() => {
-            await datastore.setEncryptionProvider(2)
-            assertThrow(async () => await datastore.setSettings(2, '', 45, 'http', 'aewf', 128))
-        })
-
         it('correctly sets the Settings', async() => {
             gasTracker.track('setSettings', await datastore.setSettings(2, '', 45, 'http', 'aewf', 128))
         })
