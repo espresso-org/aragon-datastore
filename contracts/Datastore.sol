@@ -282,19 +282,8 @@ contract Datastore is AragonApp {
     }
     
     /**
-     * @notice Change the storage provider
-     * @param _storageProvider Storage provider
-     */
-    function setStorageProvider(StorageProvider _storageProvider) public {
-        require(settings.storageProvider == StorageProvider.None);
-        settings.storageProvider = _storageProvider;
-        emit SettingsChange();
-    }
-
-
-    /**
-     * @notice Sets IPFS as the storage provider for the datastore.
-     * Since switching between storage providers is not supported,
+     * @notice Sets the storage provider for the datastore
+     * @dev Since switching between storage providers is not supported,
      * the method can only be called if storage isn't set or already IPFS.
      * Also sets AES as the encryption provider.
      * @param _host Host

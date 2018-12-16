@@ -833,35 +833,6 @@ contract('Datastore ', accounts => {
         assert.equal((await datastore.getGroupIds())[2], 3)
     })
 
-    describe('setStorageProvider', async () => {
-        it('fires the SettingsChange event', async() => {
-            gasTracker.track('setStorageProvider', await datastore.setStorageProvider(1))
-            await assertEvent(datastore, { event: 'SettingsChange' })
-        })  
-        
-        it('throws if storage settings are set to another storage provider', async () => {
-            await datastore.setStorageProvider(1)
-            
-            assertThrow(async () => {
-                await datastore.setStorageProvider(2)
-            })
-        })         
-    })
-
-    /*describe('setIpfsStorageSettings', async () => {
-        it('fires the SettingsChanged event', async() => {
-            await datastore.setIpfsStorageSettings('localhost', 5001, 'http')
-            await assertEvent(datastore, { event: 'SettingsChanged' })
-        })
-
-        it('throws if storage settings are set to another storage provider', async () => {
-            await datastore.setStorageProvider(2)
-
-            assertThrow(async () => {
-                await datastore.setIpfsStorageSettings('localhost', 5001, 'http')
-            })
-        }) 
-    })*/
 
     describe('setMultiplePermissions', async () => {
         it('sets a file public status', async() => {
