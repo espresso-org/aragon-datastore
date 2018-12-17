@@ -893,14 +893,8 @@ contract('Datastore ', accounts => {
 
     describe('setSettings', async () => {
 
-        it('throws if storage provider is already set', async() => {
-            await datastore.setStorageProvider(2)
-            assertThrow(async () => await datastore.setSettings('', 45, 'http', 'aewf', 128));
-        })   
-        
-
         it('correctly sets the Settings', async() => {
-            gasTracker.track('setSettings', await datastore.setSettings('', 45, 'http', 'aewf', 128))
+            gasTracker.track('setSettings', await datastore.setSettings(1, 1, '', 45, 'http', 'aewf', 128))
         }) 
 
     })    
