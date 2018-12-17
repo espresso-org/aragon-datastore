@@ -301,10 +301,9 @@ contract Datastore is AragonApp {
     }
     
     /**
-     * @notice Sets the storage provider for the datastore
+     * @notice Sets the storage and encryption providers for the datastore
      * @dev Since switching between storage providers is not supported,
      * the method can only be called if storage isn't set or already IPFS.
-     * Also sets AES as the encryption provider.
      * @param _storageProvider Storage provider
      * @param _encryptionProvider Encryption provider
      * @param _ipfsHost Host
