@@ -7,20 +7,10 @@ library GroupLibrary {
     using SafeMath for uint256;
 
     /**
-     * Represents a group and its entities within it   
-     */
-    struct Group {
-        string groupName;
-        mapping (address => uint) entitiesWithIndex;
-        address[] entities;
-        bool exists;    // Used internally to check if a group really exists
-    }
-
-    /**
      * Groups of entities
      */
     struct GroupData {
-        mapping (uint => Group) groups;     // Read and Write permissions for each entity
+        mapping (uint => string) groups;     // Read and Write permissions for each entity
         uint[] groupList;                   // Internal references for list of groups
         ObjectACL acl;
         bytes32 DATASTORE_GROUP;
@@ -38,8 +28,7 @@ library GroupLibrary {
      */
     function createGroup(GroupData storage _self, string _groupName) internal returns (uint) {
         uint id = _self.groupList.length.add(1);
-        _self.groups[id].groupName = _groupName;
-        _self.groups[id].exists = true;
+        _self.groups[id] = _groupName;
         _self.groupList.push(id);
         _self.acl.createObjectPermission(this, id, _self.DATASTORE_GROUP, this);
         return id;
@@ -62,7 +51,7 @@ library GroupLibrary {
      * @param _newGroupName New name for the group
      */
     function renameGroup(GroupData storage _self, uint _groupId, string _newGroupName) internal {
-        _self.groups[_groupId].groupName = _newGroupName;
+        _self.groups[_groupId] = _newGroupName;
     }
 
     /**
@@ -71,8 +60,8 @@ library GroupLibrary {
      * @param _groupId Id of the group to return
      */
     function getGroup(GroupData storage _self, uint _groupId) internal view returns (address[] _entities, string _groupName) {
-        _entities = _self.groups[_groupId].entities;
-        _groupName = _self.groups[_groupId].groupName;
+        _entities = _self.acl.getObjectPermissionEntities(_groupId, _self.DATASTORE_GROUP);
+        _groupName = _self.groups[_groupId];
     }
 
     /**
@@ -92,8 +81,6 @@ library GroupLibrary {
      * @param _entity Address of the entity
      */
     function addEntityToGroup(GroupData storage _self, uint _groupId, address _entity) internal {
-        _self.groups[_groupId].entitiesWithIndex[_entity] = _self.groups[_groupId].entities.length.add(1);
-        _self.groups[_groupId].entities.push(_entity);
         _self.acl.createObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP, this);
         _self.acl.grantObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP, this);
     }
@@ -105,12 +92,6 @@ library GroupLibrary {
      * @param _entity Address of the entity
      */
     function removeEntityFromGroup(GroupData storage _self, uint _groupId, address _entity) internal {
-        uint indexOfEntity = _self.groups[_groupId].entitiesWithIndex[_entity];
-        if (indexOfEntity > 0) {
-            indexOfEntity = indexOfEntity.sub(1);
-            delete _self.groups[_groupId].entities[indexOfEntity];
-            delete _self.groups[_groupId].entitiesWithIndex[_entity];
-            _self.acl.revokeObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP, this);
-        }
+        _self.acl.revokeObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP, this);
     }
 }

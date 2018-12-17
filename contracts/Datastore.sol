@@ -128,7 +128,7 @@ contract Datastore is AragonApp {
         owner = permissions.getOwner(_fileId);
         isOwner = permissions.isOwner(_fileId, _caller);
         lastModification = file.lastModification;
-        permissionAddresses = permissions.permissionAddresses[_fileId];
+        permissionAddresses = getEntitiesWithPermissionsOnFile(_fileId);
         writeAccess = hasWriteAccess(_fileId, _caller);
     }
 
@@ -223,11 +223,11 @@ contract Datastore is AragonApp {
      * @return addresses Array of entity addresses
      */
     function getEntitiesWithPermissionsOnFile(uint256 _fileId) 
-        external 
+        public 
         view 
         returns (address[]) 
     {
-        return permissions.permissionAddresses[_fileId];
+        return objectACL.getObjectPermissionEntities(_fileId, FILE_READ_ROLE);
     }
 
     /**
@@ -387,7 +387,6 @@ contract Datastore is AragonApp {
      * @param _groupId Id of the group to delete
      */
     function deleteGroup(uint256 _groupId) external auth(DATASTORE_MANAGER_ROLE) {
-        require(groups.groups[_groupId].exists);
         groups.deleteGroup(_groupId);
         emit GroupChange(_groupId);
     }
@@ -398,7 +397,6 @@ contract Datastore is AragonApp {
      * @param _newGroupName New name for the group
      */
     function renameGroup(uint256 _groupId, string _newGroupName) external auth(DATASTORE_MANAGER_ROLE) {
-        require(groups.groups[_groupId].exists);
         groups.renameGroup(_groupId, _newGroupName);
         emit GroupChange(_groupId);
     }
@@ -408,7 +406,6 @@ contract Datastore is AragonApp {
      * @param _groupId Id of the group to return
      */
     function getGroup(uint256 _groupId) public view returns (address[], string) {
-        require(groups.groups[_groupId].exists);
         return groups.getGroup(_groupId);
     }
 
@@ -425,7 +422,6 @@ contract Datastore is AragonApp {
      * @param _entity Address of the entity
      */
     function addEntityToGroup(uint256 _groupId, address _entity) public {
-        require(groups.groups[_groupId].exists);
         groups.addEntityToGroup(_groupId, _entity);
         emit GroupChange(_groupId);
     }
@@ -436,7 +432,6 @@ contract Datastore is AragonApp {
      * @param _entity Address of the entity
      */
     function removeEntityFromGroup(uint256 _groupId, address _entity) public {
-        require(groups.groups[_groupId].exists);
         groups.removeEntityFromGroup(_groupId, _entity);
         emit GroupChange(_groupId);
     }

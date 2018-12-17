@@ -16,8 +16,6 @@ library PermissionLibrary {
      * Users permissions on files and internal references
      */
     struct PermissionData {
-        mapping (uint => mapping (address => Permission)) entityPermissions;      // Read and Write permissions for each entity
-        mapping (uint => address[]) permissionAddresses;                          // Internal references for permission listing
         mapping (uint => mapping (uint => Permission)) groupPermissions;          // Read and Write permissions for groups
         mapping (uint => uint[]) groupIds;                                        // Internal references for files groups listing
 
@@ -113,13 +111,6 @@ library PermissionLibrary {
      * @param _write Write permission
      */
     function setEntityPermissions(PermissionData storage _self, uint _fileId, address _entity, bool _read, bool _write) internal { 
-        if (!_self.entityPermissions[_fileId][_entity].exists) {
-            _self.permissionAddresses[_fileId].push(_entity);
-            _self.entityPermissions[_fileId][_entity].exists = true;
-        }
-        _self.entityPermissions[_fileId][_entity].read = _read;
-        _self.entityPermissions[_fileId][_entity].write = _write;
-
         if (_read) {
             _self.acl.createObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE, msg.sender);
             _self.acl.grantObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE, msg.sender);        
@@ -155,15 +146,8 @@ library PermissionLibrary {
      * @param _entity Entity address
      */
     function removeEntityFromFile(PermissionData storage _self, uint _fileId, address _entity) internal {
-        if (_self.entityPermissions[_fileId][_entity].exists) {
-            delete _self.entityPermissions[_fileId][_entity];
-            for (uint i = 0; i < _self.permissionAddresses[_fileId].length; i++) {
-                if (_self.permissionAddresses[_fileId][i] == _entity)
-                    delete _self.permissionAddresses[_fileId][i];
-            }
-            _self.acl.revokeObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE, msg.sender);
-            _self.acl.revokeObjectPermission(_entity, _fileId, _self.FILE_WRITE_ROLE, msg.sender);
-        }
+        _self.acl.revokeObjectPermission(_entity, _fileId, _self.FILE_READ_ROLE, msg.sender);
+        _self.acl.revokeObjectPermission(_entity, _fileId, _self.FILE_WRITE_ROLE, msg.sender);
     }
 
     /**
