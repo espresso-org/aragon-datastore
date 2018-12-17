@@ -10,7 +10,7 @@ import {
     createFileFromTuple, 
     createPermissionFromTuple, 
     createSettingsFromTuple } from './utils'
-import { DatastoreSettings, StorageProvider } from './datastore-settings';
+import { DatastoreSettings, StorageProvider, EncryptionProvider } from './datastore-settings';
 import { RpcProvider } from './rpc-providers/rpc-provider';
 
 export const providers = { storage, encryption, rpc }
@@ -206,7 +206,7 @@ export class Datastore {
     async setSettings(storageProvider: StorageProvider, host: string, port: number, protocol: string, name: string, length: number) {
         await this._initialize()
 
-        await this._contract.setSettings(storageProvider, host, port, protocol, name, length)
+        await this._contract.setSettings(storageProvider, EncryptionProvider.Aes, host, port, protocol, name, length)
         await this._refreshSettings()
     }
 
