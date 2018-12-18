@@ -274,11 +274,12 @@ export class Datastore {
         let fileByteLength = file.content.byteLength
         let encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
 
-        if (!isPublic && encryptionKeyAsString != "0" && encryptionKeyAsString == "") {
+        if (!isPublic && encryptionKeyAsString === "") {
             let encryptionFileData = await this._encryption.encryptFile(file.content)
             storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
             encryptionKeyAsString = encryptionFileData.encryptionKey
-        } else if (isPublic && encryptionKeyAsString != "0" && encryptionKeyAsString != "") {
+        } 
+        else if (isPublic && encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
             storageId = await this._storage.addFile(file.content)
             encryptionKeyAsString = ""
         }

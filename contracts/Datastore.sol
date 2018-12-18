@@ -475,10 +475,9 @@ contract Datastore is AragonApp {
 
         fileList.setPublic(_fileId, _isPublic);
 
-        if (!_isPublic || (_isPublic && keccak256(_encryptionKey) == keccak256(""))) {
-            fileList.setFileContent(_fileId, _storageRef, _fileSize);
-            fileList.setEncryptionKey(_fileId, _encryptionKey);
-        }
+        fileList.setFileContent(_fileId, _storageRef, _fileSize);
+        fileList.setEncryptionKey(_fileId, _encryptionKey);
+
         emit PermissionChange(_fileId);
     }
 
