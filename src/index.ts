@@ -4,7 +4,7 @@ import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 import * as Color from 'color'
-var Web3 = require('web3');
+import { keccak256 } from 'js-sha3'
 
 import {
     createFileFromTuple, 
@@ -14,6 +14,9 @@ import { DatastoreSettings, StorageProvider } from './datastore-settings';
 import { RpcProvider } from './rpc-providers/rpc-provider';
 
 export const providers = { storage, encryption, rpc }
+
+const FILE_READ_ROLE = keccak256('FILE_READ_ROLE')
+const FILE_WRITE_ROLE = keccak256('FILE_WRITE_ROLE')
 
 export class DatastoreOptions {
     rpcProvider: any
@@ -174,7 +177,9 @@ export class Datastore {
     async getFilePermissions(fileId: number) {
         await this._initialize()
 
-        const entitiesAddress = await this._contract.getEntitiesWithPermissionsOnFile(fileId)
+        const entitiesAddress = (await this._contract.getEntitiesWithPermissionsOnFile(fileId, FILE_READ_ROLE))
+            .concat(await this._contract.getEntitiesWithPermissionsOnFile(fileId, FILE_WRITE_ROLE))
+            
         return Promise.all(
             entitiesAddress
             .filter(entity => entity !== '0x0000000000000000000000000000000000000000')

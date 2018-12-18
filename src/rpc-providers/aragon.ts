@@ -69,8 +69,8 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'setFileContent', fileId, storageRef, fileSize)
   }
 
-  async getEntitiesWithPermissionsOnFile(fileId) {
-    return convertCallToPromise(this._aragonApp, 'getEntitiesWithPermissionsOnFile', fileId)
+  async getEntitiesWithPermissionsOnFile(fileId, permission) {
+    return convertCallToPromise(this._aragonApp, 'getEntitiesWithPermissionsOnFile', fileId, permission)
   }
 
   async getEntityPermissionsOnFile(fileId, entity) {

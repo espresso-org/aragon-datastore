@@ -18,7 +18,7 @@ export interface RpcProviderContract {
     setFileName(fileId: number, newName: string): Promise<{}>
     setEncryptionKey(fileId: number, cryptoKey: string): Promise<{}>
     setFileContent(fileId: number, storageRef: string, fileSize: number): Promise<{}>
-    getEntitiesWithPermissionsOnFile(fileId: number): Promise<string[]>
+    getEntitiesWithPermissionsOnFile(fileId: number, permission: any): Promise<string[]>
     getGroupsWithPermissionsOnFile(fileId: number): Promise<any[]>
     getEntityPermissionsOnFile(fileId: number, entity: string): Promise<any>
     getGroupPermissionsOnFile(fileId: number, groupId: number): Promise<any>

@@ -220,14 +220,15 @@ contract Datastore is AragonApp {
     /**
      * @notice Returns entity addresses on which permissions are set for file `_fileId`
      * @param _fileId File Id
+     * @param _permission Either FILE_READ_ROLE or FILE_WRITE_ROLE
      * @return addresses Array of entity addresses
      */
-    function getEntitiesWithPermissionsOnFile(uint256 _fileId) 
+    function getEntitiesWithPermissionsOnFile(uint256 _fileId, bytes32 _permission) 
         public 
         view 
         returns (address[]) 
     {
-        return objectACL.getObjectPermissionEntities(_fileId, FILE_READ_ROLE);
+        return objectACL.getObjectPermissionEntities(_fileId, _permission);
     }
 
     /**
