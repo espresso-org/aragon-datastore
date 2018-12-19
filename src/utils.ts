@@ -2,16 +2,13 @@ import { DatastoreSettings, EncryptionProvider, StorageProvider } from './datast
 
 export const createFileFromTuple = (tuple: any[]) => ({
     storageRef: tuple[0],
-    name: tuple[1],
-    fileSize: tuple[2],
-    isPublic: tuple[3],
-    isDeleted: tuple[4],
-    owner: tuple[5],
-    isOwner: tuple[6],
-    lastModification: tuple[7],
-    permissionAddresses: tuple[8],
+    isPublic: tuple[1],
+    isDeleted: tuple[2],
+    owner: tuple[3],
+    isOwner: tuple[4],
+    permissionAddresses: tuple[5],
     permissions: {
-        write: tuple[9],
+        write: tuple[6],
         read: true // TODO
     }
 })

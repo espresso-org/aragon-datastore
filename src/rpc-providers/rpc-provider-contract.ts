@@ -3,21 +3,12 @@ import { BigNumber } from 'bignumber.js'
 
 export interface RpcProviderContract {
     lastFileId(): Promise<BigNumber>
-    addFile(storageRef: string, name: string, fileSize: number, isPublic: boolean, encryptionKey: string): Promise<{}>
+    addFile(storageRef: string, isPublic: boolean): Promise<{}>
     getFile(fileId: number): Promise<any[]>
     getFileEncryptionKey(fileId: number): Promise<string>
-
-    /**
-     * Set file as deleted or not
-     * @param fileId File Id
-     * @param isDeleted
-     * @param deletePermanently Will delete file permanently if true
-     */
     deleteFile(fileId: number, isDeleted: boolean, deletePermanently: boolean): Promise<{}>
     deleteFilesPermanently(fileIds: number[]): Promise<{}>
-    setFileName(fileId: number, newName: string): Promise<{}>
-    setEncryptionKey(fileId: number, cryptoKey: string): Promise<{}>
-    setFileContent(fileId: number, storageRef: string, fileSize: number): Promise<{}>
+    setStorageRef(fileId: number, newStorageRef: string): Promise<{}>
     getEntitiesWithPermissionsOnFile(fileId: number): Promise<string[]>
     getGroupsWithPermissionsOnFile(fileId: number): Promise<any[]>
     getEntityPermissionsOnFile(fileId: number, entity: string): Promise<any>

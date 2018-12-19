@@ -85,16 +85,28 @@ contract Datastore is AragonApp {
      * @param _isPublic Is file readable by anyone
      * @param _encryptionKey File encryption key
      */
-    function addFile(string _storageRef, string _name, uint128 _fileSize, bool _isPublic, string _encryptionKey) 
+    function addFile(string _storageRef, bool _isPublic) 
         external 
         auth(DATASTORE_MANAGER_ROLE) 
         returns (uint256 fileId) 
     {
-        uint256 fId = fileList.addFile(_storageRef, _name, _fileSize, _isPublic, _encryptionKey);
+        uint256 fId = fileList.addFile(_storageRef, _isPublic);
 
         permissions.addOwner(fId, msg.sender);
         emit FileChange(fId);
         return fId;
+    }
+
+    /**
+     * @notice Changes the storage reference of file `_fileId` to `_newStorageRef`
+     * @param _fileId File Id
+     * @param _newStorageRef New storage reference
+     */
+    function setStorageRef(uint256 _fileId, string _newStorageRef) external {
+        require(hasWriteAccess(_fileId, msg.sender));
+
+        fileList.setStorageRef(_fileId, _newStorageRef);
+        emit FileChange(_fileId);
     }
 
     /**
@@ -107,13 +119,10 @@ contract Datastore is AragonApp {
         view 
         returns (
             string storageRef,
-            string name,
-            uint128 fileSize,
             bool isPublic,
             bool isDeleted,
             address owner,
             bool isOwner,
-            uint64 lastModification,
             address[] permissionAddresses,
             bool writeAccess
         )
@@ -121,13 +130,10 @@ contract Datastore is AragonApp {
         FileLibrary.File storage file = fileList.files[_fileId];
 
         storageRef = file.storageRef;
-        name = file.name;
-        fileSize = file.fileSize;
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
         owner = permissions.getOwner(_fileId);
         isOwner = permissions.isOwner(_fileId, _caller);
-        lastModification = file.lastModification;
         permissionAddresses = permissions.permissionAddresses[_fileId];
         writeAccess = hasWriteAccess(_fileId, _caller);
     }
@@ -177,44 +183,6 @@ contract Datastore is AragonApp {
      */
     function lastFileId() external view returns (uint256) {
         return fileList.lastFileId;
-    }
-
-    /**
-     * @notice Changes name of file `_fileId` to `_newName`
-     * @param _fileId File Id
-     * @param _newName New file name
-     */
-    function setFileName(uint256 _fileId, string _newName) external {
-        require(hasWriteAccess(_fileId, msg.sender));
-
-        fileList.setFileName(_fileId, _newName);
-        emit FileChange(_fileId);
-    }
-
-    /**
-     * @notice Changes encryption key of file `_fileId` to `_cryptoKey`
-     * @param _fileId File Id
-     * @param _cryptoKey Encryption key    
-     */
-    function setEncryptionKey(uint256 _fileId, string _cryptoKey) public {
-        require(hasWriteAccess(_fileId, msg.sender));
-
-        fileList.setEncryptionKey(_fileId, _cryptoKey);
-        emit FileChange(_fileId);
-    }    
-
-    /**
-     * @notice Change file content of file `_fileId` to content stored at `_storageRef`
-     * with size of `_fileSize` bytes
-     * @param _fileId File Id
-     * @param _storageRef Storage Id (IPFS)
-     * @param _fileSize File size in bytes
-     */
-    function setFileContent(uint256 _fileId, string _storageRef, uint128 _fileSize) external {
-        require(hasWriteAccess(_fileId, msg.sender));
-
-        fileList.setFileContent(_fileId, _storageRef, _fileSize);
-        emit FileChange(_fileId);
     }
 
     /**
@@ -565,14 +533,5 @@ contract Datastore is AragonApp {
      */
     function getLabels() external view returns (uint[]) {
         return labelList.labelIds;
-    }
-
-    /**
-     * @notice Returns a file's label list
-     * @param _fileId Label id
-     */
-    function getFileLabelList(uint _fileId) external view returns (uint[]) {
-        FileLibrary.File storage file = fileList.files[_fileId];
-        return file.labels;
     }
 }
