@@ -1,7 +1,7 @@
 pragma solidity ^0.4.24;
 
 import "@aragon/os/contracts/apps/AragonApp.sol";
-import "@espresso-org/object-acl/contracts/ObjectACL.sol";
+import "@espresso-org/object-acl/contracts/ExtendedObjectACL.sol";
 import "./libraries/PermissionLibrary.sol";
 import "./libraries/GroupLibrary.sol";
 import "./libraries/FileLibrary.sol";
@@ -63,7 +63,7 @@ contract Datastore is AragonApp {
     PermissionLibrary.PermissionData private permissions;
     GroupLibrary.GroupData private groups;
     Settings public settings;
-    ObjectACL private objectACL;
+    ExtendedObjectACL private objectACL;
 
     modifier onlyFileOwner(uint256 _fileId) {
         require(permissions.isOwner(_fileId, msg.sender));
@@ -72,7 +72,7 @@ contract Datastore is AragonApp {
 
     function initialize(address _objectACL) onlyInit public {
         initialized();
-        objectACL = ObjectACL(_objectACL);
+        objectACL = ExtendedObjectACL(_objectACL);
         permissions.initialize(objectACL, FILE_READ_ROLE, FILE_WRITE_ROLE);
         groups.initialize(objectACL, DATASTORE_GROUP);
     }      
@@ -128,7 +128,7 @@ contract Datastore is AragonApp {
         owner = permissions.getOwner(_fileId);
         isOwner = permissions.isOwner(_fileId, _caller);
         lastModification = file.lastModification;
-        permissionAddresses = getEntitiesWithPermissionsOnFile(_fileId);
+        permissionAddresses = new address[](0);
         writeAccess = hasWriteAccess(_fileId, _caller);
     }
 
