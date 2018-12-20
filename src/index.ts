@@ -4,6 +4,8 @@ import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 import * as Color from 'color'
+import { EventEmitter } from './utils/event-emitter'
+
 var Web3 = require('web3');
 
 import {
@@ -26,6 +28,7 @@ export class Datastore {
     private _contract: rpc.RpcProviderContract
     private _settings: DatastoreSettings
     private _isInit
+    private _internalEvents: EventEmitter
 
     /**
      * Creates a new Datastore instance
@@ -35,6 +38,7 @@ export class Datastore {
         opts = Object.assign(new DatastoreOptions(), opts || {})
 
         this._rpc = opts.rpcProvider
+        this._internalEvents = new EventEmitter()
         this._isInit = this._initialize()
     }
 
@@ -52,6 +56,14 @@ export class Datastore {
         this._settings = createSettingsFromTuple(await this._contract.settings())
         this._encryption = encryption.getEncryptionProviderFromSettings(this._settings)
         this._storage = storage.getStorageProviderFromSettings(this._settings)
+    }
+
+    /**
+     * Sends an event to the `events()` Observable
+     * @param eventName 
+     */
+    private async _sendEvent(eventName: string) {
+        this._internalEvents.emit(eventName)
     }
 
     /**
@@ -606,6 +618,8 @@ export class Datastore {
         // TODO: Return an Observable without async
         await this._initialize()
         
-        return this._contract.events(...args)
+        return this._contract
+            .events(...args)
+            .merge(this._internalEvents.events)
     }
 }
