@@ -30,7 +30,7 @@ export class Datastore {
     private _settings: DatastoreSettings
     private _isInit
     private _internalEvents: EventEmitter
-    private _foldersCache = {}
+    private _foldersCache: FoldersCache
 
     /**
      * Creates a new Datastore instance
@@ -48,6 +48,7 @@ export class Datastore {
         // Initialize only once
         if (!this._isInit) {
             this._contract = await this._rpc.getContract()
+            this._foldersCache = new FoldersCache(await this._getAllFiles())
             await this._refreshSettings()
         }
         else 
@@ -628,14 +629,12 @@ export class Datastore {
 
     /**
      * Refresh the files cache for a specific folder
-     * @param folderId Folder to refresh files from. Default is 0 for the root folder
      */
-    private async _refreshFoldersCache(folderId: number = 0) {
+    private async _getAllFiles() {
         await this._initialize()
 
         const lastFileId = (await this._contract.lastFileId()).toNumber()
-        this._filesCache = await Promise.all(_.range(1, lastFileId).map(this.getFileInfo))
-        
+        return Promise.all(_.range(1, lastFileId).map(this.getFileInfo))        
     }
 
     /**
@@ -689,5 +688,18 @@ class FoldersCache {
 
         return files
 
+    }
+
+    public async getFolder(index = 0) {
+        const folder = await this.getFile(index)
+
+        return {
+            ...folder,
+            files: await Promise.all(folder.fileIds.map(file => this.getFile(file.id)))
+        }
+    }
+
+    public async getFile(index = 0) {
+        return (await this._folders)[index]
     }
 }
