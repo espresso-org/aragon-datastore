@@ -59,6 +59,14 @@ export class Datastore {
     }
 
     /**
+     * Sends an event to the `events()` Observable
+     * @param eventName 
+     */
+    private async _sendEvent(eventName: string) {
+        this._internalEvents.emit(eventName)
+    }
+
+    /**
      * Add a new file to the Datastore
      * @param {string} name - File name
      * @param {ArrayBuffer} file - File content
