@@ -5,14 +5,15 @@ import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 import * as Color from 'color'
 import * as abBase64 from 'base64-arraybuffer'
-let Web3 = require('web3');
+let Web3 = require('web3')
 
 import {
     createFileFromTuple, 
     createPermissionFromTuple, 
     createSettingsFromTuple } from './utils'
-import { DatastoreSettings, StorageProvider, EncryptionProvider } from './datastore-settings';
-import { RpcProvider } from './rpc-providers/rpc-provider';
+import { DatastoreSettings, StorageProvider, EncryptionProvider } from './datastore-settings'
+import { RpcProvider } from './rpc-providers/rpc-provider'
+import { EventEmitter } from './utils/event-emitter'
 
 export const providers = { storage, encryption, rpc }
 
@@ -27,6 +28,7 @@ export class Datastore {
     private _contract: rpc.RpcProviderContract
     private _settings: DatastoreSettings
     private _isInit
+    private _internalEvents: EventEmitter
 
     /**
      * Creates a new Datastore instance
@@ -36,6 +38,7 @@ export class Datastore {
         opts = Object.assign(new DatastoreOptions(), opts || {})
 
         this._rpc = opts.rpcProvider
+        this._internalEvents = new EventEmitter()
         this._isInit = this._initialize()
     }
 
@@ -53,6 +56,14 @@ export class Datastore {
         this._settings = createSettingsFromTuple(await this._contract.settings())
         this._encryption = encryption.getEncryptionProviderFromSettings(this._settings)
         this._storage = storage.getStorageProviderFromSettings(this._settings)
+    }
+
+    /**
+     * Sends an event to the `events()` Observable
+     * @param eventName 
+     */
+    private async _sendEvent(eventName: string) {
+        this._internalEvents.emit(eventName)
     }
 
     /**
@@ -342,11 +353,12 @@ export class Datastore {
         file.content = await zip.generateAsync({type : "arraybuffer"})
         let encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
 
-        if (!isPublic && encryptionKeyAsString == "") {
+        if (!isPublic && encryptionKeyAsString === "") {
             let encryptionFileData = await this._encryption.encryptFile(file.content)
             storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
             encryptionKeyAsString = encryptionFileData.encryptionKey
-        } else if (isPublic && encryptionKeyAsString != "0" && encryptionKeyAsString != "") {
+        } 
+        else if (isPublic && encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
             storageId = await this._storage.addFile(file.content)
             encryptionKeyAsString = ""
         }
@@ -651,6 +663,8 @@ export class Datastore {
         // TODO: Return an Observable without async
         await this._initialize()
         
-        return this._contract.events(...args)
+        return this._contract
+            .events(...args)
+            .merge(this._internalEvents.events)
     }
 }
