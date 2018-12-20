@@ -30,7 +30,7 @@ export class Datastore {
     private _settings: DatastoreSettings
     private _isInit
     private _internalEvents: EventEmitter
-    private _foldersCache: FoldersCache
+    private _foldersCache: FileCache
 
     /**
      * Creates a new Datastore instance
@@ -48,7 +48,7 @@ export class Datastore {
         // Initialize only once
         if (!this._isInit) {
             this._contract = await this._rpc.getContract()
-            this._foldersCache = new FoldersCache(await this._getAllFiles())
+            this._foldersCache = new FileCache(await this._getAllFiles())
             await this._refreshSettings()
         }
         else 
@@ -649,7 +649,7 @@ export class Datastore {
 }
 
 
-class FoldersCache {
+class FileCache {
 
     private _folders: Promise<any>
 
