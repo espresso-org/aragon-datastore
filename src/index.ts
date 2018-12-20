@@ -4,6 +4,7 @@ import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 import * as Color from 'color'
+import * as _ from 'lodash'
 import { EventEmitter } from './utils/event-emitter'
 
 var Web3 = require('web3');
@@ -29,6 +30,7 @@ export class Datastore {
     private _settings: DatastoreSettings
     private _isInit
     private _internalEvents: EventEmitter
+    private _foldersCache = {}
 
     /**
      * Creates a new Datastore instance
@@ -621,5 +623,71 @@ export class Datastore {
         return this._contract
             .events(...args)
             .merge(this._internalEvents.events)
+    }
+
+
+    /**
+     * Refresh the files cache for a specific folder
+     * @param folderId Folder to refresh files from. Default is 0 for the root folder
+     */
+    private async _refreshFoldersCache(folderId: number = 0) {
+        await this._initialize()
+
+        const lastFileId = (await this._contract.lastFileId()).toNumber()
+        this._filesCache = await Promise.all(_.range(1, lastFileId).map(this.getFileInfo))
+        
+    }
+
+    /**
+     * 
+     * @param folderId 
+     */
+    async getFolder(folderId: number = 0) {
+        await this._initialize()
+
+        //const folder = 
+    }
+}
+
+
+class FoldersCache {
+
+    private _folders: Promise<any>
+
+    constructor(files = []) {
+        this._folders = this._initialize(files)
+    }
+
+    private async _initialize(files = []) {
+        
+        this._folders = new Promise(res => res(this._generateTree(0, files)))
+    }
+
+    private _generateTree(index: number, files: any[]) {
+
+        const folder = { 
+            ...files[index],
+            fileIds: []
+        }
+        
+
+        for (const file of files) {
+            if (file) {
+
+                if (!file.isFolder && file.parentFolder === index) {
+                    folder.fileIds.push(file.id)
+                }
+
+                // If file is a folder and not already handled  
+                if (file.isFolder && file.id > index) {
+                    this._generateTree(file.id, files)
+                }
+            }
+        }
+
+        files[index] = folder
+
+        return files
+
     }
 }
