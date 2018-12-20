@@ -39,6 +39,10 @@ export class FileCache {
 
     }
 
+    public async addFile(file: any) {
+        this.updateFile(file.id, file)
+    }
+
     public async getFolder(id = 0) {
         const folder = await this.getFile(id)
 
@@ -90,6 +94,8 @@ export class FileCache {
 
             res(files)
         })
+
+        return this._files.then(res => res())
     }
 
 
