@@ -55,26 +55,42 @@ export class FileCache {
         return (await this._files)[id]
     }
 
-    public async updateFile(file: any) {
+    /**
+     * Updates the cache with the new file info
+     * If the file is not already in cache, it is added
+     * If `file` is nullish, it is removed from the cache
+     * 
+     * @param fileId
+     * @param file 
+     */
+    public async updateFile(fileId: number, file: any) {
         const files = await this._files
+        const isFileDeleted = !file
         
         this._files = new Promise(res => {
+
+            const parentFolderId = isFileDeleted 
+                ? files[fileId].parentFolder 
+                : file.parentFolder
             
-            files[file.id] = {
-                ...files[file.id],
-                file
-            }
-
-
-            if (file.parentFolder !== undefined) {
+            if (parentFolderId !== undefined) {
                 const parentFolder = files[file.parentFolder]
 
-                if (!parentFolder.files.includes(file.id)) 
-                    parentFolder.files.push(file.id)
-                
+                if (isFileDeleted)
+                    parentFolder.files = parentFolder.fileIds.filter(id => id !== fileId)
+
+                else if (!parentFolder.files.includes(fileId)) 
+                    parentFolder.files.push(fileId)                
             }
+
+            files[fileId] = {
+                ...files[fileId],
+                file
+            }            
 
             res(files)
         })
     }
+
+
 }
