@@ -6,6 +6,9 @@ import * as storage from './storage-providers'
 import * as Color from 'color'
 import * as _ from 'lodash'
 import { EventEmitter } from './utils/event-emitter'
+import { FileCache } from './utils/file-cache'
+
+export { FileCache } from './utils/file-cache'
 
 var Web3 = require('web3');
 
@@ -21,6 +24,8 @@ export const providers = { storage, encryption, rpc }
 export class DatastoreOptions {
     rpcProvider: any
 }
+
+
 
 export class Datastore {
     private _storage: storage.StorageProvider
@@ -649,57 +654,3 @@ export class Datastore {
 }
 
 
-class FileCache {
-
-    private _folders: Promise<any>
-
-    constructor(files = []) {
-        this._folders = this._initialize(files)
-    }
-
-    private async _initialize(files = []) {
-        
-        this._folders = new Promise(res => res(this._generateTree(0, files)))
-    }
-
-    private _generateTree(index: number, files: any[]) {
-
-        const folder = { 
-            ...files[index],
-            fileIds: []
-        }
-        
-
-        for (const file of files) {
-            if (file) {
-
-                if (!file.isFolder && file.parentFolder === index) {
-                    folder.fileIds.push(file.id)
-                }
-
-                // If file is a folder and not already handled  
-                if (file.isFolder && file.id > index) {
-                    this._generateTree(file.id, files)
-                }
-            }
-        }
-
-        files[index] = folder
-
-        return files
-
-    }
-
-    public async getFolder(index = 0) {
-        const folder = await this.getFile(index)
-
-        return {
-            ...folder,
-            files: await Promise.all(folder.fileIds.map(file => this.getFile(file.id)))
-        }
-    }
-
-    public async getFile(index = 0) {
-        return (await this._folders)[index]
-    }
-}
