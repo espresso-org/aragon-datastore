@@ -54,4 +54,27 @@ export class FileCache {
     public async getFile(id = 0) {
         return (await this._files)[id]
     }
+
+    public async updateFile(file: any) {
+        const files = await this._files
+        
+        this._files = new Promise(res => {
+            
+            files[file.id] = {
+                ...files[file.id],
+                file
+            }
+
+
+            if (file.parentFolder !== undefined) {
+                const parentFolder = files[file.parentFolder]
+
+                if (!parentFolder.files.includes(file.id)) 
+                    parentFolder.files.push(file.id)
+                
+            }
+
+            res(files)
+        })
+    }
 }

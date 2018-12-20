@@ -642,14 +642,16 @@ export class Datastore {
         return Promise.all(_.range(1, lastFileId).map(this.getFileInfo))        
     }
 
+    
+
     /**
-     * 
+     * Returns a folder
      * @param folderId 
      */
     async getFolder(folderId: number = 0) {
         await this._initialize()
 
-        //const folder = 
+        return this._foldersCache.getFolder(folderId)
     }
 }
 
