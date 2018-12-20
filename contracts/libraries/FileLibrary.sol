@@ -81,12 +81,4 @@ library FileLibrary {
         delete _self.labelIds[_labelId.sub(1)];
         delete _self.labels[_labelId];
     }
-
-    function assignLabel(FileList storage _self, uint _fileId, uint _labelId) internal {
-        _self.files[_fileId].labels.push(_labelId);
-    }
-
-    function unassignLabel(FileList storage _self, uint _fileId, uint _labelIdPosition) internal {
-        delete _self.files[_fileId].labels[_labelIdPosition];
-    }
 }

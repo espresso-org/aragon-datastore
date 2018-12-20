@@ -124,10 +124,10 @@ export class Datastore {
         await this._initialize()
 
         const fileInfo = await this.getFileInfo(fileId)
-        let fileContent = await this._storage.getFile(fileInfo.storageRef)
+        let fileContent = JSON.parse(abBase64.decode(await this._storage.getFile(fileInfo.contentStorageRef)))
 
         if (!fileInfo.isPublic) {
-            const encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
+            const encryptionKeyAsString = await this.getFileEncryptionKey(fileId)
             if (encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
                 const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
                 const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
@@ -157,7 +157,7 @@ export class Datastore {
         const fileInfo = {
             id: fileId, 
             name: jsonFileData.name,
-            storageRef: jsonFileData.contentStorageRef,
+            contentStorageRef: jsonFileData.contentStorageRef,
             encryptionKey: jsonFileData.encryptionKey,
             fileSize: jsonFileData.fileSize,
             lastModification: jsonFileData.lastModification,
@@ -167,6 +167,17 @@ export class Datastore {
 
         // If lastModification is 0, the file has been permanently deleted
         return fileInfo.lastModification > 0 ? fileInfo : undefined
+    }
+
+    /**
+     * Returns the encryption key for the file with `fileId`
+     * @param fileId File Id
+     */
+    async getFileEncryptionKey(fileId: number) {
+        await this._initialize()
+
+        const file = await this.getFileInfo(fileId)
+        return file.encryptionKey
     }
 
     /**
@@ -293,6 +304,7 @@ export class Datastore {
         jsonFileData.fileSize = byteLengthPreCompression
         const fileDataStorageRef = await this._storage.addFile(abBase64.encode(JSON.stringify(jsonFileData)))
         await this._contract.setStorageRef(fileId, fileDataStorageRef)
+        this._sendEvent('FileChange');
     }
 
     /**
@@ -344,6 +356,7 @@ export class Datastore {
 
         let storageId = ""
         let file = await this.getFile(fileId)
+        let fileDataStorageRef = file.storageRef
         if (!JSZip.support.arraybuffer)
             throw new Error('Your browser does not support JSZip. Please install a compatible browser.')
 
@@ -351,20 +364,26 @@ export class Datastore {
         let zip = JSZip()
         await zip.file(file.name, file.content)
         file.content = await zip.generateAsync({type : "arraybuffer"})
-        let encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
+        let encryptionKeyAsString = await this.getFileEncryptionKey(fileId)
 
         if (!isPublic && encryptionKeyAsString === "") {
             let encryptionFileData = await this._encryption.encryptFile(file.content)
-            storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
+            file.content = encryptionFileData.encryptedFile
             encryptionKeyAsString = encryptionFileData.encryptionKey
         } 
-        else if (isPublic && encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
-            storageId = await this._storage.addFile(file.content)
+        else if (isPublic && encryptionKeyAsString !== "")
             encryptionKeyAsString = ""
-        }
-
+        
+        storageId = await this._storage.addFile(file.content)
         if (!isPublic || (isPublic && encryptionKeyAsString == "")) {
-            this.setFileContent()
+            this.setFileContent(fileId, file.content)
+            
+            let jsonFileData= JSON.parse(abBase64.decode(await this._storage.getFile(file.storageRef)))
+            jsonFileData.contentStorageRef = storageId
+            jsonFileData.encryptionKey = encryptionKeyAsString
+            jsonFileData.fileSize = byteLengthPreCompression
+            jsonFileData.lastModification = new Date().toLocaleString()
+            fileDataStorageRef = await this._storage.addFile(abBase64.encode(JSON.stringify(jsonFileData)))
         }
 
         await this._contract.setMultiplePermissions(
@@ -376,9 +395,7 @@ export class Datastore {
             entityPermissions.map(perm => perm.read),
             entityPermissions.map(perm => perm.write),
             isPublic,
-            storageId,
-            byteLengthPreCompression,
-            encryptionKeyAsString
+            fileDataStorageRef
         )
     }
 
@@ -394,7 +411,7 @@ export class Datastore {
     }
 
     /**
-     * Changes name of a file for `newName`
+     * Changes name of file with Id `fileId` for `newName`
      * @param {number} fileId File Id
      * @param {string} newName New file name
      */
@@ -407,6 +424,24 @@ export class Datastore {
         jsonFileData.lastModification = new Date().toLocaleString()
         const fileDataStorageRef = await this._storage.addFile(abBase64.encode(JSON.stringify(jsonFileData)))
         await this._contract.setStorageRef(fileId, fileDataStorageRef)
+        this._sendEvent('FileChange');
+    }
+
+    /**
+     * Changes encryption of file with Id `fileId` for `newEncryptionKey`
+     * @param fileId File Id
+     * @param newEncryptionKey New encryption key
+     */
+    async setEncryptionKey(fileId: number, newEncryptionKey: string) {
+        await this._initialize()
+
+        let file = await this.getFile(fileId)
+        let jsonFileData= JSON.parse(abBase64.decode(await this._storage.getFile(file.storageRef)))
+        jsonFileData.name = newEncryptionKey
+        jsonFileData.lastModification = new Date().toLocaleString()
+        const fileDataStorageRef = await this._storage.addFile(abBase64.encode(JSON.stringify(jsonFileData)))
+        await this._contract.setStorageRef(fileId, fileDataStorageRef)
+        this._sendEvent('FileChange');
     }
 
     /**
@@ -574,7 +609,13 @@ export class Datastore {
     async assignLabel(fileId: number, labelId: number) {
         await this._initialize()
 
-        await this._contract.assignLabel(fileId, labelId)
+        let file = await this.getFile(fileId)
+        let jsonFileData= JSON.parse(abBase64.decode(await this._storage.getFile(file.storageRef)))
+        jsonFileData.labels.push(labelId)
+        jsonFileData.lastModification = new Date().toLocaleString()
+        const fileDataStorageRef = await this._storage.addFile(abBase64.encode(JSON.stringify(jsonFileData)))
+        await this._contract.setStorageRef(fileId, fileDataStorageRef)
+        this._sendEvent('FileChange');
     }
 
     /**
@@ -585,10 +626,13 @@ export class Datastore {
     async unassignLabel(fileId: number, labelId: number) {
         await this._initialize()
 
-        let fileLabels = await this.getFileLabelList(fileId)
-        const labelIdPosition = fileLabels.findIndex(id => id === labelId)
-        if (labelIdPosition >= 0)
-            await this._contract.unassignLabel(fileId, labelIdPosition)
+        let file = await this.getFile(fileId)
+        let jsonFileData= JSON.parse(abBase64.decode(await this._storage.getFile(file.storageRef)))
+        jsonFileData.labels = jsonFileData.labels.filter(id => id !== labelId)
+        jsonFileData.lastModification = new Date().toLocaleString()
+        const fileDataStorageRef = await this._storage.addFile(abBase64.encode(JSON.stringify(jsonFileData)))
+        await this._contract.setStorageRef(fileId, fileDataStorageRef)
+        this._sendEvent('FileChange');
     }
 
     /**
@@ -634,7 +678,9 @@ export class Datastore {
     async getFileLabelList(fileId: number) {
         await this._initialize()
 
-        return (await this._contract.getFileLabelList(fileId)).filter(labelId => labelId > 0)
+        let file = await this.getFile(fileId)
+        let jsonFileData= JSON.parse(abBase64.decode(await this._storage.getFile(file.storageRef)))
+        return jsonFileData.labels
     }
 
     /**

@@ -75,15 +75,12 @@ contract Datastore is AragonApp {
         objectACL = ObjectACL(_objectACL);
         permissions.initialize(objectACL, FILE_READ_ROLE, FILE_WRITE_ROLE);
         groups.initialize(objectACL, DATASTORE_GROUP);
-    }      
+    }
     
     /**
      * @notice Add a file to the datastore
      * @param _storageRef Storage Id of the file (IPFS only for now)
-     * @param _name File name
-     * @param _fileSize File size in bytes
      * @param _isPublic Is file readable by anyone
-     * @param _encryptionKey File encryption key
      */
     function addFile(string _storageRef, bool _isPublic) 
         external 
@@ -137,18 +134,6 @@ contract Datastore is AragonApp {
         permissionAddresses = permissions.permissionAddresses[_fileId];
         writeAccess = hasWriteAccess(_fileId, _caller);
     }
-
-    /**
-     * @notice Returns the encryption key for file with `_fileId`
-     * @param _fileId File Id 
-     */
-    function getFileEncryptionKey(uint256 _fileId) external view returns(string) {
-        if (hasReadAccess(_fileId, msg.sender)) {
-            FileLibrary.File storage file = fileList.files[_fileId];
-            return file.cryptoKey;
-        }
-        return "0";
-    } 
 
     /**
      * @notice Set file `_fileId` as deleted or not.
@@ -443,16 +428,13 @@ contract Datastore is AragonApp {
      * @param _entityRead Read permission
      * @param _entityWrite Write permission
      * @param _isPublic Public status
-     * @param _storageRef Storage reference
-     * @param _fileSize File size
-     * @param _encryptionKey Encryption key
+     * @param _fileDataStorageRef File data storage reference
      */
     function setMultiplePermissions(
         uint256 _fileId, uint256[] _groupIds, bool[] _groupRead, bool[] _groupWrite, 
-        address[] _entities, bool[] _entityRead, bool[] _entityWrite, bool _isPublic, string _storageRef, 
-        uint128 _fileSize, string _encryptionKey) 
-        public 
-        onlyFileOwner(_fileId) 
+        address[] _entities, bool[] _entityRead, bool[] _entityWrite, bool _isPublic, string _fileDataStorageRef) 
+        public
+        onlyFileOwner(_fileId)
     {
         for(uint256 i = 0; i < _groupIds.length; i++) 
             permissions.setGroupPermissions(_fileId, _groupIds[i], _groupRead[i], _groupWrite[i]);
@@ -461,10 +443,7 @@ contract Datastore is AragonApp {
             permissions.setEntityPermissions(_fileId, _entities[j], _entityRead[j], _entityWrite[j]);
 
         fileList.setPublic(_fileId, _isPublic);
-
-        fileList.setFileContent(_fileId, _storageRef, _fileSize);
-        fileList.setEncryptionKey(_fileId, _encryptionKey);
-
+        this.setStorageRef(_fileId, _fileDataStorageRef);
         emit PermissionChange(_fileId);
     }
 
@@ -495,26 +474,6 @@ contract Datastore is AragonApp {
     function deleteLabel(uint _labelId) external {
         labelList.deleteLabel(_labelId);
         emit LabelChange(_labelId);
-    }
-
-    /**
-     * @notice Assign a label to a file
-     * @param _fileId Id of the file
-     * @param _labelId Id of the label
-     */
-    function assignLabel(uint _fileId, uint _labelId) external onlyFileOwner(_fileId) {
-        fileList.assignLabel(_fileId, _labelId);
-        emit FileChange(_fileId);
-    }
-
-    /**
-     * @notice Unassign a label from a file
-     * @param _fileId Id of the file
-     * @param _labelIdPosition Position of the label's Id
-     */
-    function unassignLabel(uint _fileId, uint _labelIdPosition) external onlyFileOwner(_fileId) {
-        fileList.unassignLabel(_fileId, _labelIdPosition);
-        emit FileChange(_fileId);
     }
 
     /**
