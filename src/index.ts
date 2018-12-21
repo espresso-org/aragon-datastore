@@ -123,6 +123,7 @@ export class Datastore {
         await this._initialize()
 
         const fileInfo = await this.getFileInfo(fileId)
+        console.log('fileInfo!!!!: ', fileInfo)
         let fileContent = await this._storage.getFile(fileInfo.contentStorageRef)
 
         if (!fileInfo.isPublic) {
@@ -141,7 +142,6 @@ export class Datastore {
         let zip = JSZip()
         let newZip = await zip.loadAsync(fileContent)
         fileContent = await newZip.file(fileInfo.name).async("arraybuffer")
-        console.log('getFileRETURN: ', { ...fileInfo, content: fileContent })
         return { ...fileInfo, content: fileContent }
     }
 
@@ -166,7 +166,8 @@ export class Datastore {
             ...createFileFromTuple(fileTuple)
         }
         // If lastModification is 0, the file has been permanently deleted
-        return fileInfo.lastModification > 0 ? fileInfo : undefined
+        //return fileInfo.lastModification > 0 ? fileInfo : undefined
+        return fileInfo
     }
 
     /**
@@ -298,7 +299,7 @@ export class Datastore {
         file = await zip.generateAsync({type : 'arraybuffer'})
         const contentStorageRef = await this._storage.addFile(file)
         let fileInfos = await this.getFile(fileId)
-        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(fileInfos.storageRef), 'base64').toString('ascii'))
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(fileInfos.storageRef)), 'base64').toString('ascii'))
         jsonFileData.contentStorageRef = contentStorageRef
         jsonFileData.lastModification = new Date().toLocaleString()
         jsonFileData.fileSize = byteLengthPreCompression
@@ -378,7 +379,7 @@ export class Datastore {
         if (!isPublic || (isPublic && encryptionKeyAsString == "")) {
             this.setFileContent(fileId, file.content)
             
-            let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(file.storageRef), 'base64').toString('ascii'))
+            let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
             jsonFileData.contentStorageRef = storageId
             jsonFileData.encryptionKey = encryptionKeyAsString
             jsonFileData.fileSize = byteLengthPreCompression
@@ -419,7 +420,7 @@ export class Datastore {
         await this._initialize()
 
         let file = await this.getFile(fileId)
-        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(file.storageRef), 'base64').toString('ascii'))
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
         jsonFileData.name = newName
         jsonFileData.lastModification = new Date().toLocaleString()
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
@@ -436,7 +437,7 @@ export class Datastore {
         await this._initialize()
 
         let file = await this.getFile(fileId)
-        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(file.storageRef), 'base64').toString('ascii'))
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
         jsonFileData.name = newEncryptionKey
         jsonFileData.lastModification = new Date().toLocaleString()
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
@@ -610,7 +611,7 @@ export class Datastore {
         await this._initialize()
 
         let file = await this.getFile(fileId)
-        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(file.storageRef), 'base64').toString('ascii'))
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
         jsonFileData.labels.push(labelId)
         jsonFileData.lastModification = new Date().toLocaleString()
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
@@ -627,7 +628,7 @@ export class Datastore {
         await this._initialize()
 
         let file = await this.getFile(fileId)
-        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(file.storageRef), 'base64').toString('ascii'))
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
         jsonFileData.labels = jsonFileData.labels.filter(id => id !== labelId)
         jsonFileData.lastModification = new Date().toLocaleString()
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
@@ -679,7 +680,7 @@ export class Datastore {
         await this._initialize()
 
         let file = await this.getFile(fileId)
-        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(file.storageRef), 'base64').toString('ascii'))
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
         return jsonFileData.labels
     }
 
