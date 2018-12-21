@@ -82,7 +82,7 @@ contract Datastore is AragonApp {
      * @param _storageRef Storage Id of the file (IPFS only for now)
      * @param _isPublic Is file readable by anyone
      */
-    function addFile(string _storageRef, bool _isPublic) 
+    function addFile(string _storageRef, bool _isPublic)
         external 
         auth(DATASTORE_MANAGER_ROLE) 
         returns (uint256 fileId) 
