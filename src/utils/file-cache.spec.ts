@@ -34,7 +34,7 @@ describe('FileCache', async () => {
         
     })
 
-    describe('addFile', async () => {
+    xdescribe('addFile', async () => {
 
         it('adds a file passed as param', async () => {
             
@@ -48,4 +48,20 @@ describe('FileCache', async () => {
         })
         
     })    
+
+    describe('getFolder', async () => {
+
+        it('should return the folder', async () => {
+            
+            const fileCache = new FileCache([root])
+
+            await fileCache.addFile(files[0])
+
+            const folder = await fileCache.getFolder(0)
+            
+            console.log('files ', folder)
+            //expect(file).not.to.be.null
+        })
+        
+    })       
 });

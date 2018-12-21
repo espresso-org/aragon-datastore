@@ -14,7 +14,7 @@ export class FileCache {
     private _generateTree(index: number, files: any[]) {
 
         const folder = { 
-            ...files[index],
+            ...(files[index]),
             fileIds: []
         }
         
@@ -51,7 +51,7 @@ export class FileCache {
 
         return {
             ...folder,
-            files: await Promise.all(folder.fileIds.map(file => this.getFile(file.id)))
+            files: await Promise.all(folder.fileIds.map(fileId => this.getFile(fileId)))
         }
     }
 
@@ -70,6 +70,7 @@ export class FileCache {
     public async updateFile(fileId: number, file: any) {
         const files = await this._files
         const isFileDeleted = !file
+        const isNewFile = !files[fileId]
         
         this._files = new Promise(res => {
 
@@ -89,8 +90,8 @@ export class FileCache {
 
             files[fileId] = {
                 ...files[fileId],
-                ...(file.isFolder ? { fileIds: [] } : null),
-                file
+                ...(isNewFile && file.isFolder ? { fileIds: [] } : null),
+                ...file
             }            
 
             res(files)
