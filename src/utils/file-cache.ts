@@ -3,7 +3,7 @@ export class FileCache {
     private _files: Promise<any>
 
     constructor(files = []) {
-        this._files = this._initialize(files)
+        this._initialize(files)
     }
 
     private async _initialize(files = []) {
@@ -81,21 +81,22 @@ export class FileCache {
                 const parentFolder = files[file.parentFolder]
 
                 if (isFileDeleted)
-                    parentFolder.files = parentFolder.fileIds.filter(id => id !== fileId)
+                    parentFolder.fileIds = parentFolder.fileIds.filter(id => id !== fileId)
 
-                else if (!parentFolder.files.includes(fileId)) 
-                    parentFolder.files.push(fileId)                
+                else if (!parentFolder.fileIds.includes(fileId)) 
+                    parentFolder.fileIds.push(fileId)                
             }
 
             files[fileId] = {
                 ...files[fileId],
+                ...(file.isFolder ? { fileIds: [] } : null),
                 file
             }            
 
             res(files)
         })
 
-        return this._files.then(res => res())
+        return this._files.then(() => null)
     }
 
 
