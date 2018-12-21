@@ -644,6 +644,11 @@ export class Datastore {
     }
 
     
+    async addFolder(name: string, parentFolderId = 0) {
+        await this._initialize()
+
+        // TODO
+    }
 
     /**
      * Returns a folder
