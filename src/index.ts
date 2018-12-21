@@ -232,8 +232,9 @@ export class Datastore {
 
     /**
      * Returns files information
+     * @param folderId
      */
-    async listFiles() {
+    async _listFiles() {
         await this._initialize()
 
         const lastFileId = (await this._contract.lastFileId()).toNumber()
@@ -608,7 +609,7 @@ export class Datastore {
         await this._initialize()
 
         let sortedFiles = []
-        let files = await this.listFiles()
+        let files = await this._listFiles()
         for (let i = 0; i < files.length; i++) {
             let fileLabels = await this.getFileLabelList(files[i].id)
             for (let j = 0; j < fileLabels.length; j++) {
@@ -653,6 +654,16 @@ export class Datastore {
 
         return this._foldersCache.getFolder(folderId)
     }
+
+    /**
+     * Returns a folder
+     * @param folderId 
+     */
+    async listFiles(folderId: number = 0) {
+        await this._initialize()
+
+        return (await this._foldersCache.getFolder(folderId)).files
+    }    
 }
 
 
