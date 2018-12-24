@@ -67,11 +67,11 @@ describe('FileCache', async () => {
 
     describe('addFile', async () => {
 
-        it('adds a file passed as param', async () => {
+        xit('adds a file passed as param', async () => {
             
             const fileCache = new FileCache([root])
 
-            await fileCache.addFile(files[0])
+            await fileCache.addFile({ id: idGenerator.id(), ...files[0] })
 
             //const file = await fileCache.getFile(1)
             
@@ -82,10 +82,12 @@ describe('FileCache', async () => {
             
             const fileCache = new FileCache([root])
 
-            await fileCache.addFile(files[1])
-            await fileCache.addFile(files[2])
+            await fileCache.addFile({ id: idGenerator.id(), ...files[1]})
+            await fileCache.addFile({ id: idGenerator.id(), ...files[2]})
 
-            const file = await fileCache.getFile(1)
+            const file = await fileCache.getFolder(1)
+
+            console.log(file)
             
             //expect(file).not.to.be.null
         })        
