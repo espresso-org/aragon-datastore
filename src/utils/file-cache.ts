@@ -59,6 +59,15 @@ export class FileCache {
         return (await this._files)[id]
     }
 
+    public async getFilePath(id: number) {
+        const file = await this.getFile(id)
+
+        if (file.parentFolder >= 0)
+            return (await this.getFilePath(file.parentFolder)).concat([file.id])
+        else
+            return [file.id]
+    }    
+
     /**
      * Updates the cache with the new file info
      * If the file is not already in cache, it is added
@@ -99,6 +108,8 @@ export class FileCache {
 
         return this._files.then(() => null)
     }
+
+
 
 
 }
