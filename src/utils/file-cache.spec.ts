@@ -122,6 +122,7 @@ describe('FileCache', async () => {
             const folder2 = { id: idGenerator.id(), ...files[3], parentFolder: folder1.id }
 
             await fileCache.addFile(folder1)
+            await fileCache.addFile(file1)
             await fileCache.addFile(folder2)
             await fileCache.addFile({ id: idGenerator.id(), ...files[2], parentFolder: folder2.id })
             
