@@ -7,13 +7,14 @@ export const createFileFromTuple = (tuple: any[]) => ({
     isPublic: tuple[3],
     isDeleted: tuple[4],
     owner: tuple[5],
-    isOwner: tuple[6],
-    lastModification: tuple[7],
-    permissionAddresses: tuple[8],
+    lastModification: tuple[6],
+    permissionAddresses: tuple[7],
     permissions: {
-        write: tuple[9],
+        write: tuple[8],
         read: true // TODO
-    }
+    },
+    isFolder: tuple[9],
+    parentFolder: parseInt(tuple[10])
 })
 
 export const createPermissionFromTuple = (tuple: boolean[]) => ({    

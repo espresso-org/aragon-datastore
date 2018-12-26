@@ -144,7 +144,7 @@ export class Datastore {
         const fileInfo = { id: fileId, ...createFileFromTuple(fileTuple) }
 
         // If lastModification is 0, the file has been permanently deleted
-        return fileInfo.lastModification > 0 ? fileInfo : undefined
+        return fileInfo.lastModification > 0 || fileInfo.id === 0 ? fileInfo : undefined
     }
 
     /**
@@ -638,8 +638,20 @@ export class Datastore {
      */
     private async _getAllFiles() {
         const lastFileId = (await this._contract.lastFileId()).toNumber()
-        return Promise.all(_.range(0, lastFileId).map(this.getFileInfo))        
+        return Promise.all(_.range(0, lastFileId + 1).map(fileId => this._getFileInfo(fileId))) 
     }
+
+    /**
+     * Returns the file information without the content
+     * @param {number} fileId 
+     */
+    private async _getFileInfo(fileId: number) {
+        const fileTuple = await this._contract.getFile(fileId)
+        const fileInfo = { id: fileId, ...createFileFromTuple(fileTuple) }
+
+        // If lastModification is 0, the file has been permanently deleted
+        return fileInfo.lastModification > 0 || fileInfo.id === 0 ? fileInfo : undefined
+    }    
 
     
     async addFolder(name: string, parentFolderId = 0) {

@@ -45,7 +45,7 @@ export class AragonContract implements RpcProviderContract {
   async getFile(fileId) {
     const fileTuple = await convertCallToPromise(this._aragonApp, 'getFileAsCaller', fileId, this._ethAccounts[0])
     fileTuple[2] = new BigNumber(fileTuple[2])
-    fileTuple[7] = new BigNumber(fileTuple[7])
+    fileTuple[6] = new BigNumber(fileTuple[6])
     return fileTuple
   }
 

@@ -96,10 +96,11 @@ contract Datastore is AragonApp {
             bool isPublic,
             bool isDeleted,
             address owner,
-            bool isOwner,
             uint64 lastModification,
             address[] permissionAddresses,
-            bool writeAccess
+            bool writeAccess,
+            bool isFolder,
+            uint256 parentFolderId
         )
     {
         FileLibrary.File storage file = fileList.files[_fileId];
@@ -110,10 +111,11 @@ contract Datastore is AragonApp {
         isPublic = file.isPublic;
         isDeleted = file.isDeleted;
         owner = permissions.getOwner(_fileId);
-        isOwner = permissions.isOwner(_fileId, _caller);
         lastModification = file.lastModification;
         permissionAddresses = permissions.permissionAddresses[_fileId];
         writeAccess = hasWriteAccess(_fileId, _caller);
+        isFolder = file.isFolder;
+        parentFolderId = file.parentFolderId;
     }
 
     /**

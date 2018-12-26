@@ -22,7 +22,7 @@ export class FileCache {
         for (const file of files) {
             if (file) {
 
-                if (!file.isFolder && file.parentFolder === index) {
+                if (file.id !== file.parentFolder && file.parentFolder === index) {
                     folder.fileIds.push(file.id)
                 }
 
