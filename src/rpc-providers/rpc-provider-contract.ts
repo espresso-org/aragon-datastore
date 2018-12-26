@@ -3,7 +3,8 @@ import { BigNumber } from 'bignumber.js'
 
 export interface RpcProviderContract {
     lastFileId(): Promise<BigNumber>
-    addFile(storageRef: string, name: string, fileSize: number, isPublic: boolean, encryptionKey: string): Promise<{}>
+    addFile(storageRef: string, name: string, fileSize: number, isPublic: boolean, encryptionKey: string, parentFolderId: number): Promise<{}>
+    addFolder(storageRef: string, name: string, parentFolderId: number): Promise<{}>
     getFile(fileId: number): Promise<any[]>
     getFileEncryptionKey(fileId: number): Promise<string>
 

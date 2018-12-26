@@ -62,7 +62,9 @@ export class FileCache {
     public async getFilePath(id: number) {
         const file = await this.getFile(id)
 
-        if (file.parentFolder >= 0)
+        // Root folder is the only folder to have the same value for both 
+        // its parentFolderId and its id. The value is 0.
+        if (file.parentFolder !== file.id)
             return (await this.getFilePath(file.parentFolder)).concat([file.id])
         else
             return [file.id]

@@ -79,7 +79,7 @@ export class Datastore {
      * @param {string} name - File name
      * @param {ArrayBuffer} file - File content
      */
-    async addFile(name: string, publicStatus: boolean, file: ArrayBuffer) {
+    async addFile(name: string, publicStatus: boolean, file: ArrayBuffer, parentFolderId = 0) {
         await this._initialize()
 
         let byteLengthPreCompression = file.byteLength
@@ -96,10 +96,10 @@ export class Datastore {
             let encryptionFileData = await this._encryption.encryptFile(file)
             encryptionKey = encryptionFileData.encryptionKey
             storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
-            await this._contract.addFile(storageId, name, byteLengthPreCompression, publicStatus, encryptionKey)
+            await this._contract.addFile(storageId, name, byteLengthPreCompression, publicStatus, encryptionKey, parentFolderId)
         } else {
             storageId = await this._storage.addFile(file)
-            await this._contract.addFile(storageId, name, byteLengthPreCompression, publicStatus, encryptionKey)
+            await this._contract.addFile(storageId, name, byteLengthPreCompression, publicStatus, encryptionKey, parentFolderId)
         }
     }
 
@@ -637,17 +637,15 @@ export class Datastore {
      * Refresh the files cache for a specific folder
      */
     private async _getAllFiles() {
-        await this._initialize()
-
         const lastFileId = (await this._contract.lastFileId()).toNumber()
-        return Promise.all(_.range(1, lastFileId).map(this.getFileInfo))        
+        return Promise.all(_.range(0, lastFileId).map(this.getFileInfo))        
     }
 
     
     async addFolder(name: string, parentFolderId = 0) {
         await this._initialize()
 
-        // TODO
+        this._contract.addFolder('', name, parentFolderId)
     }
 
     /**
@@ -665,7 +663,7 @@ export class Datastore {
 
         return Promise.all(
             (await this._foldersCache.getFilePath(fileId))
-                .map(fileId => this._foldersCache.getFile(fileId))
+                .map(id => this._foldersCache.getFile(id))
         )
     }
 
