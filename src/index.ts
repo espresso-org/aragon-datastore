@@ -191,9 +191,8 @@ export class Datastore {
             labels: jsonFileData.labels,
             ...createFileFromTuple(fileTuple)
         }
-        // If lastModification is 0, the file has been permanently deleted
-        //return fileInfo.lastModification > 0 ? fileInfo : undefined
-        return fileInfo
+        // If storageRef is '' and file is not the root folder, the file has been permanently deleted
+        return fileInfo.storageRef !== '' || fileId === 0 ? fileInfo : undefined
     }
 
     /**
@@ -750,23 +749,65 @@ export class Datastore {
         return Promise.all(_.range(0, lastFileId + 1).map(fileId => this._getFileInfo(fileId))) 
     }
 
+
+    private async _getFileInfoFromStorageProvider(fileId: number, storageRef: string) {
+        if (fileId !== 0) {
+            const fileContent = await this._storage.getFile(storageRef)
+            return JSON.parse(Buffer.from(abBase64.encode(fileContent), 'base64').toString('ascii'))
+        }
+        else {
+            return {
+                name: '',
+                contentStorageRef: '',
+                encryptionKey: '',
+                fileSize: 0,
+                lastModification: JSON.stringify(new Date(0)),
+                labels: []
+            }
+        }
+    }
+
+    private async _setFileInfoFromStorageProvider(file, fileInfo) {
+
+    }
+
     /**
      * Returns the file information without the content
      * @param {number} fileId 
      */
     private async _getFileInfo(fileId: number) {
-        const fileTuple = await this._contract.getFile(fileId)
-        const fileInfo = { id: fileId, ...createFileFromTuple(fileTuple) }
 
-        // If lastModification is 0, the file has been permanently deleted
-        return fileInfo.lastModification > 0 ? fileInfo : undefined
+        const fileTuple = await this._contract.getFile(fileId)
+        const jsonFileData = await this._getFileInfoFromStorageProvider(fileId, fileTuple[0])
+        const fileInfo = {
+            id: fileId, 
+            name: jsonFileData.name,
+            contentStorageRef: jsonFileData.contentStorageRef,
+            encryptionKey: jsonFileData.encryptionKey,
+            fileSize: jsonFileData.fileSize,
+            lastModification: new Date(jsonFileData.lastModification),
+            labels: jsonFileData.labels,
+            ...createFileFromTuple(fileTuple)
+        }
+        // If storageRef is '' and file is not the root folder, the file has been permanently deleted
+        return fileInfo.storageRef !== '' || fileId === 0 ? fileInfo : undefined
+    
     }    
 
     
     async addFolder(name: string, parentFolderId = 0) {
         await this._initialize()
 
-        this._contract.addFolder('', parentFolderId)
+        const jsonFileData = {
+            "name": name,
+            "contentStorageRef": '',
+            "encryptionKey": '',
+            "fileSize": 0,
+            "lastModification": new Date(),
+            "labels": []
+        }        
+        const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
+        this._contract.addFolder(fileDataStorageRef, parentFolderId)
     }
 
     /**

@@ -11,8 +11,8 @@ export const createFileFromTuple = (tuple: any[]) => ({
         write: tuple[6],
         read: true // TODO
     },
-    isFolder: tuple[9],
-    parentFolder: parseInt(tuple[10])
+    isFolder: tuple[7],
+    parentFolder: parseInt(tuple[8])
 })
 
 export const createPermissionFromTuple = (tuple: boolean[]) => ({    
