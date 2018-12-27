@@ -7,9 +7,10 @@ export class EventEmitter {
       this.events = new Subject()
     }
   
-    emit(event) {
+    emit(eventName, params) {
       this.events.next({
-        event
+        event: eventName,
+        returnedValues: { ...params }
       })
     }
   }

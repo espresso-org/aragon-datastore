@@ -64,8 +64,8 @@ export class Datastore {
      * Sends an event to the `events()` Observable
      * @param eventName 
      */
-    private async _sendEvent(eventName: string) {
-        this._internalEvents.emit(eventName)
+    private async _sendEvent(eventName: string, params) {
+        this._internalEvents.emit(eventName, params)
     }
 
     /**
@@ -307,7 +307,7 @@ export class Datastore {
         jsonFileData.fileSize = byteLengthPreCompression
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
         await this._contract.setStorageRef(fileId, fileDataStorageRef)
-        this._sendEvent('FileChange');
+        this._sendEvent('FileChange', { fileId });
     }
 
     /**
@@ -427,7 +427,7 @@ export class Datastore {
         jsonFileData.lastModification = new Date()
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
         await this._contract.setStorageRef(fileId, fileDataStorageRef)
-        this._sendEvent('FileChange');
+        this._sendEvent('FileChange', { fileId });
     }
 
     /**
@@ -444,7 +444,7 @@ export class Datastore {
         jsonFileData.lastModification = new Date()
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
         await this._contract.setStorageRef(fileId, fileDataStorageRef)
-        this._sendEvent('FileChange');
+        this._sendEvent('FileChange', { fileId });
     }
 
     /**
@@ -618,7 +618,7 @@ export class Datastore {
         jsonFileData.lastModification = new Date()
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
         await this._contract.setStorageRef(fileId, fileDataStorageRef)
-        this._sendEvent('FileChange');
+        this._sendEvent('FileChange', { fileId });
     }
 
     /**
@@ -635,7 +635,7 @@ export class Datastore {
         jsonFileData.lastModification = new Date()
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
         await this._contract.setStorageRef(fileId, fileDataStorageRef)
-        this._sendEvent('FileChange');
+        this._sendEvent('FileChange', { fileId });
     }
 
     /**
