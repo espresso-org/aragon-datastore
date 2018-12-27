@@ -15,7 +15,7 @@
     "build": "run-s truffle:compile && webpack",
     "test": "TRUFFLE_TEST=true npm run ganache-cli:test",
     "test:ts": "mocha -r ts-node/register src/**/*.spec.ts",
-    "test:file-cache": "mocha -r ts-node/register src/utils/file-cache.spec.ts",
+    "test:file-cache": "mocha -r ts-node/register --timeout 5000 src/utils/file-cache.spec.ts",
     "ganache-cli:test": "scripts/ganache-cli.sh",
     "truffle:compile": "truffle compile && run-s truffle:copy-contracts",
     "truffle:migrate": "truffle compile --network development && truffle migrate --network development && run-s truffle:copy-contracts",

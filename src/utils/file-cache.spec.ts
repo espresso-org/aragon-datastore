@@ -112,7 +112,7 @@ describe('FileCache', async () => {
         
     })   
     
-    describe('getFilePath', async () => {
+    xdescribe('getFilePath', async () => {
 
         it('should return the ids of the path', async () => {
             
@@ -128,6 +128,28 @@ describe('FileCache', async () => {
             
             const path = await fileCache.getFilePath(4)
             expect(path).to.deep.equal([0, 1, 3, 4])
+        })
+        
+    })   
+    
+    describe('lockAndUpdateFile', async () => {
+
+        it('should lock the cache until the update is done', async () => {
+            
+            const fileCache = new FileCache([root])
+            const folder1 = { id: idGenerator.id(), ...files[1]}
+            const file1 = { id: idGenerator.id(), ...files[2], parentFolder: folder1.id }
+            const folder2 = { id: idGenerator.id(), ...files[3], parentFolder: folder1.id }
+
+            await fileCache.addFile(folder1)
+            await fileCache.addFile(file1)
+            await fileCache.addFile(folder2)
+            await fileCache.addFile({ id: idGenerator.id(), ...files[2], parentFolder: folder2.id })
+
+            fileCache.lockAndUpdateFile(2, new Promise(res => setTimeout(() => res({...file1, name: 'new name' }), 2000)))
+            
+            const file = await fileCache.getFile(2)
+            expect(file.name).to.equal('new name')
         })
         
     })     
