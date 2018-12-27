@@ -7,6 +7,7 @@ import * as Color from 'color'
 import * as _ from 'lodash'
 import { EventEmitter } from './utils/event-emitter'
 import { FileCache } from './utils/file-cache'
+import { throttleTime } from 'rxjs/operators'
 
 export { FileCache } from './utils/file-cache'
 
@@ -55,9 +56,24 @@ export class Datastore {
             this._contract = await this._rpc.getContract()
             this._foldersCache = new FileCache(await this._getAllFiles())
             await this._refreshSettings()
+
+            this._contract
+                .events()
+                .merge(this._internalEvents.events)
+                .pipe(throttleTime(100))
+                .subscribe(this._handleEvents.bind(this))
         }
         else 
             return this._isInit
+    }
+
+    private async _handleEvents(event) {
+        switch (event.event) {
+            case 'FileChange':
+                const fileId = parseInt(event.returnValues.fileId)
+                this._foldersCache.lockAndUpdateFile(fileId, this._getFileInfo(fileId))
+                break;
+        }
     }
 
     private async _refreshSettings() {
@@ -144,7 +160,7 @@ export class Datastore {
         const fileInfo = { id: fileId, ...createFileFromTuple(fileTuple) }
 
         // If lastModification is 0, the file has been permanently deleted
-        return fileInfo.lastModification > 0 || fileInfo.id === 0 ? fileInfo : undefined
+        return fileInfo.lastModification > 0 ? fileInfo : undefined
     }
 
     /**
@@ -650,7 +666,7 @@ export class Datastore {
         const fileInfo = { id: fileId, ...createFileFromTuple(fileTuple) }
 
         // If lastModification is 0, the file has been permanently deleted
-        return fileInfo.lastModification > 0 || fileInfo.id === 0 ? fileInfo : undefined
+        return fileInfo.lastModification > 0 ? fileInfo : undefined
     }    
 
     
