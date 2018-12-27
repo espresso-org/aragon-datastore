@@ -34,19 +34,15 @@ export class AragonContract implements RpcProviderContract {
     return new BigNumber(lastFileIdStr)
   }
 
-  async addFile(storageRef, name, fileSize, isPublic, encryptionKey) {
-    return convertTransactionToPromise(this._aragonApp, 'addFile', storageRef, name, fileSize, isPublic, encryptionKey)
+  async addFile(storageRef, isPublic) {
+    return convertTransactionToPromise(this._aragonApp, 'addFile', storageRef, isPublic)
   }
 
   async getFile(fileId) {
     const fileTuple = await convertCallToPromise(this._aragonApp, 'getFileAsCaller', fileId, this._ethAccounts[0])
-    fileTuple[2] = new BigNumber(fileTuple[2])
-    fileTuple[7] = new BigNumber(fileTuple[7])
+    //fileTuple[2] = new BigNumber(fileTuple[2])
+    //fileTuple[7] = new BigNumber(fileTuple[7])
     return fileTuple
-  }
-
-  async getFileEncryptionKey(fileId) {
-    return convertCallToPromise(this._aragonApp, 'getFileEncryptionKey', fileId)
   }
 
   async deleteFile(fileId, isDeleted, deletePermanently) {
@@ -55,18 +51,14 @@ export class AragonContract implements RpcProviderContract {
 
   async deleteFilesPermanently(fileIds: number[]): Promise<{}> {
     return convertTransactionToPromise(this._aragonApp, 'deleteFilesPermanently', fileIds)
-  }    
-
-  async setFileName(fileId, newName) {
-    return convertTransactionToPromise(this._aragonApp, 'setFileName', fileId, newName)
   }
 
-  async setEncryptionKey(fileId, encryptionKey) {
-    return convertTransactionToPromise(this._aragonApp, 'setEncryptionKey', fileId, encryptionKey)
+  async getFileEncryptionKey(fileId) {
+    return convertTransactionToPromise(this._aragonApp, 'getFileEncryptionKey', fileId)
   }
 
-  async setFileContent(fileId, storageRef, fileSize) {
-    return convertTransactionToPromise(this._aragonApp, 'setFileContent', fileId, storageRef, fileSize)
+  async setStorageRef(fileId, newStorageRef) {
+    return convertTransactionToPromise(this._aragonApp, 'setStorageRef', fileId, newStorageRef)
   }
 
   async getEntitiesWithPermissionsOnFile(fileId) {
@@ -85,9 +77,9 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'setReadPermission', fileId, entity, hasReadPermission)
   }
 
-  async setMultiplePermissions(fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite, isPublic, storageRef, fileSize, encryptionKey) {
-    return convertTransactionToPromise(this._aragonApp, 'setMultiplePermissions', fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite, isPublic, storageRef, fileSize, encryptionKey)
-  }  
+  async setMultiplePermissions(fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite, isPublic, fileDataStorageRef) {
+    return convertTransactionToPromise(this._aragonApp, 'setMultiplePermissions', fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite, isPublic, fileDataStorageRef)
+  }
 
   events(...args) {
     return this._aragonApp.events(...args)
@@ -174,24 +166,12 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'deleteLabel', labelId)
   }
 
-  async assignLabel(fileId: number, labelId: number) {
-    return convertTransactionToPromise(this._aragonApp, 'assignLabel', fileId, labelId)
-  }
-  
-  async unassignLabel(fileId: number, labelIdPosition: number) {
-    return convertTransactionToPromise(this._aragonApp, 'unassignLabel', fileId, labelIdPosition)
-  }
-
   async getLabel(labelId: number) {
     return convertCallToPromise(this._aragonApp, 'getLabel', labelId)
   }
 
   async getLabels() {
     return convertCallToPromise(this._aragonApp, 'getLabels')
-  }
-
-  async getFileLabelList(fileId: number) {
-    return convertCallToPromise(this._aragonApp, 'getFileLabelList', fileId)
   }
 }
 

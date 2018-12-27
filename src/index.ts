@@ -4,16 +4,18 @@ import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 import * as Color from 'color'
-import { EventEmitter } from './utils/event-emitter'
+import * as abBase64 from 'base64-arraybuffer'
 
-var Web3 = require('web3');
+
+let Web3 = require('web3')
 
 import {
     createFileFromTuple, 
     createPermissionFromTuple, 
     createSettingsFromTuple } from './utils'
-import { DatastoreSettings, StorageProvider, EncryptionProvider } from './datastore-settings';
-import { RpcProvider } from './rpc-providers/rpc-provider';
+import { DatastoreSettings, StorageProvider, EncryptionProvider } from './datastore-settings'
+import { RpcProvider } from './rpc-providers/rpc-provider'
+import { EventEmitter } from './utils/event-emitter'
 
 export const providers = { storage, encryption, rpc }
 
@@ -69,6 +71,7 @@ export class Datastore {
     /**
      * Add a new file to the Datastore
      * @param {string} name - File name
+     * @param {boolean} publicStatus - Public status
      * @param {ArrayBuffer} file - File content
      */
     async addFile(name: string, publicStatus: boolean, file: ArrayBuffer) {
@@ -83,16 +86,34 @@ export class Datastore {
         file = await zip.generateAsync({type : "arraybuffer"})
 
         let encryptionKey = ""
-        let storageId
+        let contentStorageRef
+        let fileDataStorageRef
+        let jsonFileData
         if (!publicStatus) {
             let encryptionFileData = await this._encryption.encryptFile(file)
             encryptionKey = encryptionFileData.encryptionKey
-            storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
-            await this._contract.addFile(storageId, name, byteLengthPreCompression, publicStatus, encryptionKey)
+            contentStorageRef = await this._storage.addFile(encryptionFileData.encryptedFile)
+            jsonFileData = {
+                "name": name,
+                "contentStorageRef": contentStorageRef,
+                "encryptionKey": encryptionKey,
+                "fileSize": byteLengthPreCompression,
+                "lastModification": new Date(),
+                "labels": []
+            }
         } else {
-            storageId = await this._storage.addFile(file)
-            await this._contract.addFile(storageId, name, byteLengthPreCompression, publicStatus, encryptionKey)
+            contentStorageRef = await this._storage.addFile(file)
+            jsonFileData = {
+                "name": name,
+                "contentStorageRef": contentStorageRef,
+                "encryptionKey": "",
+                "fileSize": byteLengthPreCompression,
+                "lastModification": new Date(),
+                "labels": []
+            }
         }
+        fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
+        await this._contract.addFile(fileDataStorageRef, publicStatus)
     }
 
     /**
@@ -104,10 +125,11 @@ export class Datastore {
         await this._initialize()
 
         const fileInfo = await this.getFileInfo(fileId)
-        let fileContent = await this._storage.getFile(fileInfo.storageRef)
+        console.log('fileInfo!!!!: ', fileInfo)
+        let fileContent = await this._storage.getFile(fileInfo.contentStorageRef)
 
         if (!fileInfo.isPublic) {
-            const encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
+            const encryptionKeyAsString = await this.getFileEncryptionKey(fileId)
             if (encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
                 const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
                 const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
@@ -130,13 +152,35 @@ export class Datastore {
      * @param {number} fileId 
      */
     async getFileInfo(fileId: number) {
-        await this._initialize() 
+        await this._initialize()
 
         const fileTuple = await this._contract.getFile(fileId)
-        const fileInfo = { id: fileId, ...createFileFromTuple(fileTuple) }
-
+        const fileContent = await this._storage.getFile(fileTuple[0])
+        const jsonFileData = JSON.parse(Buffer.from(abBase64.encode(fileContent), 'base64').toString('ascii'))
+        const fileInfo = {
+            id: fileId, 
+            name: jsonFileData.name,
+            contentStorageRef: jsonFileData.contentStorageRef,
+            encryptionKey: jsonFileData.encryptionKey,
+            fileSize: jsonFileData.fileSize,
+            lastModification: new Date(jsonFileData.lastModification),
+            labels: jsonFileData.labels,
+            ...createFileFromTuple(fileTuple)
+        }
         // If lastModification is 0, the file has been permanently deleted
-        return fileInfo.lastModification > 0 ? fileInfo : undefined
+        //return fileInfo.lastModification > 0 ? fileInfo : undefined
+        return fileInfo
+    }
+
+    /**
+     * Returns the encryption key for the file with `fileId`
+     * @param fileId File Id
+     */
+    async getFileEncryptionKey(fileId: number) {
+        await this._initialize()
+
+        const file = await this.getFileInfo(fileId)
+        return file.encryptionKey
     }
 
     /**
@@ -255,8 +299,15 @@ export class Datastore {
         let zip = JSZip()
         zip.file('zippedFile', file)
         file = await zip.generateAsync({type : 'arraybuffer'})
-        const storageId = await this._storage.addFile(file)
-        await this._contract.setFileContent(fileId, storageId, byteLengthPreCompression)
+        const contentStorageRef = await this._storage.addFile(file)
+        let fileInfos = await this.getFileInfo(fileId)
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(fileInfos.storageRef)), 'base64').toString('ascii'))
+        jsonFileData.contentStorageRef = contentStorageRef
+        jsonFileData.lastModification = new Date()
+        jsonFileData.fileSize = byteLengthPreCompression
+        const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
+        await this._contract.setStorageRef(fileId, fileDataStorageRef)
+        this._sendEvent('FileChange');
     }
 
     /**
@@ -308,6 +359,7 @@ export class Datastore {
 
         let storageId = ""
         let file = await this.getFile(fileId)
+        let fileDataStorageRef = file.storageRef
         if (!JSZip.support.arraybuffer)
             throw new Error('Your browser does not support JSZip. Please install a compatible browser.')
 
@@ -315,16 +367,26 @@ export class Datastore {
         let zip = JSZip()
         await zip.file(file.name, file.content)
         file.content = await zip.generateAsync({type : "arraybuffer"})
-        let encryptionKeyAsString = await this._contract.getFileEncryptionKey(fileId)
+        let encryptionKeyAsString = await this.getFileEncryptionKey(fileId)
 
         if (!isPublic && encryptionKeyAsString === "") {
             let encryptionFileData = await this._encryption.encryptFile(file.content)
-            storageId = await this._storage.addFile(encryptionFileData.encryptedFile)
+            file.content = encryptionFileData.encryptedFile
             encryptionKeyAsString = encryptionFileData.encryptionKey
         } 
-        else if (isPublic && encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
-            storageId = await this._storage.addFile(file.content)
+        else if (isPublic && encryptionKeyAsString !== "")
             encryptionKeyAsString = ""
+        
+        storageId = await this._storage.addFile(file.content)
+        if (!isPublic || (isPublic && encryptionKeyAsString == "")) {
+            this.setFileContent(fileId, file.content)
+            
+            let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
+            jsonFileData.contentStorageRef = storageId
+            jsonFileData.encryptionKey = encryptionKeyAsString
+            jsonFileData.fileSize = byteLengthPreCompression
+            jsonFileData.lastModification = new Date()
+            fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
         }
 
         await this._contract.setMultiplePermissions(
@@ -336,9 +398,7 @@ export class Datastore {
             entityPermissions.map(perm => perm.read),
             entityPermissions.map(perm => perm.write),
             isPublic,
-            storageId,
-            byteLengthPreCompression,
-            encryptionKeyAsString
+            fileDataStorageRef
         )
     }
 
@@ -354,14 +414,37 @@ export class Datastore {
     }
 
     /**
-     * Changes name of a file for `newName`
+     * Changes name of file with Id `fileId` for `newName`
      * @param {number} fileId File Id
      * @param {string} newName New file name
      */
     async setFileName(fileId: number, newName: string) {
         await this._initialize()
 
-        await this._contract.setFileName(fileId, newName)
+        let file = await this.getFileInfo(fileId)
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
+        jsonFileData.name = newName
+        jsonFileData.lastModification = new Date()
+        const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
+        await this._contract.setStorageRef(fileId, fileDataStorageRef)
+        this._sendEvent('FileChange');
+    }
+
+    /**
+     * Changes encryption of file with Id `fileId` for `newEncryptionKey`
+     * @param fileId File Id
+     * @param newEncryptionKey New encryption key
+     */
+    async setEncryptionKey(fileId: number, newEncryptionKey: string) {
+        await this._initialize()
+
+        let file = await this.getFileInfo(fileId)
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
+        jsonFileData.name = newEncryptionKey
+        jsonFileData.lastModification = new Date()
+        const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
+        await this._contract.setStorageRef(fileId, fileDataStorageRef)
+        this._sendEvent('FileChange');
     }
 
     /**
@@ -529,7 +612,13 @@ export class Datastore {
     async assignLabel(fileId: number, labelId: number) {
         await this._initialize()
 
-        await this._contract.assignLabel(fileId, labelId)
+        let file = await this.getFileInfo(fileId)
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
+        jsonFileData.labels.push(labelId)
+        jsonFileData.lastModification = new Date()
+        const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
+        await this._contract.setStorageRef(fileId, fileDataStorageRef)
+        this._sendEvent('FileChange');
     }
 
     /**
@@ -540,10 +629,13 @@ export class Datastore {
     async unassignLabel(fileId: number, labelId: number) {
         await this._initialize()
 
-        let fileLabels = await this.getFileLabelList(fileId)
-        const labelIdPosition = fileLabels.findIndex(id => id === labelId)
-        if (labelIdPosition >= 0)
-            await this._contract.unassignLabel(fileId, labelIdPosition)
+        let file = await this.getFile(fileId)
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
+        jsonFileData.labels = jsonFileData.labels.filter(id => id !== labelId)
+        jsonFileData.lastModification = new Date()
+        const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
+        await this._contract.setStorageRef(fileId, fileDataStorageRef)
+        this._sendEvent('FileChange');
     }
 
     /**
@@ -589,7 +681,8 @@ export class Datastore {
     async getFileLabelList(fileId: number) {
         await this._initialize()
 
-        return (await this._contract.getFileLabelList(fileId)).filter(labelId => labelId > 0)
+        const file = await this.getFileInfo(fileId)
+        return file.labels
     }
 
     /**
