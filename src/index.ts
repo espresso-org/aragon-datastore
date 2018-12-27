@@ -300,7 +300,7 @@ export class Datastore {
         zip.file('zippedFile', file)
         file = await zip.generateAsync({type : 'arraybuffer'})
         const contentStorageRef = await this._storage.addFile(file)
-        let fileInfos = await this.getFile(fileId)
+        let fileInfos = await this.getFileInfo(fileId)
         let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(fileInfos.storageRef)), 'base64').toString('ascii'))
         jsonFileData.contentStorageRef = contentStorageRef
         jsonFileData.lastModification = new Date()
@@ -421,7 +421,7 @@ export class Datastore {
     async setFileName(fileId: number, newName: string) {
         await this._initialize()
 
-        let file = await this.getFile(fileId)
+        let file = await this.getFileInfo(fileId)
         let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
         jsonFileData.name = newName
         jsonFileData.lastModification = new Date()
@@ -438,7 +438,7 @@ export class Datastore {
     async setEncryptionKey(fileId: number, newEncryptionKey: string) {
         await this._initialize()
 
-        let file = await this.getFile(fileId)
+        let file = await this.getFileInfo(fileId)
         let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
         jsonFileData.name = newEncryptionKey
         jsonFileData.lastModification = new Date()
@@ -612,7 +612,7 @@ export class Datastore {
     async assignLabel(fileId: number, labelId: number) {
         await this._initialize()
 
-        let file = await this.getFile(fileId)
+        let file = await this.getFileInfo(fileId)
         let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
         jsonFileData.labels.push(labelId)
         jsonFileData.lastModification = new Date()
@@ -681,9 +681,8 @@ export class Datastore {
     async getFileLabelList(fileId: number) {
         await this._initialize()
 
-        let file = await this.getFile(fileId)
-        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
-        return jsonFileData.labels
+        const file = await this.getFileInfo(fileId)
+        return file.labels
     }
 
     /**
