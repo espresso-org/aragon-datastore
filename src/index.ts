@@ -5,8 +5,6 @@ import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 import * as Color from 'color'
 import * as abBase64 from 'base64-arraybuffer'
-import * as moment from 'moment'
-import { BigNumber } from 'bignumber.js'
 
 
 let Web3 = require('web3')
