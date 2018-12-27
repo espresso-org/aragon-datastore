@@ -56,8 +56,8 @@ export class Datastore {
         // Initialize only once
         if (!this._isInit) {
             this._contract = await this._rpc.getContract()
-            this._foldersCache = new FileCache(await this._getAllFiles())
             await this._refreshSettings()
+            this._foldersCache = new FileCache(await this._getAllFiles())
 
             this._contract
                 .events()
