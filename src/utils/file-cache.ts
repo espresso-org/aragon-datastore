@@ -113,21 +113,15 @@ export class FileCache {
 
 
     public async lockAndUpdateFile(fileId: number, filePromise: Promise<any>) {
-        let files
+        const filesBackup = this._files
 
-        this._files = this._files
-            .then(fileList => {
-                files = fileList
-                return filePromise
-            })
-            .then(file => {
+        this._files = Promise.all([this._files, filePromise])
+            .then(([files, file]) => {
                 this._files = new Promise(res => res(files))
                 return this.updateFile(fileId, file)
             })
             .then(() => this._files)
-            .catch(e => {
-                this._files = new Promise(res => res(files))
-            })
+            .catch(() => this._files = filesBackup)
     }
 
 
