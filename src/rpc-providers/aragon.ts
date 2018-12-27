@@ -38,8 +38,8 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'addFile', storageRef, isPublic, parentFolderId)
   }
 
-  async addFolder(storageRef, name, parentFolderId = 0) {
-    return convertTransactionToPromise(this._aragonApp, 'addFolder', storageRef, name, parentFolderId)
+  async addFolder(storageRef, parentFolderId = 0) {
+    return convertTransactionToPromise(this._aragonApp, 'addFolder', storageRef, parentFolderId)
   }  
 
   async getFile(fileId) {

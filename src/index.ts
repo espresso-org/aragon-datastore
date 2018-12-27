@@ -766,7 +766,7 @@ export class Datastore {
     async addFolder(name: string, parentFolderId = 0) {
         await this._initialize()
 
-        this._contract.addFolder('', name, parentFolderId)
+        this._contract.addFolder('', parentFolderId)
     }
 
     /**

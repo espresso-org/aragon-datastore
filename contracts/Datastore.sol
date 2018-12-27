@@ -79,19 +79,20 @@ contract Datastore is AragonApp {
         fileList.initializeRootFoler();
     }      
     
-    }
+    
     
     /**
      * @notice Add a file to the datastore
-     * @param _storageRef Storage Id of the file (IPFS only for now)
+     * @param _storageRef Storage Id of the file 
      * @param _isPublic Is file readable by anyone
+     * @param _parentFolderId Parent folder id
      */
-    function addFile(string _storageRef, bool _isPublic)
+    function addFile(string _storageRef, bool _isPublic, uint256 _parentFolderId)
         external 
         auth(DATASTORE_MANAGER_ROLE) 
         returns (uint256 fileId) 
     {
-        uint256 fId = fileList.addFile(_storageRef, _isPublic);
+        uint256 fId = fileList.addFile(_storageRef, _isPublic, _parentFolderId);
 
         permissions.addOwner(fId, msg.sender);
         emit FileChange(fId);
@@ -502,50 +503,22 @@ contract Datastore is AragonApp {
         return labelList.labelIds;
     }
 
-    /**
-     * @notice Returns a file's label list
-     * @param _fileId Label id
-     */
-    function getFileLabelList(uint _fileId) external view returns (uint[]) {
-        FileLibrary.File storage file = fileList.files[_fileId];
-        return file.labels;
-    }
 
 
-    /**
-     * @notice Add a file to the datastore
-     * @param _storageRef Storage Id of the file (IPFS only for now)
-     * @param _name File name
-     * @param _fileSize File size in bytes
-     * @param _isPublic Is file readable by anyone
-     * @param _encryptionKey File encryption key
-     * @param _parentFolderId Parent folder id
-     */
-    function addFile(string _storageRef, string _name, uint128 _fileSize, bool _isPublic, string _encryptionKey, uint256 _parentFolderId) 
-        external 
-        auth(DATASTORE_MANAGER_ROLE) 
-        returns (uint256 fileId) 
-    {
-        uint256 fId = fileList.addFile(_storageRef, _name, _fileSize, _isPublic, _encryptionKey, _parentFolderId);
 
-        permissions.addOwner(fId, msg.sender);
-        emit FileChange(fId);
-        return fId;
-    }    
 
 
    /**
      * @notice Add a folder to the datastore
-     * @param _storageRef Storage Id of the file (IPFS only for now)
-     * @param _name File name
+     * @param _storageRef Storage Id of the file 
      * @param _parentFolderId Parent folder id
      */
-    function addFolder(string _storageRef, string _name, uint256 _parentFolderId) 
+    function addFolder(string _storageRef, uint256 _parentFolderId) 
         external 
         auth(DATASTORE_MANAGER_ROLE) 
         returns (uint256 fileId) 
     {
-        uint256 fId = fileList.addFolder(_storageRef, _name, _parentFolderId);
+        uint256 fId = fileList.addFolder(_storageRef, _parentFolderId);
 
         permissions.addOwner(fId, msg.sender);
         emit FileChange(fId);

@@ -44,28 +44,16 @@ library FileLibrary {
         mapping (uint => FileLibrary.File) files;
     }
 
-    function addFile(FileList storage _self, string _storageRef, bool _isPublic) internal returns (uint fileId) {
+    function addFile(FileList storage _self, string _storageRef, bool _isPublic, uint256 _parentFolderId) internal returns (uint fileId) {
         _self.lastFileId = _self.lastFileId.add(1);
 
         _self.files[_self.lastFileId].storageRef = _storageRef;
         _self.files[_self.lastFileId].isPublic = _isPublic;
+        _self.files[_self.lastFileId].parentFolderId = _parentFolderId;
         _self.files[_self.lastFileId].isDeleted = false;
         return _self.lastFileId;
     }
-
-    function addFile(FileList storage _self, string _storageRef, string _name, uint128 _fileSize, bool _isPublic, string _encryptionKey, uint256 _parentFolderId) internal returns (uint fileId) {
-        _self.lastFileId = _self.lastFileId.add(1);
-
-        _self.files[_self.lastFileId].storageRef = _storageRef;
-        _self.files[_self.lastFileId].name = _name;
-        _self.files[_self.lastFileId].parentFolderId = _parentFolderId;
-        _self.files[_self.lastFileId].fileSize = _fileSize;
-        _self.files[_self.lastFileId].isPublic = _isPublic;
-        _self.files[_self.lastFileId].isDeleted = false;
-        _self.files[_self.lastFileId].lastModification = uint64(now);
-        _self.files[_self.lastFileId].cryptoKey = _encryptionKey;
-        return _self.lastFileId;
-    }       
+  
 
     function setStorageRef(FileList storage _self, uint _fileId, string _newStorageRef) internal {
         _self.files[_fileId].storageRef = _newStorageRef;
@@ -100,15 +88,13 @@ library FileLibrary {
 
  
 
-    function addFolder(FileList storage _self, string _storageRef, string _name, uint256 _parentFolderId) internal returns (uint fileId) {
+    function addFolder(FileList storage _self, string _storageRef, uint256 _parentFolderId) internal returns (uint fileId) {
         _self.lastFileId = _self.lastFileId.add(1);
 
         _self.files[_self.lastFileId].storageRef = _storageRef;
-        _self.files[_self.lastFileId].name = _name;
         _self.files[_self.lastFileId].parentFolderId = _parentFolderId;
         _self.files[_self.lastFileId].isFolder = true;
         _self.files[_self.lastFileId].isPublic = true;
-        _self.files[_self.lastFileId].lastModification = uint64(now);
         return _self.lastFileId;
     }       
 
@@ -116,6 +102,5 @@ library FileLibrary {
         _self.files[0].parentFolderId = 0;
         _self.files[0].isFolder = true;
         _self.files[0].isPublic = true;
-        _self.files[0].lastModification = uint64(now);
     }      
 }

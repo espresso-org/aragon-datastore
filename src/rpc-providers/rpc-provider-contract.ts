@@ -3,7 +3,8 @@ import { BigNumber } from 'bignumber.js'
 
 export interface RpcProviderContract {
     lastFileId(): Promise<BigNumber>
-    addFile(storageRef: string, isPublic: boolean): Promise<{}>
+    addFile(storageRef: string, isPublic: boolean, parentFolderId: number): Promise<{}>
+    addFolder(storageRef: string, parentFolderId: number): Promise<{}>
     getFile(fileId: number): Promise<any[]>
     deleteFile(fileId: number, isDeleted: boolean, deletePermanently: boolean): Promise<{}>
     deleteFilesPermanently(fileIds: number[]): Promise<{}>
