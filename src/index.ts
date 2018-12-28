@@ -746,6 +746,7 @@ export class Datastore {
      */
     private async _getAllFiles() {
         const lastFileId = (await this._contract.lastFileId()).toNumber()
+        console.log('lastFileId: ', lastFileId)
         return Promise.all(_.range(0, lastFileId + 1).map(fileId => this._getFileInfo(fileId))) 
     }
 

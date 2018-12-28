@@ -18,6 +18,7 @@ contract Datastore is AragonApp {
     bytes32 constant public FILE_WRITE_ROLE = keccak256(abi.encodePacked("FILE_WRITE_ROLE"));
     bytes32 constant public DATASTORE_GROUP = keccak256(abi.encodePacked("DATASTORE_GROUP"));
     
+    event NewFile(uint256 fileId);
     event FileChange(uint256 fileId);
     event LabelChange(uint256 labelId);
     event PermissionChange(uint256 fileId);
@@ -100,6 +101,7 @@ contract Datastore is AragonApp {
         uint256 fId = fileList.addFile(_storageRef, _isPublic, _parentFolderId);
         
         permissions.addOwner(fId, msg.sender);
+        //emit NewFile(fId);
         emit FileChange(fId);
         return fId;
     }
@@ -182,7 +184,7 @@ contract Datastore is AragonApp {
      * @notice Returns the last file Id
      */
     function lastFileId() external view returns (uint256) {
-        return fileList.lastFileId;
+        return fileList.files.length - 1;
     }
 
     /**
@@ -551,10 +553,11 @@ contract Datastore is AragonApp {
         returns (uint256 fileId) 
     {
         require(hasWriteAccessInFoldersPath(_parentFolderId, msg.sender));
-        
-        uint256 fId = fileList.addFolder(_storageRef, _parentFolderId);
 
+        uint256 fId = fileList.addFolder(_storageRef, _parentFolderId);
+        //uint fId = 1;
         permissions.addOwner(fId, msg.sender);
+        //emit NewFile(fId);
         emit FileChange(fId);
         return fId;
     }

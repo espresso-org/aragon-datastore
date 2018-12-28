@@ -36,22 +36,19 @@ library FileLibrary {
     }
 
     struct FileList {
-        /**
-         * Id of the last file added to the datastore. 
-         * Also represents the total number of files stored.
-         */
-        uint lastFileId;
-        mapping (uint => FileLibrary.File) files;
+        FileLibrary.File[] files;
     }
 
     function addFile(FileList storage _self, string _storageRef, bool _isPublic, uint256 _parentFolderId) internal returns (uint fileId) {
-        _self.lastFileId = _self.lastFileId.add(1);
+        _self.files.push(FileLibrary.File({
+            storageRef: _storageRef,
+            isPublic: _isPublic,
+            isDeleted: false,
+            isFolder: false,
+            parentFolderId: _parentFolderId
+        }));
 
-        _self.files[_self.lastFileId].storageRef = _storageRef;
-        _self.files[_self.lastFileId].isPublic = _isPublic;
-        _self.files[_self.lastFileId].parentFolderId = _parentFolderId;
-        _self.files[_self.lastFileId].isDeleted = false;
-        return _self.lastFileId;
+        return _self.files.length - 1;
     }
   
 
@@ -89,18 +86,28 @@ library FileLibrary {
  
 
     function addFolder(FileList storage _self, string _storageRef, uint256 _parentFolderId) internal returns (uint fileId) {
-        _self.lastFileId = _self.lastFileId.add(1);
+        _self.files.push(File({
+            storageRef: _storageRef,
+            isPublic: true,
+            isDeleted: false,
+            isFolder: true,
+            parentFolderId: _parentFolderId
+        }));
 
-        _self.files[_self.lastFileId].storageRef = _storageRef;
-        _self.files[_self.lastFileId].parentFolderId = _parentFolderId;
-        _self.files[_self.lastFileId].isFolder = true;
-        _self.files[_self.lastFileId].isPublic = true;
-        return _self.lastFileId;
+        return _self.files.length - 1;
     }       
 
     function initializeRootFoler(FileList storage _self) internal {
+        _self.files.push(File({
+            storageRef: "",
+            isPublic: true,
+            isDeleted: false,
+            isFolder: true,
+            parentFolderId: 0
+        }));        
+        /*
         _self.files[0].parentFolderId = 0;
         _self.files[0].isFolder = true;
-        _self.files[0].isPublic = true;
+        _self.files[0].isPublic = true;*/
     }      
 }
