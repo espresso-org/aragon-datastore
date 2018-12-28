@@ -1,5 +1,6 @@
 pragma solidity ^0.4.24;
 
+import "@aragon/os/contracts/acl/ACL.sol";
 import "@aragon/os/contracts/apps/AragonApp.sol";
 import "@espresso-org/object-acl/contracts/ObjectACL.sol";
 import "./libraries/PermissionLibrary.sol";
@@ -58,6 +59,7 @@ contract Datastore is AragonApp {
         uint256 length;
     }
 
+    ACL private acl;
     FileLibrary.FileList private fileList;
     FileLibrary.LabelList private labelList;
     PermissionLibrary.PermissionData private permissions;
@@ -72,6 +74,7 @@ contract Datastore is AragonApp {
 
     function initialize(address _objectACL) onlyInit public {
         initialized();
+        acl = ACL(kernel().acl());
         objectACL = ObjectACL(_objectACL);
         permissions.initialize(objectACL, FILE_READ_ROLE, FILE_WRITE_ROLE);
         groups.initialize(objectACL, DATASTORE_GROUP);
@@ -89,11 +92,12 @@ contract Datastore is AragonApp {
      */
     function addFile(string _storageRef, bool _isPublic, uint256 _parentFolderId)
         external 
-        auth(DATASTORE_MANAGER_ROLE) 
         returns (uint256 fileId) 
     {
+        require(hasFileCreationAccess(_parentFolderId, msg.sender));
+        
         uint256 fId = fileList.addFile(_storageRef, _isPublic, _parentFolderId);
-
+        
         permissions.addOwner(fId, msg.sender);
         emit FileChange(fId);
         return fId;
@@ -324,6 +328,33 @@ contract Datastore is AragonApp {
                 }
             }
         }
+        return false;
+    }
+
+    
+    function hasFileCreationAccess(uint256 _folderId, address _entity) 
+        internal 
+        view 
+        returns (bool) 
+    {
+        if (acl.getPermissionManager(this, DATASTORE_MANAGER_ROLE) == _entity
+            || permissions.hasWriteAccess(_folderId, _entity))
+            return true;
+
+        // Lookup parent folders up to 3 levels for write access
+        uint256 level = 0;
+
+        while (level < 3 && _folderId > 0) {
+            FileLibrary.File folder = fileList.files[_folderId];
+
+            if (permissions.hasWriteAccess(folder.parentFolderId, _entity))
+                return true;
+            
+            _folderId = folder.parentFolderId;
+            level++;
+        }
+
+
         return false;
     }
 
