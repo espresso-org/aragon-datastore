@@ -344,14 +344,15 @@ contract Datastore is AragonApp {
 
         // Lookup parent folders up to 3 levels for write access
         uint256 level = 0;
+        uint256 currentFileId = _fileId;
 
-        while (level < 3 && _fileId > 0) {
-            FileLibrary.File folder = fileList.files[_fileId];
+        while (level < 3 && currentFileId != 0) {
+            FileLibrary.File folder = fileList.files[currentFileId];
 
             if (permissions.hasWriteAccess(folder.parentFolderId, _entity))
                 return true;
             
-            _fileId = folder.parentFolderId;
+            currentFileId = folder.parentFolderId;
             level++;
         }
 
@@ -547,9 +548,10 @@ contract Datastore is AragonApp {
      */
     function addFolder(string _storageRef, uint256 _parentFolderId) 
         external 
-        auth(DATASTORE_MANAGER_ROLE) 
         returns (uint256 fileId) 
     {
+        require(hasWriteAccessInFoldersPath(_parentFolderId, msg.sender));
+        
         uint256 fId = fileList.addFolder(_storageRef, _parentFolderId);
 
         permissions.addOwner(fId, msg.sender);
