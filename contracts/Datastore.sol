@@ -68,7 +68,8 @@ contract Datastore is AragonApp {
     ObjectACL private objectACL;
 
     modifier onlyFileOwner(uint256 _fileId) {
-        require(permissions.isOwner(_fileId, msg.sender));
+        require(acl.getPermissionManager(this, DATASTORE_MANAGER_ROLE) == msg.sender 
+            || permissions.isOwner(_fileId, msg.sender));
         _;
     }    
 
@@ -94,8 +95,8 @@ contract Datastore is AragonApp {
         external 
         returns (uint256 fileId) 
     {
-        require(hasFileCreationAccess(_parentFolderId, msg.sender));
-        
+        require(hasWriteAccessInFoldersPath(_parentFolderId, msg.sender));
+
         uint256 fId = fileList.addFile(_storageRef, _isPublic, _parentFolderId);
         
         permissions.addOwner(fId, msg.sender);
@@ -332,25 +333,25 @@ contract Datastore is AragonApp {
     }
 
     
-    function hasFileCreationAccess(uint256 _folderId, address _entity) 
+    function hasWriteAccessInFoldersPath(uint256 _fileId, address _entity) 
         internal 
         view 
         returns (bool) 
     {
         if (acl.getPermissionManager(this, DATASTORE_MANAGER_ROLE) == _entity
-            || permissions.hasWriteAccess(_folderId, _entity))
+            || permissions.hasWriteAccess(_fileId, _entity))
             return true;
 
         // Lookup parent folders up to 3 levels for write access
         uint256 level = 0;
 
-        while (level < 3 && _folderId > 0) {
-            FileLibrary.File folder = fileList.files[_folderId];
+        while (level < 3 && _fileId > 0) {
+            FileLibrary.File folder = fileList.files[_fileId];
 
             if (permissions.hasWriteAccess(folder.parentFolderId, _entity))
                 return true;
             
-            _folderId = folder.parentFolderId;
+            _fileId = folder.parentFolderId;
             level++;
         }
 
@@ -364,8 +365,8 @@ contract Datastore is AragonApp {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint256 _fileId, address _entity) public view returns (bool) {
-        if (permissions.hasWriteAccess(_fileId, _entity))
-            return true;
+        if (hasWriteAccessInFoldersPath(_fileId, _entity))
+            return true;        
 
         for (uint256 i = 0; i < groups.groupList.length; i++) {
             if (permissions.groupPermissions[_fileId][groups.groupList[i]].exists) {

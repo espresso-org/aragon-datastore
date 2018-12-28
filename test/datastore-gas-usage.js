@@ -1,5 +1,5 @@
 const _ = require('lodash')
-const { GasTracker } = require('../src/utils/gas-tracker')
+const { GasTracker, printGasUsed } = require('../src/utils/gas-tracker')
 
 const Datastore = artifacts.require('Datastore')
 const ObjectACL = artifacts.require('@espresso-org/object-acl/contracts/ObjectACL')
@@ -11,7 +11,7 @@ const TestDatastore = artifacts.require('TestDatastore')
 
 //contract = () => 0
 
-contract('Datastore ', accounts => {
+contract('Datastore Usage', accounts => {
     let datastore
     let daoFact
     let acl
@@ -26,16 +26,13 @@ contract('Datastore ', accounts => {
     const holder = accounts[1]
     const DUMMY_ROLE = 1
     const gasTracker = new GasTracker()
+    let txToTrack
 
     before(async () => {
         aclBase = await ACL.new()        
         kernelBase = await Kernel.new(true)
         helper = await TestDatastore.new()
     })
-
-    after(async () => {
-        console.log(gasTracker.summary())
-    })    
 
     beforeEach(async () => {
         
@@ -68,11 +65,35 @@ contract('Datastore ', accounts => {
         await acl.grantPermission(objectACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
     })
 
-    it('increases lastFileId by 1 after addFile', async () => {
-        //assert.equal(await datastore.lastFileId(), 0)
-        gasTracker.track('addFile', await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", true, 0))
-        //assert.equal(await datastore.lastFileId(), 1)
-    })    
+    afterEach(() => printGasUsed(txToTrack))
+
+    describe('addFile', async () => {
+        
+        it('in root folder, by DATASTORE_MANAGER_ROLE', async () => {
+            txToTrack = await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", true, 0)
+        }) 
+
+        it('in root folder, by user with write access', async () => {
+            await datastore.setEntityPermissions(0, accounts[1], true, true)
+            txToTrack = await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", true, 0, { from: accounts[1] })
+        })         
+    })   
+
+    describe('setStorageRef', async () => {
+        it('in root folder, by user with write access on file', async () => {
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", true, 0)
+            await datastore.setEntityPermissions(1, accounts[1], true, true)
+            txToTrack = await datastore.setStorageRef(1, "QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb22", { from: accounts[1] })
+            //assert.equal(await datastore.lastFileId(), 1)
+        })     
+        
+        it('in root folder, by user with write access on root folder', async () => {
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", true, 0)
+            await datastore.setEntityPermissions(0, accounts[1], true, true)
+            txToTrack = await datastore.setStorageRef(1, "QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb22", { from: accounts[1] })
+            //assert.equal(await datastore.lastFileId(), 1)
+        })            
+    }) 
 
     xdescribe('getGroupsWithPermissionsOnFile', async () => {
         it('returns the right group list', async() => {

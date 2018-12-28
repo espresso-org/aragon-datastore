@@ -34,4 +34,8 @@ class GasTracker {
     }
 }
 
-module.exports = { GasTracker }
+function printGasUsed(tx) {
+    console.log(`           ${tx.receipt.gasUsed} gas`)
+}
+
+module.exports = { GasTracker, printGasUsed }
