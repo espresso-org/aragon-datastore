@@ -76,23 +76,34 @@ contract('Datastore Usage', accounts => {
         it('in root folder, by user with write access', async () => {
             await datastore.setEntityPermissions(0, accounts[1], true, true)
             txToTrack = await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", true, 0, { from: accounts[1] })
-        })         
+        })   
+        
+        it('by user with write access on 2 levels of folders', async () => {
+            await datastore.setEntityPermissions(0, accounts[1], true, true)
+            await datastore.addFolder("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb21", 0)
+            txToTrack = await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", true, 1, { from: accounts[1] })
+        })           
     })   
 
     describe('setStorageRef', async () => {
-        it('in root folder, by user with write access on file', async () => {
+        it('by user with write access on file', async () => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", true, 0)
             await datastore.setEntityPermissions(1, accounts[1], true, true)
             txToTrack = await datastore.setStorageRef(1, "QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb22", { from: accounts[1] })
-            //assert.equal(await datastore.lastFileId(), 1)
         })     
         
-        it('in root folder, by user with write access on root folder', async () => {
+        it('by user with write access on 1 level of folder', async () => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", true, 0)
             await datastore.setEntityPermissions(0, accounts[1], true, true)
             txToTrack = await datastore.setStorageRef(1, "QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb22", { from: accounts[1] })
-            //assert.equal(await datastore.lastFileId(), 1)
-        })            
+        })      
+        
+        it('by user with write access on 2 levels of folders', async () => {
+            await datastore.addFolder("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb21", 0)
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", true, 1)
+            await datastore.setEntityPermissions(0, accounts[1], true, true)
+            txToTrack = await datastore.setStorageRef(2, "QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb22", { from: accounts[1] })
+        })         
     }) 
 
     xdescribe('getGroupsWithPermissionsOnFile', async () => {
