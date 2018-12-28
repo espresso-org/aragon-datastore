@@ -93,7 +93,7 @@ library PermissionLibrary {
         view 
         returns (bool) 
     {
-        return isOwner(_self, _fileId, _entity) || getEntityWritePermissions(_self, _fileId, _entity);
+        return getEntityWritePermissions(_self, _fileId, _entity);
     }    
 
     function hasReadAccess(PermissionData storage _self, uint256 _fileId, address _entity)
@@ -101,7 +101,7 @@ library PermissionLibrary {
         view 
         returns (bool) 
     {
-        return isOwner(_self, _fileId, _entity) || getEntityReadPermissions(_self, _fileId, _entity);
+        return getEntityReadPermissions(_self, _fileId, _entity);
     }  
 
     /**
