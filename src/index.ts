@@ -97,6 +97,7 @@ export class Datastore {
      * @param {string} name - File name
      * @param {boolean} publicStatus - Public status
      * @param {ArrayBuffer} file - File content
+     * @param {number} parentFolderId - Parent folder id
      */
     async addFile(name: string, publicStatus: boolean, file: ArrayBuffer, parentFolderId = 0) {
         await this._initialize()
@@ -139,6 +140,59 @@ export class Datastore {
         fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
         await this._contract.addFile(fileDataStorageRef, publicStatus, parentFolderId)
     }
+
+    /**
+     * Add a new folder to the Datastore
+     * @param name Folder name
+     * @param parentFolderId Parent folder id
+     */
+    async addFolder(name: string, parentFolderId = 0) {
+        await this._initialize()
+
+        const jsonFileData = {
+            "name": name,
+            "contentStorageRef": '',
+            "encryptionKey": '',
+            "fileSize": 0,
+            "lastModification": new Date(),
+            "labels": []
+        }        
+        const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
+        this._contract.addFolder(fileDataStorageRef, parentFolderId)
+    }
+
+    /**
+     * Returns a folder
+     * @param folderId 
+     */
+    async getFolder(folderId: number = 0) {
+        await this._initialize()
+
+        return this._foldersCache.getFolder(folderId)
+    }
+
+    /**
+     * Returns an array parent folders for a specific file
+     * @param fileId 
+     */
+    async getFilePath(fileId: number) {
+        await this._initialize()
+
+        return Promise.all(
+            (await this._foldersCache.getFilePath(fileId))
+                .map(id => this._foldersCache.getFile(id))
+        )
+    }
+
+    /**
+     * Returns a folder
+     * @param folderId 
+     */
+    async listFiles(folderId: number = 0) {
+        await this._initialize()
+
+        return (await this._foldersCache.getFolder(folderId)).files
+    }      
 
     /**
      * Returns a file and its content from its Id
@@ -768,10 +822,6 @@ export class Datastore {
         }
     }
 
-    private async _setFileInfoFromStorageProvider(file, fileInfo) {
-
-    }
-
     /**
      * Returns the file information without the content
      * @param {number} fileId 
@@ -795,50 +845,7 @@ export class Datastore {
     
     }    
 
-    
-    async addFolder(name: string, parentFolderId = 0) {
-        await this._initialize()
-
-        const jsonFileData = {
-            "name": name,
-            "contentStorageRef": '',
-            "encryptionKey": '',
-            "fileSize": 0,
-            "lastModification": new Date(),
-            "labels": []
-        }        
-        const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
-        this._contract.addFolder(fileDataStorageRef, parentFolderId)
-    }
-
-    /**
-     * Returns a folder
-     * @param folderId 
-     */
-    async getFolder(folderId: number = 0) {
-        await this._initialize()
-
-        return this._foldersCache.getFolder(folderId)
-    }
-
-    async getFilePath(fileId: number) {
-        await this._initialize()
-
-        return Promise.all(
-            (await this._foldersCache.getFilePath(fileId))
-                .map(id => this._foldersCache.getFile(id))
-        )
-    }
-
-    /**
-     * Returns a folder
-     * @param folderId 
-     */
-    async listFiles(folderId: number = 0) {
-        await this._initialize()
-
-        return (await this._foldersCache.getFolder(folderId)).files
-    }    
+     
 }
 
 
