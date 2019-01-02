@@ -239,11 +239,11 @@ contract('Datastore ', accounts => {
         })
       
 
-        it('fires FileRename event', async () => {
+        it('fires FileChange event', async () => {
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, '')
             await datastore.setFileName(1, 'new file name')
     
-            await assertEvent(datastore, { event: 'FileRename' })
+            await assertEvent(datastore, { event: 'FileChange' })
         })          
 
     })
@@ -301,11 +301,11 @@ contract('Datastore ', accounts => {
             assert.equal(file[2], newFileSize)
         })        
         
-        it('fires FileContentUpdate event on setFileContent call', async () => {
+        it('fires FileChange event on setFileContent call', async () => {
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, '')
             await datastore.setFileContent(1, 'QmMWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 432)
     
-            await assertEvent(datastore, { event: 'FileContentUpdate' })
+            await assertEvent(datastore, { event: 'FileChange' })
         })         
 
         it('throws when setFileContent is called with no write access', async () => {
@@ -315,17 +315,17 @@ contract('Datastore ', accounts => {
         }) 
     })
     
-    it('fires NewFile event on addFile call', async () => {
+    it('fires FileChange event on addFile call', async () => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, '')
 
-        await assertEvent(datastore, { event: 'NewFile' })
+        await assertEvent(datastore, { event: 'FileChange' })
     })     
    
-    it('fires NewWritePermission event on setEntityPermissions call', async () => {
+    it('fires FileChange event on setEntityPermissions call', async () => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, '', { from: accounts[0] })
         await datastore.setEntityPermissions(1, accounts[1], false, true)
 
-        await assertEvent(datastore, { event: 'NewWritePermission' })
+        await assertEvent(datastore, { event: 'FileChange' })
     })  
     
     describe('getEntitiesWithPermissionsOnFile', async () => {
@@ -389,12 +389,12 @@ contract('Datastore ', accounts => {
             assert.equal((await datastore.hasReadAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef8')), false)
         })
 
-        it('fires EntityPermissionsRemoved event ', async () => {
+        it('fires FileChange event ', async () => {
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, '')
             await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true, false)
             await datastore.removeEntityFromFile(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
 
-            await assertEvent(datastore, { event: 'EntityPermissionsRemoved' })
+            await assertEvent(datastore, { event: 'FileChange' })
         })   
         
         it('throws when not called by owner', async () => {
@@ -443,11 +443,11 @@ contract('Datastore ', accounts => {
             assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef8')), false)
         })        
 
-        it('fires NewEntityPermissions event ', async () => {
+        it('fires FileChange event ', async () => {
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, '', { from: accounts[0] })
             await datastore.setEntityPermissions(1, accounts[1], true, false)
 
-            await assertEvent(datastore, { event: 'NewEntityPermissions' })
+            await assertEvent(datastore, { event: 'FileChange' })
         })  
         
         it('throws when not called by owner', async () => {
@@ -834,9 +834,9 @@ contract('Datastore ', accounts => {
     })
 
     describe('setStorageProvider', async () => {
-        it('fires the SettingsChanged event', async() => {
+        it('fires the SettingsChange event', async() => {
             gasTracker.track('setStorageProvider', await datastore.setStorageProvider(1))
-            await assertEvent(datastore, { event: 'SettingsChanged' })
+            await assertEvent(datastore, { event: 'SettingsChange' })
         })  
         
         it('throws if storage settings are set to another storage provider', async () => {
