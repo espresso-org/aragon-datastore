@@ -81,10 +81,9 @@ contract Datastore is AragonApp {
     {
         require(hasWriteAccessInFoldersPath(_parentFolderId, msg.sender));
 
-        uint256 fId = fileList.addFile(_storageRef, _isPublic, _parentFolderId);
+        uint256 fId = fileList.addFile(_storageRef, _isPublic, _parentFolderId, false);
         
         permissions.addOwner(fId, msg.sender);
-        //emit NewFile(fId);
         emit FileChange(fId);
         return fId;
     }
@@ -537,10 +536,8 @@ contract Datastore is AragonApp {
     {
         require(hasWriteAccessInFoldersPath(_parentFolderId, msg.sender));
 
-        uint256 fId = fileList.addFolder(_storageRef, _parentFolderId);
-        //uint fId = 1;
+        uint256 fId = fileList.addFile(_storageRef, true, _parentFolderId, true);
         permissions.addOwner(fId, msg.sender);
-        //emit NewFile(fId);
         emit FileChange(fId);
         return fId;
     }
