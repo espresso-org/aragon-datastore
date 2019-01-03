@@ -34,9 +34,13 @@ export class AragonContract implements RpcProviderContract {
     return new BigNumber(lastFileIdStr)
   }
 
-  async addFile(storageRef, isPublic) {
-    return convertTransactionToPromise(this._aragonApp, 'addFile', storageRef, isPublic)
+  async addFile(storageRef, isPublic, parentFolderId = 0) {
+    return convertTransactionToPromise(this._aragonApp, 'addFile', storageRef, isPublic, parentFolderId)
   }
+
+  async addFolder(storageRef, parentFolderId = 0) {
+    return convertTransactionToPromise(this._aragonApp, 'addFolder', storageRef, parentFolderId)
+  }  
 
   async getFile(fileId) {
     const fileTuple = await convertCallToPromise(this._aragonApp, 'getFileAsCaller', fileId, this._ethAccounts[0])

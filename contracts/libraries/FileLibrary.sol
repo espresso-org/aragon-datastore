@@ -31,25 +31,35 @@ library FileLibrary {
         string storageRef;      // File data storage reference 
         bool isPublic;          // True if file can be read by anyone
         bool isDeleted;         // True if file is deleted
+        bool isFolder;          // Folders are simply files with isFolder set to true
+        uint256 parentFolderId; // Parent folder reference        
     }
 
     struct FileList {
-        /**
-         * Id of the last file added to the datastore. 
-         * Also represents the total number of files stored.
-         */
-        uint lastFileId;
-        mapping (uint => FileLibrary.File) files;
+        FileLibrary.File[] files;
     }
 
-    function addFile(FileList storage _self, string _storageRef, bool _isPublic) internal returns (uint fileId) {
-        _self.lastFileId = _self.lastFileId.add(1);
+    function addFile(
+        FileList storage _self, 
+        string _storageRef, 
+        bool _isPublic, 
+        uint256 _parentFolderId,
+        bool _isFolder
+    ) 
+        internal 
+        returns (uint fileId) 
+    {
+        _self.files.push(FileLibrary.File({
+            storageRef: _storageRef,
+            isPublic: _isPublic,
+            isDeleted: false,
+            isFolder: _isFolder,
+            parentFolderId: _parentFolderId
+        }));
 
-        _self.files[_self.lastFileId].storageRef = _storageRef;
-        _self.files[_self.lastFileId].isPublic = _isPublic;
-        _self.files[_self.lastFileId].isDeleted = false;
-        return _self.lastFileId;
+        return _self.files.length - 1;
     }
+  
 
     function setStorageRef(FileList storage _self, uint _fileId, string _newStorageRef) internal {
         _self.files[_fileId].storageRef = _newStorageRef;
@@ -81,4 +91,15 @@ library FileLibrary {
         delete _self.labelIds[_labelId.sub(1)];
         delete _self.labels[_labelId];
     }
+
+ 
+    function initializeRootFolder(FileList storage _self) internal {
+        _self.files.push(File({
+            storageRef: "",
+            isPublic: true,
+            isDeleted: false,
+            isFolder: true,
+            parentFolderId: 0
+        }));        
+    }      
 }

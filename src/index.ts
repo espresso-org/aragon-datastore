@@ -4,6 +4,11 @@ import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 import * as Color from 'color'
+import * as _ from 'lodash'
+import { FileCache } from './utils/file-cache'
+import { throttleTime } from 'rxjs/operators'
+
+export { FileCache } from './utils/file-cache'
 import * as abBase64 from 'base64-arraybuffer'
 
 
@@ -23,6 +28,8 @@ export class DatastoreOptions {
     rpcProvider: any
 }
 
+
+
 export class Datastore {
     private _storage: storage.StorageProvider
     private _encryption: encryption.EncryptionProvider
@@ -31,6 +38,7 @@ export class Datastore {
     private _settings: DatastoreSettings
     private _isInit
     private _internalEvents: EventEmitter
+    private _foldersCache: FileCache
 
     /**
      * Creates a new Datastore instance
@@ -49,9 +57,25 @@ export class Datastore {
         if (!this._isInit) {
             this._contract = await this._rpc.getContract()
             await this._refreshSettings()
+            this._foldersCache = new FileCache(await this._getAllFiles())
+
+            this._contract
+                .events()
+                .merge(this._internalEvents.events)
+                .pipe(throttleTime(100))
+                .subscribe(this._handleEvents.bind(this))
         }
         else 
             return this._isInit
+    }
+
+    private async _handleEvents(event) {
+        switch (event.event) {
+            case 'FileChange':
+                const fileId = parseInt(event.returnValues.fileId)
+                this._foldersCache.lockAndUpdateFile(fileId, this._getFileInfo(fileId))
+                break;
+        }
     }
 
     private async _refreshSettings() {
@@ -73,8 +97,9 @@ export class Datastore {
      * @param {string} name - File name
      * @param {boolean} publicStatus - Public status
      * @param {ArrayBuffer} file - File content
+     * @param {number} parentFolderId - Parent folder id
      */
-    async addFile(name: string, publicStatus: boolean, file: ArrayBuffer) {
+    async addFile(name: string, publicStatus: boolean, file: ArrayBuffer, parentFolderId = 0) {
         await this._initialize()
 
         let byteLengthPreCompression = file.byteLength
@@ -113,8 +138,61 @@ export class Datastore {
             }
         }
         fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
-        await this._contract.addFile(fileDataStorageRef, publicStatus)
+        await this._contract.addFile(fileDataStorageRef, publicStatus, parentFolderId)
     }
+
+    /**
+     * Add a new folder to the Datastore
+     * @param name Folder name
+     * @param parentFolderId Parent folder id
+     */
+    async addFolder(name: string, parentFolderId = 0) {
+        await this._initialize()
+
+        const jsonFileData = {
+            "name": name,
+            "contentStorageRef": '',
+            "encryptionKey": '',
+            "fileSize": 0,
+            "lastModification": new Date(),
+            "labels": []
+        }        
+        const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
+        this._contract.addFolder(fileDataStorageRef, parentFolderId)
+    }
+
+    /**
+     * Returns a folder
+     * @param folderId 
+     */
+    async getFolder(folderId: number = 0) {
+        await this._initialize()
+
+        return this._foldersCache.getFolder(folderId)
+    }
+
+    /**
+     * Returns an array parent folders for a specific file
+     * @param fileId 
+     */
+    async getFilePath(fileId: number) {
+        await this._initialize()
+
+        return Promise.all(
+            (await this._foldersCache.getFilePath(fileId))
+                .map(id => this._foldersCache.getFile(id))
+        )
+    }
+
+    /**
+     * Returns a folder
+     * @param folderId 
+     */
+    async listFiles(folderId: number = 0) {
+        await this._initialize()
+
+        return (await this._foldersCache.getFolder(folderId)).files
+    }      
 
     /**
      * Returns a file and its content from its Id
@@ -125,7 +203,7 @@ export class Datastore {
         await this._initialize()
 
         const fileInfo = await this.getFileInfo(fileId)
-        console.log('fileInfo!!!!: ', fileInfo)
+        
         let fileContent = await this._storage.getFile(fileInfo.contentStorageRef)
 
         if (!fileInfo.isPublic) {
@@ -167,9 +245,8 @@ export class Datastore {
             labels: jsonFileData.labels,
             ...createFileFromTuple(fileTuple)
         }
-        // If lastModification is 0, the file has been permanently deleted
-        //return fileInfo.lastModification > 0 ? fileInfo : undefined
-        return fileInfo
+        // If storageRef is '' and file is not the root folder, the file has been permanently deleted
+        return fileInfo.storageRef !== '' || fileId === 0 ? fileInfo : undefined
     }
 
     /**
@@ -268,8 +345,9 @@ export class Datastore {
 
     /**
      * Returns files information
+     * @param folderId
      */
-    async listFiles() {
+    async _listFiles() {
         await this._initialize()
 
         const lastFileId = (await this._contract.lastFileId()).toNumber()
@@ -693,7 +771,7 @@ export class Datastore {
         await this._initialize()
 
         let sortedFiles = []
-        let files = await this.listFiles()
+        let files = await this._listFiles()
         for (let i = 0; i < files.length; i++) {
             let fileLabels = await this.getFileLabelList(files[i].id)
             for (let j = 0; j < fileLabels.length; j++) {
@@ -715,4 +793,59 @@ export class Datastore {
             .events(...args)
             .merge(this._internalEvents.events)
     }
+
+
+    /**
+     * Refresh the files cache for a specific folder
+     */
+    private async _getAllFiles() {
+        const lastFileId = (await this._contract.lastFileId()).toNumber()
+        console.log('lastFileId: ', lastFileId)
+        return Promise.all(_.range(0, lastFileId + 1).map(fileId => this._getFileInfo(fileId))) 
+    }
+
+
+    private async _getFileInfoFromStorageProvider(fileId: number, storageRef: string) {
+        if (fileId !== 0) {
+            const fileContent = await this._storage.getFile(storageRef)
+            return JSON.parse(Buffer.from(abBase64.encode(fileContent), 'base64').toString('ascii'))
+        }
+        else {
+            return {
+                name: '',
+                contentStorageRef: '',
+                encryptionKey: '',
+                fileSize: 0,
+                lastModification: JSON.stringify(new Date(0)),
+                labels: []
+            }
+        }
+    }
+
+    /**
+     * Returns the file information without the content
+     * @param {number} fileId 
+     */
+    private async _getFileInfo(fileId: number) {
+
+        const fileTuple = await this._contract.getFile(fileId)
+        const jsonFileData = await this._getFileInfoFromStorageProvider(fileId, fileTuple[0])
+        const fileInfo = {
+            id: fileId, 
+            name: jsonFileData.name,
+            contentStorageRef: jsonFileData.contentStorageRef,
+            encryptionKey: jsonFileData.encryptionKey,
+            fileSize: jsonFileData.fileSize,
+            lastModification: new Date(jsonFileData.lastModification),
+            labels: jsonFileData.labels,
+            ...createFileFromTuple(fileTuple)
+        }
+        // If storageRef is '' and file is not the root folder, the file has been permanently deleted
+        return fileInfo.storageRef !== '' || fileId === 0 ? fileInfo : undefined
+    
+    }    
+
+     
 }
+
+
