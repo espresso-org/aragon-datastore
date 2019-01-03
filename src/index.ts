@@ -104,7 +104,7 @@ export class Datastore {
             throw new Error('Your browser does not support JSZip. Please install a compatible browser.')
  
         let zip = JSZip()
-        await zip.file(name, file)
+        await zip.file(/*name*/"content", file)
         file = await zip.generateAsync({type : "arraybuffer"})
 
         let encryptionKey = "", contentStorageRef, fileDataStorageRef, jsonFileData
@@ -206,7 +206,7 @@ export class Datastore {
 
         let zip = JSZip()
         let newZip = await zip.loadAsync(fileContent)
-        fileContent = await newZip.file(fileInfo.name).async("arraybuffer")
+        fileContent = await newZip.file('content').async("arraybuffer")
         return { ...fileInfo, content: fileContent }
     }
 
@@ -360,7 +360,7 @@ export class Datastore {
             throw new Error('Your browser does not support JSZip. Please install a compatible browser.')
 
         let zip = JSZip()
-        zip.file('zippedFile', file)
+        zip.file('content', file)
         file = await zip.generateAsync({type : 'arraybuffer'})
         const contentStorageRef = await this._storage.addFile(file)
         let fileInfos = await this.getFileInfo(fileId)
@@ -428,7 +428,7 @@ export class Datastore {
 
         let byteLengthPreCompression = file.content.byteLength
         let zip = JSZip()
-        await zip.file(file.name, file.content)
+        await zip.file('content', file.content)
         file.content = await zip.generateAsync({type : "arraybuffer"})
         let encryptionKeyAsString = await this.getFileEncryptionKey(fileId)
 

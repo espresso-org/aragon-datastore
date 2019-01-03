@@ -335,8 +335,6 @@ contract Datastore is AragonApp {
             currentFileId = folder.parentFolderId;
             level++;
         }
-
-
         return false;
     }
 
