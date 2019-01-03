@@ -189,6 +189,7 @@ export class Datastore {
         await this._initialize()
 
         const fileInfo = await this.getFileInfo(fileId)
+        
         let fileContent = await this._storage.getFile(fileInfo.contentStorageRef)
 
         if (!fileInfo.isPublic) {

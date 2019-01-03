@@ -39,12 +39,21 @@ library FileLibrary {
         FileLibrary.File[] files;
     }
 
-    function addFile(FileList storage _self, string _storageRef, bool _isPublic, uint256 _parentFolderId) internal returns (uint fileId) {
+    function addFile(
+        FileList storage _self, 
+        string _storageRef, 
+        bool _isPublic, 
+        uint256 _parentFolderId,
+        bool _isFolder
+    ) 
+        internal 
+        returns (uint fileId) 
+    {
         _self.files.push(FileLibrary.File({
             storageRef: _storageRef,
             isPublic: _isPublic,
             isDeleted: false,
-            isFolder: false,
+            isFolder: _isFolder,
             parentFolderId: _parentFolderId
         }));
 
@@ -84,20 +93,7 @@ library FileLibrary {
     }
 
  
-
-    function addFolder(FileList storage _self, string _storageRef, uint256 _parentFolderId) internal returns (uint fileId) {
-        _self.files.push(File({
-            storageRef: _storageRef,
-            isPublic: true,
-            isDeleted: false,
-            isFolder: true,
-            parentFolderId: _parentFolderId
-        }));
-
-        return _self.files.length - 1;
-    }       
-
-    function initializeRootFoler(FileList storage _self) internal {
+    function initializeRootFolder(FileList storage _self) internal {
         _self.files.push(File({
             storageRef: "",
             isPublic: true,
@@ -105,9 +101,5 @@ library FileLibrary {
             isFolder: true,
             parentFolderId: 0
         }));        
-        /*
-        _self.files[0].parentFolderId = 0;
-        _self.files[0].isFolder = true;
-        _self.files[0].isPublic = true;*/
     }      
 }
