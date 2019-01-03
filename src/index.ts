@@ -11,7 +11,6 @@ import { throttleTime } from 'rxjs/operators'
 export { FileCache } from './utils/file-cache'
 import * as abBase64 from 'base64-arraybuffer'
 
-
 let Web3 = require('web3')
 
 import {
@@ -27,8 +26,6 @@ export const providers = { storage, encryption, rpc }
 export class DatastoreOptions {
     rpcProvider: any
 }
-
-
 
 export class Datastore {
     private _storage: storage.StorageProvider
@@ -107,35 +104,24 @@ export class Datastore {
             throw new Error('Your browser does not support JSZip. Please install a compatible browser.')
  
         let zip = JSZip()
-        await zip.file(name, file)
+        await zip.file(/*name*/"content", file)
         file = await zip.generateAsync({type : "arraybuffer"})
 
-        let encryptionKey = ""
-        let contentStorageRef
-        let fileDataStorageRef
-        let jsonFileData
+        let encryptionKey = "", contentStorageRef, fileDataStorageRef, jsonFileData
         if (!publicStatus) {
             let encryptionFileData = await this._encryption.encryptFile(file)
             encryptionKey = encryptionFileData.encryptionKey
-            contentStorageRef = await this._storage.addFile(encryptionFileData.encryptedFile)
-            jsonFileData = {
-                "name": name,
-                "contentStorageRef": contentStorageRef,
-                "encryptionKey": encryptionKey,
-                "fileSize": byteLengthPreCompression,
-                "lastModification": new Date(),
-                "labels": []
-            }
-        } else {
-            contentStorageRef = await this._storage.addFile(file)
-            jsonFileData = {
-                "name": name,
-                "contentStorageRef": contentStorageRef,
-                "encryptionKey": "",
-                "fileSize": byteLengthPreCompression,
-                "lastModification": new Date(),
-                "labels": []
-            }
+            file = encryptionFileData.encryptedFile
+        }
+
+        contentStorageRef = await this._storage.addFile(file)
+        jsonFileData = {
+            "name": name,
+            "contentStorageRef": contentStorageRef,
+            "encryptionKey": encryptionKey,
+            "fileSize": byteLengthPreCompression,
+            "lastModification": new Date(),
+            "labels": []
         }
         fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
         await this._contract.addFile(fileDataStorageRef, publicStatus, parentFolderId)
@@ -159,7 +145,7 @@ export class Datastore {
         }        
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
         this._contract.addFolder(fileDataStorageRef, parentFolderId)
-    }
+    } 
 
     /**
      * Returns a folder
@@ -211,7 +197,6 @@ export class Datastore {
             if (encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
                 const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
                 const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
-                
                 fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)
             }
         }
@@ -221,7 +206,7 @@ export class Datastore {
 
         let zip = JSZip()
         let newZip = await zip.loadAsync(fileContent)
-        fileContent = await newZip.file(fileInfo.name).async("arraybuffer")
+        fileContent = await newZip.file('content').async("arraybuffer")
         return { ...fileInfo, content: fileContent }
     }
 
@@ -375,7 +360,7 @@ export class Datastore {
             throw new Error('Your browser does not support JSZip. Please install a compatible browser.')
 
         let zip = JSZip()
-        zip.file('zippedFile', file)
+        zip.file('content', file)
         file = await zip.generateAsync({type : 'arraybuffer'})
         const contentStorageRef = await this._storage.addFile(file)
         let fileInfos = await this.getFileInfo(fileId)
@@ -443,7 +428,7 @@ export class Datastore {
 
         let byteLengthPreCompression = file.content.byteLength
         let zip = JSZip()
-        await zip.file(file.name, file.content)
+        await zip.file('content', file.content)
         file.content = await zip.generateAsync({type : "arraybuffer"})
         let encryptionKeyAsString = await this.getFileEncryptionKey(fileId)
 
@@ -794,16 +779,13 @@ export class Datastore {
             .merge(this._internalEvents.events)
     }
 
-
     /**
      * Refresh the files cache for a specific folder
      */
     private async _getAllFiles() {
         const lastFileId = (await this._contract.lastFileId()).toNumber()
-        console.log('lastFileId: ', lastFileId)
         return Promise.all(_.range(0, lastFileId + 1).map(fileId => this._getFileInfo(fileId))) 
     }
-
 
     private async _getFileInfoFromStorageProvider(fileId: number, storageRef: string) {
         if (fileId !== 0) {
@@ -842,10 +824,5 @@ export class Datastore {
         }
         // If storageRef is '' and file is not the root folder, the file has been permanently deleted
         return fileInfo.storageRef !== '' || fileId === 0 ? fileInfo : undefined
-    
-    }    
-
-     
+    }
 }
-
-
