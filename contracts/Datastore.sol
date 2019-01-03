@@ -84,8 +84,6 @@ contract Datastore is AragonApp {
         fileList.initializeRootFoler();
     }      
     
-    
-    
     /**
      * @notice Add a file to the datastore
      * @param _storageRef Storage Id of the file 
@@ -105,7 +103,6 @@ contract Datastore is AragonApp {
         emit FileChange(fId);
         return fId;
     }
-
 
     /**
      * @notice Changes the storage reference of file `_fileId` to `_newStorageRef`
@@ -333,7 +330,6 @@ contract Datastore is AragonApp {
         }
         return false;
     }
-
     
     function hasWriteAccessInFoldersPath(uint256 _fileId, address _entity) 
         internal 
@@ -538,12 +534,7 @@ contract Datastore is AragonApp {
         return labelList.labelIds;
     }
 
-
-
-
-
-
-   /**
+    /**
      * @notice Add a folder to the datastore
      * @param _storageRef Storage Id of the file 
      * @param _parentFolderId Parent folder id
