@@ -35,17 +35,14 @@ library FileLibrary {
 
     function addFile(FileList storage _self, string _storageRef, string _name, uint128 _fileSize, bool _isPublic, string _encryptionKey) internal returns (uint fileId) {
         _self.lastFileId = _self.lastFileId.add(1);
-
-        _self.files[_self.lastFileId] = FileLibrary.File({
-            storageRef: _storageRef,
-            name: _name,
-            fileSize: _fileSize,
-            keepRef: "",
-            isPublic: _isPublic,
-            isDeleted: false,
-            lastModification: uint64(now),
-            cryptoKey: _encryptionKey
-        });
+       
+        _self.files[_self.lastFileId].storageRef = _storageRef;
+        _self.files[_self.lastFileId].name = _name;
+        _self.files[_self.lastFileId].fileSize = _fileSize;
+        _self.files[_self.lastFileId].isPublic = _isPublic;
+        _self.files[_self.lastFileId].lastModification = uint64(now);
+        _self.files[_self.lastFileId].cryptoKey = _encryptionKey;
+               
         return _self.lastFileId;
     }   
 
