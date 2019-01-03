@@ -97,7 +97,7 @@ library FileLibrary {
         return _self.files.length - 1;
     }       
 
-    function initializeRootFoler(FileList storage _self) internal {
+    function initializeRootFolder(FileList storage _self) internal {
         _self.files.push(File({
             storageRef: "",
             isPublic: true,
@@ -105,9 +105,5 @@ library FileLibrary {
             isFolder: true,
             parentFolderId: 0
         }));        
-        /*
-        _self.files[0].parentFolderId = 0;
-        _self.files[0].isFolder = true;
-        _self.files[0].isPublic = true;*/
     }      
 }

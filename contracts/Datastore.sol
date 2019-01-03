@@ -43,23 +43,6 @@ contract Datastore is AragonApp {
         uint256 aesLength;
     }
 
-    /** 
-     *  TODO: Use IpfsSettings inside Settings when aragon supports nested structs
-     */
-    struct IpfsSettings {
-        string host;
-        uint16 port;
-        string protocol;        
-    }
-    
-    /** 
-     *  TODO: Use AesSettings inside Settings when aragon supports nested structs
-     */
-    struct AesSettings {
-        string name;
-        uint256 length;
-    }
-
     ACL private acl;
     FileLibrary.FileList private fileList;
     FileLibrary.LabelList private labelList;
@@ -81,7 +64,7 @@ contract Datastore is AragonApp {
         permissions.initialize(objectACL, FILE_READ_ROLE, FILE_WRITE_ROLE);
         groups.initialize(objectACL, DATASTORE_GROUP);
 
-        fileList.initializeRootFoler();
+        fileList.initializeRootFolder();
     }      
     
     
