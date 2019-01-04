@@ -1,11 +1,12 @@
 pragma solidity ^0.4.24;
 
-import "../DatastoreACL.sol";
+import "@espresso-org/object-acl/contracts/ObjectACL.sol";
 import "@aragon/os/contracts/lib/math/SafeMath.sol";
-
 
 library GroupLibrary {
     using SafeMath for uint256;
+
+    bytes32 constant public DATASTORE_GROUP = keccak256("DATASTORE_GROUP");
 
     /**
      * Represents a group and its entities within it   
@@ -23,13 +24,10 @@ library GroupLibrary {
     struct GroupData {
         mapping (uint => Group) groups;     // Read and Write permissions for each entity
         uint[] groupList;                   // Internal references for list of groups
-        DatastoreACL acl;
-        bytes32 DATASTORE_GROUP;
+        ObjectACL acl;
     }
 
-
-    function initialize(GroupData storage _self, DatastoreACL _acl, bytes32 _DATASTORE_GROUP) internal {
-        _self.DATASTORE_GROUP = _DATASTORE_GROUP;
+    function initialize(GroupData storage _self, ObjectACL _acl) internal {
         _self.acl = _acl;
     }
 
@@ -43,7 +41,7 @@ library GroupLibrary {
         _self.groups[id].groupName = _groupName;
         _self.groups[id].exists = true;
         _self.groupList.push(id);
-        _self.acl.createObjectPermission(this, id, _self.DATASTORE_GROUP, this);
+        _self.acl.createObjectPermission(this, id, DATASTORE_GROUP, this);
         return id;
     }
 
@@ -84,7 +82,7 @@ library GroupLibrary {
      * @param _entity Address of the entity
      */
     function isEntityInGroup(GroupData storage _self, uint _groupId, address _entity) internal view returns (bool) {
-        return _self.acl.hasObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP);
+        return _self.acl.hasObjectPermission(_entity, _groupId, DATASTORE_GROUP);
     }
 
     /**
@@ -96,8 +94,8 @@ library GroupLibrary {
     function addEntityToGroup(GroupData storage _self, uint _groupId, address _entity) internal {
         _self.groups[_groupId].entitiesWithIndex[_entity] = _self.groups[_groupId].entities.length.add(1);
         _self.groups[_groupId].entities.push(_entity);
-        _self.acl.createObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP, this);
-        _self.acl.grantObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP, this);
+        _self.acl.createObjectPermission(_entity, _groupId, DATASTORE_GROUP, this);
+        _self.acl.grantObjectPermission(_entity, _groupId, DATASTORE_GROUP, this);
     }
 
     /**
@@ -112,7 +110,7 @@ library GroupLibrary {
             indexOfEntity = indexOfEntity.sub(1);
             delete _self.groups[_groupId].entities[indexOfEntity];
             delete _self.groups[_groupId].entitiesWithIndex[_entity];
-            _self.acl.revokeObjectPermission(_entity, _groupId, _self.DATASTORE_GROUP, this);
+            _self.acl.revokeObjectPermission(_entity, _groupId, DATASTORE_GROUP, this);
         }
     }
 }

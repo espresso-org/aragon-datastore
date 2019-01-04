@@ -1,0 +1,37 @@
+{
+	"tags":
+	{
+		"allowUnknownTags" : true
+	},
+	"plugins":[
+		 "plugins/markdown"
+		,"/Users/justinlaroche/.nvm/versions/node/v8.11.1/lib/node_modules/tsdoc/template/plugins/TSDoc.js"
+	],
+	"opts":
+	{
+		"template"	:"/Users/justinlaroche/.nvm/versions/node/v8.11.1/lib/node_modules/tsdoc/template",
+		"recurse"	:"true"
+	},
+	"templates" : {
+		"cleverLinks"     : false,
+		"monospaceLinks"  : false
+	},
+	"source":
+	{
+		"includePattern": "(\\.d)?\\.ts$"
+	},
+	"markdown"  : {
+		"parser"   : "gfm",
+		"hardwrap" : true
+	},
+	"tsdoc":{
+		"source"		:"/Users/justinlaroche/Desktop/espresso/aragon-datastore/src/",
+		"destination"	:"/Users/justinlaroche/Desktop/espresso/aragon-datastore/docs",
+		"tutorials"		:"",
+		"systemName"	: "aragon-datastore",
+		"footer"		: "",
+		"copyright"		: "aragon-datastore Copyright © 2018 justinlaroche.",
+		"outputSourceFiles" : true,
+		"commentsOnly": true
+	}
+}

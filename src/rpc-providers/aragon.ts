@@ -20,6 +20,7 @@ export class Aragon implements RpcProvider {
 }
 
 export class AragonContract implements RpcProviderContract {
+
   private _aragonApp
   private _ethAccounts
 
@@ -33,8 +34,8 @@ export class AragonContract implements RpcProviderContract {
     return new BigNumber(lastFileIdStr)
   }
 
-  async addFile(storageRef, name, fileSize, isPublic) {
-    return convertTransactionToPromise(this._aragonApp, 'addFile', storageRef, name, fileSize, isPublic)
+  async addFile(storageRef, name, fileSize, isPublic, encryptionKey) {
+    return convertTransactionToPromise(this._aragonApp, 'addFile', storageRef, name, fileSize, isPublic, encryptionKey)
   }
 
   async getFile(fileId) {
@@ -44,13 +45,25 @@ export class AragonContract implements RpcProviderContract {
     return fileTuple
   }
 
-  async deleteFile(fileId) {
-    return convertTransactionToPromise(this._aragonApp, 'deleteFile', fileId)
+  async getFileEncryptionKey(fileId) {
+    return convertCallToPromise(this._aragonApp, 'getFileEncryptionKey', fileId)
   }
+
+  async deleteFile(fileId, isDeleted, deletePermanently) {
+    return convertTransactionToPromise(this._aragonApp, 'deleteFile', fileId, isDeleted, deletePermanently)
+  }
+
+  async deleteFilesPermanently(fileIds: number[]): Promise<{}> {
+    return convertTransactionToPromise(this._aragonApp, 'deleteFilesPermanently', fileIds)
+  }    
 
   async setFileName(fileId, newName) {
     return convertTransactionToPromise(this._aragonApp, 'setFileName', fileId, newName)
-  } 
+  }
+
+  async setEncryptionKey(fileId, encryptionKey) {
+    return convertTransactionToPromise(this._aragonApp, 'setEncryptionKey', fileId, encryptionKey)
+  }
 
   async setFileContent(fileId, storageRef, fileSize) {
     return convertTransactionToPromise(this._aragonApp, 'setFileContent', fileId, storageRef, fileSize)
@@ -72,8 +85,8 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'setReadPermission', fileId, entity, hasReadPermission)
   }
 
-  async setMultiplePermissions(fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite, isPublic) {
-    return convertTransactionToPromise(this._aragonApp, 'setMultiplePermissions', fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite, isPublic)
+  async setMultiplePermissions(fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite, isPublic, storageRef, fileSize, encryptionKey) {
+    return convertTransactionToPromise(this._aragonApp, 'setMultiplePermissions', fileId, groupIds, groupRead, groupWrite, entities, entityRead, entityWrite, isPublic, storageRef, fileSize, encryptionKey)
   }  
 
   events(...args) {
@@ -89,9 +102,9 @@ export class AragonContract implements RpcProviderContract {
     }
   }
 
-  async setIpfsStorageSettings(host: string, port: number, protocol: string) {
-    return convertTransactionToPromise(this._aragonApp, 'setIpfsStorageSettings', host, port, protocol)
-  }  
+  async setSettings(storageProvider: number, encryptionProvider: number, host: string, port: number, protocol: string, name: string, length: number) {
+    return convertTransactionToPromise(this._aragonApp, 'setSettings', storageProvider, encryptionProvider, host, port, protocol, name, length)
+  }
 
   async createGroup(groupName: string) {
     return convertTransactionToPromise(this._aragonApp, 'createGroup', groupName)
