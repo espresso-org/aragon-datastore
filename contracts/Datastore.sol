@@ -54,7 +54,7 @@ contract Datastore is AragonApp {
         _;
     }    
 
-    function initialize(address _objectACL) onlyInit public {
+    function initialize(ObjectACL _objectACL) onlyInit public {
         initialized();
         acl = ACL(kernel().acl());
         objectACL = _objectACL;
