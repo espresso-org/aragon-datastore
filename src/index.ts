@@ -416,6 +416,9 @@ export class Datastore {
      * @param {Object[]} entityPermissions 
      * @param {Object[]} groupPermissions 
      * @param {boolean} isPublic
+     * 
+     * There is currently a bug in this function: setMultiplePermissions doesn't
+     * seem to be called when file is public
      */
     async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[], isPublic: boolean) { 
         await this._initialize()
