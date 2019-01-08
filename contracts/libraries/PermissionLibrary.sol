@@ -117,19 +117,18 @@ library PermissionLibrary {
         if (!_self.entityPermissions[_fileId][_entity].exists) {
             _self.permissionAddresses[_fileId].push(_entity);
             _self.entityPermissions[_fileId][_entity].exists = true;
+            _self.acl.createObjectPermission(_entity, _fileId, FILE_WRITE_ROLE, msg.sender);
         }
-        _self.entityPermissions[_fileId][_entity].read = _read;
-        _self.entityPermissions[_fileId][_entity].write = _write;
-
+        /*
         if (_read) {
             _self.acl.createObjectPermission(_entity, _fileId, FILE_READ_ROLE, msg.sender);
             _self.acl.grantObjectPermission(_entity, _fileId, FILE_READ_ROLE, msg.sender);        
-        }
+        }*/
 
-        if (_write) {
-            _self.acl.createObjectPermission(_entity, _fileId, FILE_WRITE_ROLE, msg.sender);
+        if (_write) 
             _self.acl.grantObjectPermission(_entity, _fileId, FILE_WRITE_ROLE, msg.sender);
-        }
+        else
+            _self.acl.revokeObjectPermission(_entity, _fileId, FILE_WRITE_ROLE, msg.sender);
     }   
 
     /**
