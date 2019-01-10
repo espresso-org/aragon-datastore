@@ -15,7 +15,7 @@ library GroupLibrary {
         string groupName;
         mapping (address => uint) entitiesWithIndex;
         address[] entities;
-        bool exists;    // Used internally to check if a group really exists
+        bool exists;                                // Used internally to check if a group really exists
     }
 
     /**

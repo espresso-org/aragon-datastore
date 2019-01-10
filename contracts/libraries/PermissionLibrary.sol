@@ -4,15 +4,13 @@ import "@espresso-org/object-acl/contracts/ObjectACL.sol";
 
 library PermissionLibrary {
 
-    bytes32 constant public FILE_READ_ROLE = keccak256("FILE_READ_ROLE");
     bytes32 constant public FILE_WRITE_ROLE = keccak256("FILE_WRITE_ROLE");
 
     /**
-     * Read and write permission for an entity on a specific file
+     * Write permission for an entity on a specific file
      */
     struct Permission {
         bool write;             
-        bool read;
         bool exists;    // Used internally to check if an entity has a stored permission
     }
 
@@ -20,9 +18,9 @@ library PermissionLibrary {
      * Users permissions on files and internal references
      */
     struct PermissionData {
-        mapping (uint => mapping (address => Permission)) entityPermissions;      // Read and Write permissions for each entity
+        mapping (uint => mapping (address => Permission)) entityPermissions;      // Write permissions for each entity
         mapping (uint => address[]) permissionAddresses;                          // Internal references for permission listing
-        mapping (uint => mapping (uint => Permission)) groupPermissions;          // Read and Write permissions for groups
+        mapping (uint => mapping (uint => Permission)) groupPermissions;          // Write permissions for groups
         mapping (uint => uint[]) groupIds;                                        // Internal references for files groups listing
 
         ObjectACL acl;      
@@ -49,7 +47,6 @@ library PermissionLibrary {
      * @param _entity Entity address
      */
     function addOwner(PermissionData storage _self, uint _fileId, address _entity) internal {
-        //_self.acl.createObjectPermission(_entity, _fileId, FILE_READ_ROLE, _entity);
         _self.acl.createObjectPermission(_entity, _fileId, FILE_WRITE_ROLE, _entity);
     }
 
@@ -62,26 +59,7 @@ library PermissionLibrary {
         return _self.acl.getObjectPermissionManager(_fileId, FILE_WRITE_ROLE);
     }
 
-    function getEntityPermissionsOnFile(PermissionData storage _self, uint256 _fileId, address _entity) 
-        internal 
-        view 
-        returns (bool write, bool read) 
-    {
-        //read = _self.acl.hasObjectPermission(_entity, _fileId, FILE_READ_ROLE);
-        read = true;
-        write = _self.acl.hasObjectPermission(_entity, _fileId, FILE_WRITE_ROLE);
-    }
-
-    function getEntityReadPermissions(PermissionData storage _self, uint256 _fileId, address _entity)
-        internal 
-        view 
-        returns (bool) 
-    {
-        //return _self.acl.hasObjectPermission(_entity, _fileId, FILE_READ_ROLE);
-        return true;
-    }
-
-    function getEntityWritePermissions(PermissionData storage _self, uint256 _fileId, address _entity)
+    function hasWriteAccess(PermissionData storage _self, uint256 _fileId, address _entity)
         internal 
         view 
         returns (bool) 
@@ -89,41 +67,19 @@ library PermissionLibrary {
         return _self.acl.hasObjectPermission(_entity, _fileId, FILE_WRITE_ROLE);
     }
 
-    function hasWriteAccess(PermissionData storage _self, uint256 _fileId, address _entity)
-        internal 
-        view 
-        returns (bool) 
-    {
-        return getEntityWritePermissions(_self, _fileId, _entity);
-    }    
-
-    function hasReadAccess(PermissionData storage _self, uint256 _fileId, address _entity)
-        internal 
-        view 
-        returns (bool) 
-    {
-        return getEntityReadPermissions(_self, _fileId, _entity);
-    }  
-
     /**
-     * @notice Set the read and write permissions on a file for a specified group
+     * @notice Set the write permissions on a file for a specified entity
      * @param _self PermissionData
      * @param _fileId Id of the file
      * @param _entity Id of the group
-     * @param _read Read permission
      * @param _write Write permission
      */
-    function setEntityPermissions(PermissionData storage _self, uint _fileId, address _entity, bool _read, bool _write) internal { 
+    function setEntityPermissions(PermissionData storage _self, uint _fileId, address _entity, bool _write) internal { 
         if (!_self.entityPermissions[_fileId][_entity].exists) {
             _self.permissionAddresses[_fileId].push(_entity);
             _self.entityPermissions[_fileId][_entity].exists = true;
             _self.acl.createObjectPermission(_entity, _fileId, FILE_WRITE_ROLE, msg.sender);
         }
-        /*
-        if (_read) {
-            _self.acl.createObjectPermission(_entity, _fileId, FILE_READ_ROLE, msg.sender);
-            _self.acl.grantObjectPermission(_entity, _fileId, FILE_READ_ROLE, msg.sender);        
-        }*/
 
         if (_write) 
             _self.acl.grantObjectPermission(_entity, _fileId, FILE_WRITE_ROLE, msg.sender);
@@ -132,19 +88,17 @@ library PermissionLibrary {
     }   
 
     /**
-     * @notice Set the read and write permissions on a file for a specified group
+     * @notice Set the write permissions on a file for a specified group
      * @param _self PermissionData
      * @param _fileId Id of the file
      * @param _groupId Id of the group
-     * @param _read Read permission
      * @param _write Write permission
      */
-    function setGroupPermissions(PermissionData storage _self, uint _fileId, uint _groupId, bool _read, bool _write) internal {
+    function setGroupPermissions(PermissionData storage _self, uint _fileId, uint _groupId, bool _write) internal {
         if (!_self.groupPermissions[_fileId][_groupId].exists) {
             _self.groupIds[_fileId].push(_groupId);
             _self.groupPermissions[_fileId][_groupId].exists = true;
         }
-        _self.groupPermissions[_fileId][_groupId].read = _read;
         _self.groupPermissions[_fileId][_groupId].write = _write;
     }
 
@@ -161,7 +115,6 @@ library PermissionLibrary {
                 if (_self.permissionAddresses[_fileId][i] == _entity)
                     delete _self.permissionAddresses[_fileId][i];
             }
-            _self.acl.revokeObjectPermission(_entity, _fileId, FILE_READ_ROLE, msg.sender);
             _self.acl.revokeObjectPermission(_entity, _fileId, FILE_WRITE_ROLE, msg.sender);
         }
     }

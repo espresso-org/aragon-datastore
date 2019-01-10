@@ -14,6 +14,5 @@ describe('Datastore web3 provider', async () => {
 
       expect(contract).not.toBeNull()
       //console.log(contract)
-
     })
   })

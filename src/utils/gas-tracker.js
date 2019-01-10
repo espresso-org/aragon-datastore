@@ -1,7 +1,6 @@
 const outdent = require('outdent')
 
 class GasTracker {
-
     constructor() {
         this.calls = []
     }

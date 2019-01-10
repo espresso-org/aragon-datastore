@@ -1,38 +1,29 @@
-import { DatastoreSettings, EncryptionProvider, StorageProvider } from './datastore-settings'
+import { DatastoreSettings, StorageProvider } from './datastore-settings'
 
 export const createFileFromTuple = (tuple: any[]) => ({
     storageRef: tuple[0],
-    isPublic: tuple[1],
-    isDeleted: tuple[2],
-    owner: tuple[3],
-    isOwner: tuple[4],
-    permissionAddresses: tuple[5],
+    isDeleted: tuple[1],
+    owner: tuple[2],
+    isOwner: tuple[3],
+    permissionAddresses: tuple[4],
     permissions: {
-        write: tuple[6],
-        read: true // TODO
+        write: tuple[5]
     },
-    isFolder: tuple[7],
-    parentFolder: parseInt(tuple[8])
+    isFolder: tuple[6],
+    parentFolder: parseInt(tuple[7])
 })
 
 export const createPermissionFromTuple = (tuple: boolean[]) => ({    
-    write: tuple[0],
-    read: tuple[1]    
+    write: tuple[0]
 })
 
 export const createSettingsFromTuple = (tuple: any[]): DatastoreSettings => {
     return { 
         storageProvider: convertStringToEnum<StorageProvider>(tuple[0]),
-        encryptionProvider: convertStringToEnum<EncryptionProvider>(tuple[1]),
-
         ipfs: {
-            host: tuple[2],
-            port: tuple[3].toNumber(),
-            protocol: tuple[4]
-        },
-        aes: {
-            name: tuple[5],
-            length: tuple[6]
+            host: tuple[1],
+            port: tuple[2].toNumber(),
+            protocol: tuple[3]
         }
     }
 }

@@ -1,6 +1,4 @@
-import * as async from 'async'
 import * as JSZip from 'jszip'
-import * as encryption from './encryption-providers'
 import * as rpc from './rpc-providers'
 import * as storage from './storage-providers'
 import * as Color from 'color'
@@ -13,15 +11,12 @@ import * as abBase64 from 'base64-arraybuffer'
 
 let Web3 = require('web3')
 
-import {
-    createFileFromTuple, 
-    createPermissionFromTuple, 
-    createSettingsFromTuple } from './utils'
-import { DatastoreSettings, StorageProvider, EncryptionProvider } from './datastore-settings'
+import { createFileFromTuple, createPermissionFromTuple, createSettingsFromTuple } from './utils'
+import { DatastoreSettings, StorageProvider } from './datastore-settings'
 import { RpcProvider } from './rpc-providers/rpc-provider'
 import { EventEmitter } from './utils/event-emitter'
 
-export const providers = { storage, encryption, rpc }
+export const providers = { storage, rpc }
 
 export class DatastoreOptions {
     rpcProvider: any
@@ -29,7 +24,6 @@ export class DatastoreOptions {
 
 export class Datastore {
     private _storage: storage.StorageProvider
-    private _encryption: encryption.EncryptionProvider
     private _rpc: RpcProvider
     private _contract: rpc.RpcProviderContract
     private _settings: DatastoreSettings
@@ -77,7 +71,6 @@ export class Datastore {
 
     private async _refreshSettings() {
         this._settings = createSettingsFromTuple(await this._contract.settings())
-        this._encryption = encryption.getEncryptionProviderFromSettings(this._settings)
         this._storage = storage.getStorageProviderFromSettings(this._settings)
     }
 
@@ -92,11 +85,10 @@ export class Datastore {
     /**
      * Add a new file to the Datastore
      * @param {string} name - File name
-     * @param {boolean} publicStatus - Public status
      * @param {ArrayBuffer} file - File content
      * @param {number} parentFolderId - Parent folder id
      */
-    async addFile(name: string, publicStatus: boolean, file: ArrayBuffer, parentFolderId = 0) {
+    async addFile(name: string, file: ArrayBuffer, parentFolderId = 0) {
         await this._initialize()
 
         let byteLengthPreCompression = file.byteLength
@@ -104,27 +96,19 @@ export class Datastore {
             throw new Error('Your browser does not support JSZip. Please install a compatible browser.')
  
         let zip = JSZip()
-        await zip.file(/*name*/"content", file)
+        await zip.file("content", file)
         file = await zip.generateAsync({type : "arraybuffer"})
 
-        let encryptionKey = "", contentStorageRef, fileDataStorageRef, jsonFileData
-        if (!publicStatus) {
-            let encryptionFileData = await this._encryption.encryptFile(file)
-            encryptionKey = encryptionFileData.encryptionKey
-            file = encryptionFileData.encryptedFile
-        }
-
-        contentStorageRef = await this._storage.addFile(file)
-        jsonFileData = {
+        let contentStorageRef = await this._storage.addFile(file)
+        let jsonFileData = {
             "name": name,
             "contentStorageRef": contentStorageRef,
-            "encryptionKey": encryptionKey,
             "fileSize": byteLengthPreCompression,
             "lastModification": new Date(),
             "labels": []
         }
-        fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
-        await this._contract.addFile(fileDataStorageRef, publicStatus, parentFolderId)
+        let fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
+        await this._contract.addFile(fileDataStorageRef, parentFolderId)
     }
 
     /**
@@ -138,7 +122,6 @@ export class Datastore {
         const jsonFileData = {
             "name": name,
             "contentStorageRef": '',
-            "encryptionKey": '',
             "fileSize": 0,
             "lastModification": new Date(),
             "labels": []
@@ -189,18 +172,7 @@ export class Datastore {
         await this._initialize()
 
         const fileInfo = await this.getFileInfo(fileId)
-        
         let fileContent = await this._storage.getFile(fileInfo.contentStorageRef)
-
-        if (!fileInfo.isPublic) {
-            const encryptionKeyAsString = await this.getFileEncryptionKey(fileId)
-            if (encryptionKeyAsString !== "0" && encryptionKeyAsString !== "") {
-                const encryptionKeyAsJSON = JSON.parse(encryptionKeyAsString)
-                const fileEncryptionKey = await crypto.subtle.importKey('jwk', encryptionKeyAsJSON, <any>this._settings.aes, true, ['encrypt', 'decrypt'])
-                fileContent = await this._encryption.decryptFile(fileContent, fileEncryptionKey)
-            }
-        }
-
         if (!JSZip.support.arraybuffer)
             throw new Error('Your browser does not support JSZip. Please install a compatible browser.')
 
@@ -224,7 +196,6 @@ export class Datastore {
             id: fileId, 
             name: jsonFileData.name,
             contentStorageRef: jsonFileData.contentStorageRef,
-            encryptionKey: jsonFileData.encryptionKey,
             fileSize: jsonFileData.fileSize,
             lastModification: new Date(jsonFileData.lastModification),
             labels: jsonFileData.labels,
@@ -232,17 +203,6 @@ export class Datastore {
         }
         // If storageRef is '' and file is not the root folder, the file has been permanently deleted
         return fileInfo.storageRef !== '' || fileId === 0 ? fileInfo : undefined
-    }
-
-    /**
-     * Returns the encryption key for the file with `fileId`
-     * @param fileId File Id
-     */
-    async getFileEncryptionKey(fileId: number) {
-        await this._initialize()
-
-        const file = await this.getFileInfo(fileId)
-        return file.encryptionKey
     }
 
     /**
@@ -313,18 +273,16 @@ export class Datastore {
     }
 
     /**
-     * Sets the storage and encryption settings for the Datastore
+     * Sets the storage settings for the Datastore
      * @param storageProvider Storage provider
      * @param host Host
      * @param port Port 
      * @param protocol HTTP protocol
-     * @param name Name of the AES encryption algorithm
-     * @param length Length of the encryption key
      */
-    async setSettings(storageProvider: StorageProvider, host: string, port: number, protocol: string, name: string, length: number) {
+    async setSettings(storageProvider: StorageProvider, host: string, port: number, protocol: string) {
         await this._initialize()
 
-        await this._contract.setSettings(storageProvider, EncryptionProvider.Aes, host, port, protocol, name, length)
+        await this._contract.setSettings(storageProvider, host, port, protocol)
         await this._refreshSettings()
     }
 
@@ -374,18 +332,6 @@ export class Datastore {
     }
 
     /**
-     * Add/Remove read permission to an entity for a specific file
-     * @param {number} fileId File Id
-     * @param {string} entity Entity address
-     * @param {boolean} hasPermission Write permission
-     */
-    async setReadPermission(fileId: number, entity: string, hasPermission: boolean) {
-        await this._initialize()
-
-        await this._contract.setReadPermission(fileId, entity, hasPermission)
-    }
-
-    /**
      * Add/Remove write permission to an entity for a specific file
      * @param {number} fileId File Id
      * @param {string} entity Entity address
@@ -395,77 +341,6 @@ export class Datastore {
         await this._initialize()
 
         await this._contract.setWritePermission(fileId, entity, hasPermission)
-    }
-
-    /**
-     * Add/Remove permissions to an entity for a specific file
-     * @param {number} fileId File Id
-     * @param {string} entity Entity address
-     * @param {boolean} read read permission
-     * @param {boolean} write write permission
-     */
-    async setEntityPermissions(fileId: number, entity: string, read: boolean, write: boolean) {
-        await this._initialize()
-
-        await this._contract.setEntityPermissions(fileId, entity, read, write)
-    }
-
-    /**
-     * Sets multiple permissions on a file
-     * @param {number} fileId 
-     * @param {Object[]} entityPermissions 
-     * @param {Object[]} groupPermissions 
-     * @param {boolean} isPublic
-     * 
-     * There is currently a bug in this function: setMultiplePermissions doesn't
-     * seem to be called when file is public
-     */
-    async setPermissions(fileId: number, entityPermissions: any[], groupPermissions: any[], isPublic: boolean) { 
-        await this._initialize()
-
-        let storageId = ""
-        let file = await this.getFile(fileId)
-        let fileDataStorageRef = file.storageRef
-        if (!JSZip.support.arraybuffer)
-            throw new Error('Your browser does not support JSZip. Please install a compatible browser.')
-
-        let byteLengthPreCompression = file.content.byteLength
-        let zip = JSZip()
-        await zip.file('content', file.content)
-        file.content = await zip.generateAsync({type : "arraybuffer"})
-        let encryptionKeyAsString = await this.getFileEncryptionKey(fileId)
-
-        if (!isPublic && encryptionKeyAsString === "") {
-            let encryptionFileData = await this._encryption.encryptFile(file.content)
-            file.content = encryptionFileData.encryptedFile
-            encryptionKeyAsString = encryptionFileData.encryptionKey
-        } 
-        else if (isPublic && encryptionKeyAsString !== "")
-            encryptionKeyAsString = ""
-        
-        storageId = await this._storage.addFile(file.content)
-        if (!isPublic || (isPublic && encryptionKeyAsString == "")) {
-            this.setFileContent(fileId, file.content)
-            
-            let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
-            jsonFileData.contentStorageRef = storageId
-            jsonFileData.encryptionKey = encryptionKeyAsString
-            jsonFileData.fileSize = byteLengthPreCompression
-            jsonFileData.lastModification = new Date()
-            fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
-        }
-
-        await this._contract.setMultiplePermissions(
-            fileId,
-            groupPermissions.map(perm => perm.groupId),
-            groupPermissions.map(perm => perm.read),
-            groupPermissions.map(perm => perm.write),
-            entityPermissions.map(perm => perm.entity),
-            entityPermissions.map(perm => perm.read),
-            entityPermissions.map(perm => perm.write),
-            isPublic,
-            fileDataStorageRef
-        )
     }
 
     /**
@@ -490,23 +365,6 @@ export class Datastore {
         let file = await this.getFileInfo(fileId)
         let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
         jsonFileData.name = newName
-        jsonFileData.lastModification = new Date()
-        const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
-        await this._contract.setStorageRef(fileId, fileDataStorageRef)
-        this._sendEvent('FileChange', { fileId });
-    }
-
-    /**
-     * Changes encryption of file with Id `fileId` for `newEncryptionKey`
-     * @param fileId File Id
-     * @param newEncryptionKey New encryption key
-     */
-    async setEncryptionKey(fileId: number, newEncryptionKey: string) {
-        await this._initialize()
-
-        let file = await this.getFileInfo(fileId)
-        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
-        jsonFileData.name = newEncryptionKey
         jsonFileData.lastModification = new Date()
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
         await this._contract.setStorageRef(fileId, fileDataStorageRef)
@@ -620,16 +478,15 @@ export class Datastore {
     }
 
     /**
-     * Sets read and write permissions on a file for a group
+     * Sets write permissions on a file for a group
      * @param {number} fileId Id of the file
      * @param {number} groupId Id of the group
-     * @param {boolean} read Read permission
      * @param {boolean} write Write permission
      */
-    async setGroupPermissions(fileId: number, groupId: number, read: boolean, write: boolean) {
+    async setGroupPermissions(fileId: number, groupId: number, write: boolean) {
         await this._initialize()
 
-        await this._contract.setGroupPermissions(fileId, groupId, read, write)
+        await this._contract.setGroupPermissions(fileId, groupId, write)
     }
 
     /**
@@ -799,7 +656,6 @@ export class Datastore {
             return {
                 name: '',
                 contentStorageRef: '',
-                encryptionKey: '',
                 fileSize: 0,
                 lastModification: JSON.stringify(new Date(0)),
                 labels: []
@@ -819,7 +675,6 @@ export class Datastore {
             id: fileId, 
             name: jsonFileData.name,
             contentStorageRef: jsonFileData.contentStorageRef,
-            encryptionKey: jsonFileData.encryptionKey,
             fileSize: jsonFileData.fileSize,
             lastModification: new Date(jsonFileData.lastModification),
             labels: jsonFileData.labels,

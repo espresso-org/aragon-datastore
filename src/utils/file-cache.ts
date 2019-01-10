@@ -1,5 +1,4 @@
 export class FileCache {
-
     private _files: Promise<any>
 
     constructor(files = []) {
@@ -7,17 +6,14 @@ export class FileCache {
     }
 
     private async _initialize(files = []) {
-        
         this._files = new Promise(res => res(this._generateTree(0, files)))
     }
 
     private _generateTree(index: number, files: any[]) {
-
         const folder = { 
             ...(files[index]),
             fileIds: []
         }
-        
 
         for (const file of files) {
             if (file) {
@@ -32,11 +28,8 @@ export class FileCache {
                 }
             }
         }
-
         files[index] = folder
-
         return files
-
     }
 
     public async addFile(file: any) {
@@ -107,10 +100,8 @@ export class FileCache {
 
             res(files)
         })
-
         return this._files.then(() => null)
     }
-
 
     public async lockAndUpdateFile(fileId: number, filePromise: Promise<any>) {
         const filesBackup = this._files
@@ -123,8 +114,4 @@ export class FileCache {
             .then(() => this._files)
             .catch(() => this._files = filesBackup)
     }
-
-
-
-
 }

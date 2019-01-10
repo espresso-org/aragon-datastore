@@ -29,7 +29,6 @@ library FileLibrary {
      */
     struct File {
         string storageRef;      // File data storage reference 
-        bool isPublic;          // True if file can be read by anyone
         bool isDeleted;         // True if file is deleted
         bool isFolder;          // Folders are simply files with isFolder set to true
         uint256 parentFolderId; // Parent folder reference        
@@ -42,7 +41,6 @@ library FileLibrary {
     function addFile(
         FileList storage _self, 
         string _storageRef, 
-        bool _isPublic, 
         uint256 _parentFolderId,
         bool _isFolder
     ) 
@@ -51,22 +49,15 @@ library FileLibrary {
     {
         _self.files.push(FileLibrary.File({
             storageRef: _storageRef,
-            isPublic: _isPublic,
             isDeleted: false,
             isFolder: _isFolder,
             parentFolderId: _parentFolderId
         }));
-
         return _self.files.length - 1;
     }
-  
 
     function setStorageRef(FileList storage _self, uint _fileId, string _newStorageRef) internal {
         _self.files[_fileId].storageRef = _newStorageRef;
-    }
-
-    function setPublic(FileList storage _self, uint _fileId, bool _isPublic) internal {
-        _self.files[_fileId].isPublic = _isPublic;
     }
 
     function setIsDeleted(FileList storage _self, uint _fileId, bool _isDeleted) internal {
@@ -91,12 +82,10 @@ library FileLibrary {
         delete _self.labelIds[_labelId.sub(1)];
         delete _self.labels[_labelId];
     }
-
  
     function initializeRootFolder(FileList storage _self) internal {
         _self.files.push(File({
             storageRef: "",
-            isPublic: true,
             isDeleted: false,
             isFolder: true,
             parentFolderId: 0
