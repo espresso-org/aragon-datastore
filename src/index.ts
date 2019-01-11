@@ -807,6 +807,10 @@ export class Datastore {
         }
     }
 
+    private _isFilePermanantlyDeleted(file) {
+        return file.storageRef === '' && !file.isPublic
+    }
+
     /**
      * Returns the file information without the content
      * @param {number} fileId 
@@ -814,8 +818,12 @@ export class Datastore {
     private async _getFileInfo(fileId: number) {
 
         const fileTuple = await this._contract.getFile(fileId)
+
+        if (this._isFilePermanantlyDeleted(fileTuple))
+            return undefined
+
         const jsonFileData = await this._getFileInfoFromStorageProvider(fileId, fileTuple[0])
-        const fileInfo = {
+        return {
             id: fileId, 
             name: jsonFileData.name,
             contentStorageRef: jsonFileData.contentStorageRef,
@@ -825,7 +833,7 @@ export class Datastore {
             labels: jsonFileData.labels,
             ...createFileFromTuple(fileTuple)
         }
-        // If storageRef is '' and file is not the root folder, the file has been permanently deleted
-        return fileInfo.storageRef !== '' || fileId === 0 ? fileInfo : undefined
+
+        
     }
 }

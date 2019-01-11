@@ -90,7 +90,7 @@ export class FileCache {
                 : file.parentFolder
             
             if (parentFolderId !== undefined) {
-                const parentFolder = files[file.parentFolder]
+                const parentFolder = files[parentFolderId]
 
                 if (isFileDeleted)
                     parentFolder.fileIds = parentFolder.fileIds.filter(id => id !== fileId)
