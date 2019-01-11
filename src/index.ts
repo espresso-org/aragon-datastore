@@ -664,7 +664,7 @@ export class Datastore {
     }
 
     private _isFilePermanantlyDeleted(file) {
-        return file.storageRef === '' && !file.isPublic
+        return file.storageRef === ''
     }
 
     /**
