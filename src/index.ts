@@ -124,9 +124,7 @@ export class Datastore {
             "labels": []
         }
         fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
-        console.log('before await!!')
         await this._contract.addFile(fileDataStorageRef, publicStatus, parentFolderId)
-        console.log('after await!!')
     }
 
     /**
