@@ -69,7 +69,9 @@ export class Datastore {
     private async _handleEvents(event) {
         switch (event.event) {
             case 'FileChange':
-                const fileId = parseInt(event.returnValues.fileId)
+                const returnedValues = event.returnValues || event.returnedValues
+                const fileId = parseInt(returnedValues.fileId)
+                console.log('lockAndUpdate file ', fileId)
                 this._foldersCache.lockAndUpdateFile(fileId, this._getFileInfo(fileId))
                 break;
         }

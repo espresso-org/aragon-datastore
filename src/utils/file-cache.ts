@@ -120,6 +120,7 @@ export class FileCache {
                 this._files = new Promise(res => res(files))
                 return this.updateFile(fileId, file)
             })
+            .then(() => console.log('lock and update done'))
             .then(() => this._files)
             .catch(() => this._files = filesBackup)
     }
