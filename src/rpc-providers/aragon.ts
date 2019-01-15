@@ -79,7 +79,7 @@ export class AragonContract implements RpcProviderContract {
     
     return {
       ...settingsTuple,
-      3: new BigNumber(settingsTuple[3])
+      2: new BigNumber(settingsTuple[2])
     }
   }
 

@@ -688,7 +688,5 @@ export class Datastore {
             labels: jsonFileData.labels,
             ...createFileFromTuple(fileTuple)
         }
-
-        
     }
 }
