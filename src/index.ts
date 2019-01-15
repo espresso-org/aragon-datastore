@@ -130,7 +130,7 @@ export class Datastore {
         }        
         const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
         this._contract.addFolder(fileDataStorageRef, parentFolderId)
-    } 
+    }
 
     /**
      * Returns a folder
@@ -675,7 +675,7 @@ export class Datastore {
     }
 
     private _isFilePermanantlyDeleted(file) {
-        return file.storageRef === ''
+        return file.storageRef === '' && file.id > 0
     }
 
     /**
@@ -686,7 +686,7 @@ export class Datastore {
 
         const fileTuple = await this._contract.getFile(fileId)
 
-        if (this._isFilePermanantlyDeleted(fileTuple))
+        if (this._isFilePermanantlyDeleted({ id: fileId, ...fileTuple }))
             return undefined
 
         const jsonFileData = await this._getFileInfoFromStorageProvider(fileId, fileTuple[0])
