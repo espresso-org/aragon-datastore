@@ -82,6 +82,8 @@ export class Datastore {
         this._internalEvents.emit(eventName, params)
     }
 
+
+    
     /**
      * Add a new file to the Datastore
      * @param {string} name - File name
@@ -161,7 +163,16 @@ export class Datastore {
         await this._initialize()
 
         return (await this._foldersCache.getFolder(folderId)).files
-    }      
+    }    
+    
+    /**
+     * Returns all files from all folders
+     */
+    async getAllFiles() {
+        await this._initialize()
+
+        return this._foldersCache.getAllFiles()
+    }
 
     /**
      * Returns a file and its content from its Id
