@@ -372,6 +372,34 @@ export class Datastore {
     }
 
     /**
+     * Changes name of file with Id `fileId` for `newName` and changes the content to `newFile`
+     * @param {number} fileId File Id
+     * @param {string} newName New file name
+     * @param {ArrayBuffer} newFile New file content
+     */
+    async setFileNameAndContent(fileId: number, newName: string, file: ArrayBuffer) {
+        await this._initialize()
+
+        let byteLengthPreCompression = file.byteLength
+        if (!JSZip.support.arraybuffer)
+            throw new Error('Your browser does not support JSZip. Please install a compatible browser.')
+
+        let zip = JSZip()
+        zip.file('content', file)
+        file = await zip.generateAsync({type : 'arraybuffer'})
+        const contentStorageRef = await this._storage.addFile(file)
+        let fileInfos = await this.getFileInfo(fileId)
+        let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(fileInfos.storageRef)), 'base64').toString('ascii'))
+        jsonFileData.contentStorageRef = contentStorageRef
+        jsonFileData.fileSize = byteLengthPreCompression
+        jsonFileData.name = newName
+        jsonFileData.lastModification = new Date()
+        const fileDataStorageRef = await this._storage.addFile(abBase64.decode(Buffer.from(JSON.stringify(jsonFileData)).toString('base64')))
+        await this._contract.setStorageRef(fileId, fileDataStorageRef)
+        this._sendEvent('FileChange', { fileId });
+    }
+
+    /**
      * Creates a new group of entities
      * @param {string} groupName Name of the group
      */
