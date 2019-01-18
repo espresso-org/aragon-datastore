@@ -471,15 +471,12 @@ export class Datastore {
         await this._initialize()
 
         const groupIds = await this._contract.getGroupsWithPermissionsOnFile(fileId)
-        console.log('groupIds: ', groupIds)
         let groupIdsNotDeleted = []
         for (let i = 0; i < groupIds.length; i++) {
             let group = await this._contract.getGroup(groupIds[i])
-            console.log('GROUP NAME!: ', group[1])
-            if (group[1] !== "")
+            if (group)
                 groupIdsNotDeleted.push(groupIds[i])
         }
-        console.log('groupIdsNotDeleted: ', groupIdsNotDeleted)
 
         return Promise.all(
             groupIdsNotDeleted
