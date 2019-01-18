@@ -48,6 +48,10 @@ export class FileCache {
         }
     }
 
+    public async getAllFiles() {
+        return this._files
+    }
+
     public async getFile(id = 0) {
         return (await this._files)[id]
     }
