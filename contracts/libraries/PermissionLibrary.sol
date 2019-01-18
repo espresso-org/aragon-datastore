@@ -3,7 +3,6 @@ pragma solidity ^0.4.24;
 import "@espresso-org/object-acl/contracts/ObjectACL.sol";
 
 library PermissionLibrary {
-
     bytes32 constant public FILE_WRITE_ROLE = keccak256("FILE_WRITE_ROLE");
 
     /**
