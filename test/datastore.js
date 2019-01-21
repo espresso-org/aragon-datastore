@@ -9,7 +9,7 @@ const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
 const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
 const TestDatastore = artifacts.require('TestDatastore')
 
-contract = () => 0
+//contract = () => 0
 
 contract('Datastore ', accounts => {
     let datastore
@@ -74,7 +74,7 @@ contract('Datastore ', accounts => {
         assert.equal(await datastore.lastFileId(), 1)
     })    
 
-    it('getFileAsCaller returns the right file data', async () => {
+    xit('getFileAsCaller returns the right file data', async () => {
         const file1 = { 
             name: 'test name',
             storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
@@ -141,7 +141,7 @@ contract('Datastore ', accounts => {
         assert.equal(getFile2[4], false) // isDeleted should be false
     })
 
-    describe('deleteFile', async () => {
+    xdescribe('deleteFile', async () => {
         it('deletes a file from the datastore if second param is true', async () => {
             const file1 = { 
                 name: 'test name',
@@ -208,7 +208,7 @@ contract('Datastore ', accounts => {
         })
     })
 
-    describe('setFileName', async () => {
+    xdescribe('setFileName', async () => {
         it('throws when called with no write access', async () => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", "file name", 100, true, '', { from: accounts[0] })
 
@@ -237,7 +237,7 @@ contract('Datastore ', accounts => {
         })          
     })
 
-    describe('deleteFilesPermanently', async () => {
+    xdescribe('deleteFilesPermanently', async () => {
         it('deletes files from the datastore parmanently', async () => {
             const file1 = { 
                 name: 'test name',
@@ -258,7 +258,7 @@ contract('Datastore ', accounts => {
         })   
     })
 
-    describe('setFileContent', async () => {
+    xdescribe('setFileContent', async () => {
         it('changes file content when setFileContent is called with write access', async () => {
             const newStorageRef = 'QmB3YrhJTHsV4X3vb2tWWQSuPMS6aXCbZKpEjPHPUZN2Nj'
             const newFileSize = 321
@@ -301,20 +301,20 @@ contract('Datastore ', accounts => {
         }) 
     })
     
-    it('fires NewFile event on addFile call', async () => {
+    xit('fires NewFile event on addFile call', async () => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, '')
 
         await assertEvent(datastore, { event: 'FileChange' })
     })     
    
-    it('fires PermissionChange event on setEntityPermissions call', async () => {
+    xit('fires PermissionChange event on setEntityPermissions call', async () => {
         await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, '', { from: accounts[0] })
         await datastore.setEntityPermissions(1, accounts[1], false, true)
 
         await assertEvent(datastore, { event: 'PermissionChange' })
     })  
     
-    describe('getEntitiesWithPermissionsOnFile', async () => {
+    xdescribe('getEntitiesWithPermissionsOnFile', async () => {
         it('returns the right address list', async() => {
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 'file name', 100, true, '')
             await datastore.setEntityPermissions(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true, true)
