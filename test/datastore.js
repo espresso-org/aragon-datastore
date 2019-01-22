@@ -381,7 +381,30 @@ contract('Datastore ', accounts => {
         it("throws if group doesn't exist", async () => {            
             assertThrow(async () => await datastore.removeEntityFromGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7'))
         })
-    })          
+    })  
+    
+    
+    describe('hasWriteAccess', async () => {
+        it('returns false when entity doesnt have permissions on it and isnt in a group that has', async() => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: false
+            }
+            await datastore.addFile(file1.storageRef, 0)
+
+            assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
+        })
+
+        it("returns false when entity isn't in group", async() => {
+            await datastore.createGroup('My first group')
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", 0)
+            await datastore.setGroupPermissions(1, 1, true)
+
+            assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
+        })       
+    })     
 
 })
 
