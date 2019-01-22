@@ -78,7 +78,7 @@ contract('Datastore ', accounts => {
             assert.equal(await datastore.lastFileId(), 1)
         })   
 
-        it('fires NewFile event', async () => {
+        it('fires FileChange event', async () => {
             await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 0)
     
             await assertEvent(datastore, { event: 'FileChange' })
@@ -191,6 +191,13 @@ contract('Datastore ', accounts => {
             assert.equal(getFile1[2], EMPTY_ADDR)    
         })   
     })  
+
+    it('fires PermissionChange event on setWritePermission call', async () => {
+        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 0, { from: accounts[0] })
+        await datastore.setWritePermission(1, accounts[1], true)
+
+        await assertEvent(datastore, { event: 'PermissionChange' })
+    })      
 
 })
 
