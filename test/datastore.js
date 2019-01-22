@@ -426,7 +426,7 @@ contract('Datastore ', accounts => {
             assert.equal((await datastore.hasWriteAccess(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')), false)
         })
 
-        it('sets read and write permissions on a file', async() => {
+        it('sets write permissions on a file', async() => {
             await datastore.createGroup('My first group')
             await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ee7')
             await datastore.addEntityToGroup(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
@@ -484,7 +484,47 @@ contract('Datastore ', accounts => {
             
             assertThrow(async () => await datastore.removeGroupFromFile(1, 1, { from: accounts[1] }))
         })
-    })           
+    })  
+    
+    
+    it('getGroupIds returns the array of groups Ids', async() => {
+        await datastore.createGroup('My first group')
+        await datastore.createGroup('My second group')
+        await datastore.createGroup('My third group')
+
+        assert.equal((await datastore.getGroupIds()).length, 3)
+        assert.equal((await datastore.getGroupIds())[0], 1)
+        assert.equal((await datastore.getGroupIds())[1], 2)
+        assert.equal((await datastore.getGroupIds())[2], 3)
+    })    
+
+
+    describe('createLabel', async () => {
+        it('creates a new label', async () => {
+            await datastore.createLabel("Important", "0xff000000")
+            let label = await datastore.getLabel(1)
+            let labelCount = await datastore.getLabels()
+
+            await assertEvent(datastore, { event: 'LabelChange' })
+            assert.equal(labelCount, 1)
+            assert.equal(web3.toUtf8(label[0]), "Important")
+            assert.equal(label[1], "0xff000000")
+        })
+    })
+
+    describe('deleteLabel', async () => {
+        it('deletes an existing label', async () => {
+            await datastore.createLabel("Important", "0xff000000")
+            await datastore.deleteLabel(1)
+            let label = await datastore.getLabel(1)
+            let labelCount = await datastore.getLabels()
+
+            await assertEvent(datastore, { event: 'FileChange' })
+            assert.equal(labelCount, 0)
+            assert.equal(label[0], 0)
+            assert.equal(label[1], 0)
+        })
+    })    
 
 })
 
