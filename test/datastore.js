@@ -9,6 +9,8 @@ const ACL = artifacts.require('@aragon/core/contracts/acl/ACL')
 const Kernel = artifacts.require('@aragon/core/contracts/kernel/Kernel')
 const TestDatastore = artifacts.require('TestDatastore')
 
+const EMPTY_ADDR = '0x0000000000000000000000000000000000000000'
+
 //contract = () => 0
 
 contract('Datastore ', accounts => {
@@ -68,13 +70,22 @@ contract('Datastore ', accounts => {
         await acl.grantPermission(objectACL.address, acl.address, await acl.CREATE_PERMISSIONS_ROLE())
     })
 
-    it('increases lastFileId by 1 after addFile', async () => {
-        assert.equal(await datastore.lastFileId(), 0)
-        await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", 0)
-        assert.equal(await datastore.lastFileId(), 1)
-    })   
+    describe('addFile', async () => {
+
+        xit('increases lastFileId by 1 after addFile', async () => {
+            assert.equal(await datastore.lastFileId(), 0)
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", 0)
+            assert.equal(await datastore.lastFileId(), 1)
+        })   
+
+        it('fires NewFile event', async () => {
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 0)
     
-    it('getFileAsCaller returns the right file data', async () => {
+            await assertEvent(datastore, { event: 'FileChange' })
+        })          
+    })
+    
+    xit('getFileAsCaller returns the right file data', async () => {
         const file1 = { 
             name: 'test name',
             storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
@@ -103,7 +114,7 @@ contract('Datastore ', accounts => {
     })   
     
 
-    describe('deleteFile', async () => {
+    xdescribe('deleteFile', async () => {
         it('deletes a file from the datastore if second param is true', async () => {
             const file1 = { 
                 name: 'test name',
@@ -160,6 +171,25 @@ contract('Datastore ', accounts => {
                 await datastore.deleteFile(1, true, false, { from: accounts[1] })
             })
         })
+    })  
+
+    describe('deleteFilesPermanently', async () => {
+        xit('deletes files from the datastore parmanently', async () => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: true
+            }       
+
+            await datastore.addFile(file1.storageRef, 0)
+            gasTracker.track('deleteFilesPermanently([1])', await datastore.deleteFilesPermanently([ 1 ]))
+
+            const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
+            assert.equal(getFile1[0], '')
+            assert.equal(getFile1[1], false)
+            assert.equal(getFile1[2], EMPTY_ADDR)    
+        })   
     })  
 
 })
