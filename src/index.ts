@@ -598,7 +598,7 @@ export class Datastore {
     async unassignLabel(fileId: number, labelId: number) {
         await this._initialize()
 
-        let file = await this.getFile(fileId)
+        let file = await this.getFileInfo(fileId)
         let jsonFileData = JSON.parse(Buffer.from(abBase64.encode(await this._storage.getFile(file.storageRef)), 'base64').toString('ascii'))
         jsonFileData.labels = jsonFileData.labels.filter(id => id !== labelId)
         jsonFileData.lastModification = new Date()
