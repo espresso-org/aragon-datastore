@@ -72,6 +72,34 @@ contract('Datastore ', accounts => {
         assert.equal(await datastore.lastFileId(), 0)
         await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", 0)
         assert.equal(await datastore.lastFileId(), 1)
+    })   
+    
+    it('getFileAsCaller returns the right file data', async () => {
+        const file1 = { 
+            name: 'test name',
+            storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+            size: 4567,
+            isPublic: true
+        }
+
+        const file2 = { 
+            name: 'test name2',
+            storageRef: 'K4WWQSuPMS6aGCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+            size: 9872214,
+            isPublic: false
+        }        
+
+        await datastore.addFile(file1.storageRef, 0)
+        await datastore.addFile(file2.storageRef, 0)
+
+        const getFile1 = await datastore.getFileAsCaller(1, '0xdeadbeef')
+        assert.equal(getFile1[0], file1.storageRef)
+        assert.equal(getFile1[1], false) // isDeleted should be false
+
+        const getFile2 = await datastore.getFileAsCaller(2, '0xdeadbeef')
+        assert.equal(getFile2[0], file2.storageRef)
+        assert.equal(getFile2[1], false) // isDeleted should be false
+        
     })    
 
 })
