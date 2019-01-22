@@ -100,7 +100,67 @@ contract('Datastore ', accounts => {
         assert.equal(getFile2[0], file2.storageRef)
         assert.equal(getFile2[1], false) // isDeleted should be false
         
-    })    
+    })   
+    
+
+    describe('deleteFile', async () => {
+        it('deletes a file from the datastore if second param is true', async () => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: true
+            }       
+
+            await datastore.addFile(file1.storageRef, 0)
+            gasTracker.track('deleteFile', await datastore.deleteFile(1, true, false))
+
+            const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
+            assert.equal(getFile1[0], file1.storageRef)
+            assert.equal(getFile1[1], true) // isDeleted should be true      
+        })
+
+        it('restores a file if second param is false', async () => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: true
+            }       
+
+            await datastore.addFile(file1.storageRef, 0)
+            await datastore.deleteFile(1, true, false)
+            await datastore.deleteFile(1, false, false)
+
+            const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
+            assert.equal(getFile1[0], file1.storageRef)
+            assert.equal(getFile1[1], false) // isDeleted should be false      
+        })    
+        
+        it('deletes a file permanently if third param is true', async () => {
+            const file1 = { 
+                name: 'test name',
+                storageRef: 'QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t',
+                size: 4567,
+                isPublic: true
+            }       
+
+            await datastore.addFile(file1.storageRef, 0)
+            await datastore.deleteFile(1, true, true)
+
+            const getFile1 = await datastore.getFileAsCaller(1, accounts[0])
+            assert.equal(getFile1[0], '')
+            assert.equal(getFile1[1], false)    
+        })        
+
+        it('throws when not called by owner', async () => {
+            await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", 0)
+
+            assertThrow(async () => {
+                await datastore.deleteFile(1, true, false, { from: accounts[1] })
+            })
+        })
+    })  
 
 })
 
