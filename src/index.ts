@@ -202,16 +202,19 @@ export class Datastore {
         await this._initialize()
 
         const fileTuple = await this._contract.getFile(fileId)
-        const fileContent = await this._storage.getFile(fileTuple[0])
-        const jsonFileData = JSON.parse(Buffer.from(abBase64.encode(fileContent), 'base64').toString('ascii'))
-        const fileInfo = {
-            id: fileId, 
-            name: jsonFileData.name,
-            contentStorageRef: jsonFileData.contentStorageRef,
-            fileSize: jsonFileData.fileSize,
-            lastModification: new Date(jsonFileData.lastModification),
-            labels: jsonFileData.labels,
-            ...createFileFromTuple(fileTuple)
+        let fileContent, fileInfo
+        if (!fileTuple[1]) {
+            fileContent = await this._storage.getFile(fileTuple[0])
+            const jsonFileData = JSON.parse(Buffer.from(abBase64.encode(fileContent), 'base64').toString('ascii'))
+            fileInfo = {
+                id: fileId, 
+                name: jsonFileData.name,
+                contentStorageRef: jsonFileData.contentStorageRef,
+                fileSize: jsonFileData.fileSize,
+                lastModification: new Date(jsonFileData.lastModification),
+                labels: jsonFileData.labels,
+                ...createFileFromTuple(fileTuple)
+            }
         }
         // If storageRef is '' and file is not the root folder, the file has been permanently deleted
         return fileInfo.storageRef !== '' || fileId === 0 ? fileInfo : undefined
