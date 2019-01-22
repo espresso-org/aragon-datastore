@@ -213,7 +213,19 @@ contract('Datastore ', accounts => {
             assert.equal(groups.length, 1)
             assert.equal(groups[0].toNumber(), 1)
         }) 
-    })     
+    })  
+    
+    describe('getEntityPermissionsOnFile', async () => {
+        it('returns the read and write permissions', async() => {
+
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 0)
+            await datastore.setWritePermission(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7', true)
+
+            const permissions = await datastore.getEntityPermissionsOnFile(1, '0xb4124ceb3451635dacedd11767f004d8a28c6ef7')
+
+            assert.equal(permissions, true)
+        })
+    })       
 
 })
 
