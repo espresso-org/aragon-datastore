@@ -197,7 +197,23 @@ contract('Datastore ', accounts => {
         await datastore.setWritePermission(1, accounts[1], true)
 
         await assertEvent(datastore, { event: 'PermissionChange' })
-    })      
+    })   
+    
+    describe('getGroupsWithPermissionsOnFile', async () => {
+        it('returns the right group list', async() => {
+            await datastore.createGroup('My first group')
+            await datastore.createGroup('My second group')
+            await datastore.createGroup('My third group')
+
+            await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 0)
+            await datastore.setGroupPermissions(1, 1, true)
+
+            const groups = await datastore.getGroupsWithPermissionsOnFile(1)
+
+            assert.equal(groups.length, 1)
+            assert.equal(groups[0].toNumber(), 1)
+        }) 
+    })     
 
 })
 
