@@ -15,7 +15,7 @@ const NEW_REF = 'QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL'
 
 //contract = () => 0
 
-contract('Gas usage - Groupes ', accounts => {
+contract('Gas usage - Groups', accounts => {
     let datastore
     let daoFact
     let acl
