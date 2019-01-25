@@ -9,12 +9,14 @@ import { throttleTime } from 'rxjs/operators'
 export { FileCache } from './utils/file-cache'
 import * as abBase64 from 'base64-arraybuffer'
 
-let Web3 = require('web3')
 
 import { createFileFromTuple, createPermissionFromTuple, createSettingsFromTuple } from './utils'
 import { DatastoreSettings, StorageProvider } from './datastore-settings'
 import { RpcProvider } from './rpc-providers/rpc-provider'
 import { EventEmitter } from './utils/event-emitter'
+import * as Web3 from 'web3'
+
+const web3 = new Web3()
 
 export const providers = { storage, rpc }
 
@@ -558,8 +560,7 @@ export class Datastore {
 
         if (name.length > 28)
             throw 'Label name must not exceed 28 characters.'
-        
-        const web3 = (window as any).web3        
+               
         let bytesName = web3.fromAscii(name)
         let hexColor = Color(color).hex().replace('#', '0x')
         await this._contract.createLabel(bytesName, hexColor)
@@ -615,7 +616,6 @@ export class Datastore {
     async getLabel(labelId: number) {
         await this._initialize()
 
-        const web3 = (window as any).web3
         let label = await this._contract.getLabel(labelId)
         let name = web3.toUtf8(label[0]);
         let color = label[1].substring(2,8)
