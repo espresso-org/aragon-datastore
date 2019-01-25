@@ -528,9 +528,6 @@ contract('Datastore ', accounts => {
             assert.equal(label[1], 0)
         })
     })
-    
- 
-
 })
 
 async function assertThrow(fn) {

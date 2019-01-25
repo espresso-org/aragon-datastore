@@ -256,11 +256,69 @@ contract('Gas usage - Groups', accounts => {
         await datastore.setGroupPermissions(1, 1, true)
 
         gasTracker.track('9. 1 group 10 entities', await datastore.setStorageRef(1, NEW_REF, { from: accounts[10] }))
-    })      
-    
-    
- 
+    })
 
+    // Folders
+    it('hasWriteAccess', async () => {
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 0)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 1)
+        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 2, { from: accounts[0] })
+        await datastore.setWritePermission(0, accounts[1], true)
+
+        assert.equal((await datastore.hasWriteAccess(3, accounts[1])), true)
+        gasTracker.track('10. 2 folder down has access', await datastore.setStorageRef(3, NEW_REF, { from: accounts[1] }))
+    })
+    
+    it('hasWriteAccess', async () => {
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 0)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 1)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 2)
+        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 3, { from: accounts[0] })
+        await datastore.setWritePermission(0, accounts[1], true)
+
+        assert.equal(await datastore.hasWriteAccess(4, accounts[1]), true)
+        gasTracker.track('11. 3 folder down has access', await datastore.setStorageRef(4, NEW_REF, { from: accounts[1] }))
+    })
+
+    it('hasWriteAccess', async () => {
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 0)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 1)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 2)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 3)
+        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 4, { from: accounts[0] })
+        await datastore.setWritePermission(0, accounts[1], true)
+
+        assert.equal(await datastore.hasWriteAccess(5, accounts[1]), true)
+        gasTracker.track('12. 4 folder down has access', await datastore.setStorageRef(5, NEW_REF, { from: accounts[1] }))
+    })
+
+    it('hasWriteAccess', async () => {
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 0)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 1)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 2)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 3)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 4)
+        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 5, { from: accounts[0] })
+        await datastore.setWritePermission(0, accounts[1], true)
+
+        assert.equal(await datastore.hasWriteAccess(6, accounts[1]), true)
+        gasTracker.track('13. 5 folder down has access', await datastore.setStorageRef(6, NEW_REF, { from: accounts[1] }))
+    })
+
+    it('hasWriteAccess', async () => {
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 0)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 1)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 2)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 3)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 4)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 5)
+        await datastore.addFolder("QmVc69uK2mXxwvb5PT7QgujrY3XjY9Ys2Gwn62kCc7rqrL0", 6)
+        await datastore.addFile('QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t', 7, { from: accounts[0] })
+        await datastore.setWritePermission(0, accounts[1], true)
+
+        assert.equal(await datastore.hasWriteAccess(8, accounts[1]), true)
+        gasTracker.track('13. 7 folder down has access', await datastore.setStorageRef(8, NEW_REF, { from: accounts[1] }))
+    })
 })
 
 async function assertThrow(fn) {

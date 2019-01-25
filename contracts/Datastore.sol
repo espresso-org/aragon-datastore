@@ -271,7 +271,7 @@ contract Datastore is AragonApp {
         uint256 level = 0;
         uint256 currentFileId = _fileId;
 
-        while (level < 3 && currentFileId != 0) {
+        while (level < 8 && currentFileId != 0) {
             FileLibrary.File folder = fileList.files[currentFileId];
 
             if (permissions.hasWriteAccess(folder.parentFolderId, _entity))

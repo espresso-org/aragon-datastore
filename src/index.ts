@@ -83,8 +83,6 @@ export class Datastore {
         this._internalEvents.emit(eventName, params)
     }
 
-
-    
     /**
      * Add a new file to the Datastore
      * @param {string} name - File name
