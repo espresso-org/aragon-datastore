@@ -47,13 +47,13 @@ contract Datastore is AragonApp {
     ObjectACL private objectACL;
 
     modifier fileEditPermission(uint256 _fileId) {
-        require(acl.getPermissionManager(this, EDIT_FILE_ROLE) == msg.sender 
+        require(acl.hasPermission(msg.sender, this, EDIT_FILE_ROLE)
             || permissions.isOwner(_fileId, msg.sender), "You must be the file owner.");
         _;
     }     
 
     modifier fileDeletePermission(uint256 _fileId) {
-        require(acl.getPermissionManager(this, DELETE_FILE_ROLE) == msg.sender 
+        require(acl.hasPermission(msg.sender, this, DELETE_FILE_ROLE)
             || permissions.isOwner(_fileId, msg.sender), "You must be the file owner.");
         _;
     }          
@@ -278,7 +278,7 @@ contract Datastore is AragonApp {
         view 
         returns (bool) 
     {
-        if (acl.getPermissionManager(this, EDIT_FILE_ROLE) == _entity
+        if (acl.hasPermission(_entity, this, EDIT_FILE_ROLE)
             || permissions.hasWriteAccess(_fileId, _entity))
             return true;
 
