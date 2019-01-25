@@ -13,8 +13,7 @@ contract Datastore is AragonApp {
     using FileLibrary for FileLibrary.LabelList;
     using GroupLibrary for GroupLibrary.GroupData;
 
-    bytes32 constant public LABEL_ROLE = keccak256(abi.encodePacked("LABEL_ROLE"));
-    bytes32 constant public GROUP_ROLE = keccak256(abi.encodePacked("GROUP_ROLE"));
+    bytes32 constant public DATASTORE_MANAGER_ROLE = keccak256(abi.encodePacked("DATASTORE_MANAGER_ROLE"));
     bytes32 constant public EDIT_FILE_ROLE = keccak256(abi.encodePacked("EDIT_FILE_ROLE"));
     bytes32 constant public DELETE_FILE_ROLE = keccak256(abi.encodePacked("DELETE_FILE_ROLE"));
 
@@ -261,7 +260,7 @@ contract Datastore is AragonApp {
         string _ipfsHost, 
         uint16 _ipfsPort, 
         string _ipfsProtocol
-    ) public {
+    ) public auth(DATASTORE_MANAGER_ROLE) {
         require(settings.storageProvider == StorageProvider.None, "Settings already set");
 
         // Storage provider
@@ -335,7 +334,7 @@ contract Datastore is AragonApp {
      * @notice Delete a group from the datastore
      * @param _groupId Id of the group to delete
      */
-    function deleteGroup(uint256 _groupId) external auth(GROUP_ROLE) {
+    function deleteGroup(uint256 _groupId) external auth(DATASTORE_MANAGER_ROLE) {
         require(groups.groups[_groupId].exists);
         groups.deleteGroup(_groupId);
         emit GroupChange(_groupId);
@@ -346,7 +345,7 @@ contract Datastore is AragonApp {
      * @param _groupId Id of the group to rename
      * @param _newGroupName New name for the group
      */
-    function renameGroup(uint256 _groupId, string _newGroupName) external auth(GROUP_ROLE) {
+    function renameGroup(uint256 _groupId, string _newGroupName) external auth(DATASTORE_MANAGER_ROLE) {
         require(groups.groups[_groupId].exists);
         groups.renameGroup(_groupId, _newGroupName);
         emit GroupChange(_groupId);
@@ -416,7 +415,7 @@ contract Datastore is AragonApp {
      * @param _name Name of the label
      * @param _color Color of the label
      */
-    function createLabel(bytes28 _name, bytes4 _color) external auth(LABEL_ROLE) {
+    function createLabel(bytes28 _name, bytes4 _color) external auth(DATASTORE_MANAGER_ROLE) {
         labelList.createLabel(_name, _color);
         emit LabelChange(labelList.lastLabelId);
     }
@@ -425,7 +424,7 @@ contract Datastore is AragonApp {
      * @notice Delete a label from the datastore
      * @param _labelId Id of the label
      */
-    function deleteLabel(uint _labelId) external auth(LABEL_ROLE) {
+    function deleteLabel(uint _labelId) external auth(DATASTORE_MANAGER_ROLE) {
         labelList.deleteLabel(_labelId);
         emit LabelChange(_labelId);
     }
