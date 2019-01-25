@@ -279,7 +279,7 @@ contract Datastore is AragonApp {
         view 
         returns (bool) 
     {
-        if (acl.getPermissionManager(this, DATASTORE_MANAGER_ROLE) == _entity
+        if (acl.getPermissionManager(this, EDIT_FILE_ROLE) == _entity
             || permissions.hasWriteAccess(_fileId, _entity))
             return true;
 
@@ -416,7 +416,7 @@ contract Datastore is AragonApp {
      * @param _name Name of the label
      * @param _color Color of the label
      */
-    function createLabel(bytes28 _name, bytes4 _color) external auth(DATASTORE_MANAGER_ROLE) {
+    function createLabel(bytes28 _name, bytes4 _color) external auth(LABEL_ROLE) {
         labelList.createLabel(_name, _color);
         emit LabelChange(labelList.lastLabelId);
     }
@@ -425,7 +425,7 @@ contract Datastore is AragonApp {
      * @notice Delete a label from the datastore
      * @param _labelId Id of the label
      */
-    function deleteLabel(uint _labelId) external {
+    function deleteLabel(uint _labelId) external auth(LABEL_ROLE) {
         labelList.deleteLabel(_labelId);
         emit LabelChange(_labelId);
     }
