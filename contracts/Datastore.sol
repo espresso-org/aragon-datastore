@@ -47,12 +47,6 @@ contract Datastore is AragonApp {
     Settings public settings;
     ObjectACL private objectACL;
 
-    modifier onlyFileOwner(uint256 _fileId) {
-        require(acl.getPermissionManager(this, DATASTORE_MANAGER_ROLE) == msg.sender 
-            || permissions.isOwner(_fileId, msg.sender), "You must be the file owner.");
-        _;
-    } 
-
     modifier fileEditPermission(uint256 _fileId) {
         require(acl.getPermissionManager(this, EDIT_FILE_ROLE) == msg.sender 
             || permissions.isOwner(_fileId, msg.sender), "You must be the file owner.");
@@ -341,7 +335,7 @@ contract Datastore is AragonApp {
      * @notice Delete a group from the datastore
      * @param _groupId Id of the group to delete
      */
-    function deleteGroup(uint256 _groupId) external auth(DATASTORE_MANAGER_ROLE) {
+    function deleteGroup(uint256 _groupId) external auth(GROUP_ROLE) {
         require(groups.groups[_groupId].exists);
         groups.deleteGroup(_groupId);
         emit GroupChange(_groupId);
@@ -352,7 +346,7 @@ contract Datastore is AragonApp {
      * @param _groupId Id of the group to rename
      * @param _newGroupName New name for the group
      */
-    function renameGroup(uint256 _groupId, string _newGroupName) external auth(DATASTORE_MANAGER_ROLE) {
+    function renameGroup(uint256 _groupId, string _newGroupName) external auth(GROUP_ROLE) {
         require(groups.groups[_groupId].exists);
         groups.renameGroup(_groupId, _newGroupName);
         emit GroupChange(_groupId);
