@@ -13,7 +13,11 @@ contract Datastore is AragonApp {
     using FileLibrary for FileLibrary.LabelList;
     using GroupLibrary for GroupLibrary.GroupData;
 
-    bytes32 constant public DATASTORE_MANAGER_ROLE = keccak256(abi.encodePacked("DATASTORE_MANAGER_ROLE"));
+    bytes32 constant public LABEL_ROLE = keccak256(abi.encodePacked("LABEL_ROLE"));
+    bytes32 constant public GROUP_ROLE = keccak256(abi.encodePacked("GROUP_ROLE"));
+    bytes32 constant public EDIT_FILE_ROLE = keccak256(abi.encodePacked("EDIT_FILE_ROLE"));
+    bytes32 constant public DELETE_FILE_ROLE = keccak256(abi.encodePacked("DELETE_FILE_ROLE"));
+
     
     event NewFile(uint256 fileId);
     event FileChange(uint256 fileId);
@@ -47,7 +51,19 @@ contract Datastore is AragonApp {
         require(acl.getPermissionManager(this, DATASTORE_MANAGER_ROLE) == msg.sender 
             || permissions.isOwner(_fileId, msg.sender), "You must be the file owner.");
         _;
-    }    
+    } 
+
+    modifier fileEditPermission(uint256 _fileId) {
+        require(acl.getPermissionManager(this, EDIT_FILE_ROLE) == msg.sender 
+            || permissions.isOwner(_fileId, msg.sender), "You must be the file owner.");
+        _;
+    }     
+
+    modifier fileDeletePermission(uint256 _fileId) {
+        require(acl.getPermissionManager(this, DELETE_FILE_ROLE) == msg.sender 
+            || permissions.isOwner(_fileId, msg.sender), "You must be the file owner.");
+        _;
+    }          
 
     function initialize(ObjectACL _objectACL) onlyInit public {
         initialized();
@@ -125,7 +141,10 @@ contract Datastore is AragonApp {
      * @param _isDeleted Is file deleted or not
      * @param _deletePermanently If true, will delete file permanently
      */
-    function deleteFile(uint256 _fileId, bool _isDeleted, bool _deletePermanently) public onlyFileOwner(_fileId) {
+    function deleteFile(uint256 _fileId, bool _isDeleted, bool _deletePermanently) 
+        public 
+        fileDeletePermission(_fileId) 
+    {
         if (_isDeleted && _deletePermanently) {
             fileList.permanentlyDeleteFile(_fileId);
             emit FileChange(_fileId);            
@@ -215,7 +234,7 @@ contract Datastore is AragonApp {
      */
     function setWritePermission(uint256 _fileId, address _entity, bool _write) 
         external 
-        onlyFileOwner(_fileId) 
+        fileEditPermission(_fileId) 
     {        
         permissions.setEntityPermissions(_fileId, _entity, _write);
         emit PermissionChange(_fileId);
@@ -226,7 +245,10 @@ contract Datastore is AragonApp {
      * @param _fileId Id of the file
      * @param _entity Entity address
      */
-    function removeEntityFromFile(uint256 _fileId, address _entity) external onlyFileOwner(_fileId) {
+    function removeEntityFromFile(uint256 _fileId, address _entity) 
+        external 
+        fileDeletePermission(_fileId) 
+    {
         permissions.removeEntityFromFile(_fileId, _entity);
         emit PermissionChange(_fileId);       
     }
@@ -380,7 +402,7 @@ contract Datastore is AragonApp {
      * @param _groupId Id of the group
      * @param _write Write permission
      */
-    function setGroupPermissions(uint256 _fileId, uint256 _groupId, bool _write) public onlyFileOwner(_fileId) {
+    function setGroupPermissions(uint256 _fileId, uint256 _groupId, bool _write) public fileEditPermission(_fileId) {
         permissions.setGroupPermissions(_fileId, _groupId, _write);
         emit PermissionChange(_fileId);
     }
@@ -390,7 +412,7 @@ contract Datastore is AragonApp {
      * @param _fileId Id of the file
      * @param _groupId Id of the group
      */
-    function removeGroupFromFile(uint256 _fileId, uint256 _groupId) public onlyFileOwner(_fileId) {
+    function removeGroupFromFile(uint256 _fileId, uint256 _groupId) public fileEditPermission(_fileId) {
         permissions.removeGroupFromFile(_fileId, _groupId);
         emit PermissionChange(_fileId);
     }
