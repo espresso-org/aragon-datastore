@@ -162,6 +162,12 @@ export class AragonContract implements RpcProviderContract {
   async getLabels() {
     return convertCallToPromise(this._aragonApp, 'getLabels')
   }
+
+  async getBlockNumber() {
+    return new Promise((resolve, rej) => {
+      this._aragonApp.web3Eth('getBlockNumber').subscribe(resolve)
+    })    
+  }
 }
 
 function convertCallToPromise(aragonApp, methodName, ...args): Promise<any> {

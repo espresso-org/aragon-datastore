@@ -33,5 +33,6 @@ export interface RpcProviderContract {
     deleteLabel(labelId: number): Promise<{}>
     getLabel(labelId: number): Promise<any>
     getLabels(): Promise<any>
+    getBlockNumber(): Promise<any>
     events(...args): any
 }
