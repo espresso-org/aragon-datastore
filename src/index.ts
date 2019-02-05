@@ -4,7 +4,7 @@ import * as storage from './storage-providers'
 import * as Color from 'color'
 import * as _ from 'lodash'
 import { FileCache } from './utils/file-cache'
-import { throttleTime } from 'rxjs/operators'
+import { throttleTime, delay } from 'rxjs/operators'
 
 export { FileCache } from './utils/file-cache'
 import * as abBase64 from 'base64-arraybuffer'
@@ -678,12 +678,13 @@ export class Datastore {
      * Datastore events
      */
     async events(...args) {
-        // TODO: Return an Observable without async
         await this._initialize()
-        
+
+        // Add a 1ms delay to make sure _handleEvents() is called before
         return this._contract
             .events(...args)
             .merge(this._internalEvents.events)
+            .pipe(delay(1))
     }
 
     /**
