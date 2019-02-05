@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>Datastore | @espresso-org/aragon-datastore</title>
+	<title>Datastore | AragonDatastore</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<link rel="stylesheet" href="../assets/css/main.css">
@@ -22,7 +22,7 @@
 						<li class="state loading">Preparing search index...</li>
 						<li class="state failure">The search index is not available</li>
 					</ul>
-					<a href="../index.html" class="title">@espresso-org/aragon-datastore</a>
+					<a href="../index.html" class="title">AragonDatastore</a>
 				</div>
 				<div class="table-cell" id="tsd-widgets">
 					<div id="tsd-filter">
@@ -89,7 +89,8 @@
 							<h3>Properties</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_contract" class="tsd-kind-icon">_contract</a></li>
-								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_encryption" class="tsd-kind-icon">_encryption</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_folderscache" class="tsd-kind-icon">_folders<wbr>Cache</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_internalevents" class="tsd-kind-icon">_internal<wbr>Events</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_isinit" class="tsd-kind-icon">_is<wbr>Init</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_rpc" class="tsd-kind-icon">_rpc</a></li>
 								<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_settings" class="tsd-kind-icon">_settings</a></li>
@@ -99,22 +100,39 @@
 						<section class="tsd-index-section ">
 							<h3>Methods</h3>
 							<ul class="tsd-index-list">
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_getallfiles" class="tsd-kind-icon">_get<wbr>All<wbr>Files</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_getfileinfo" class="tsd-kind-icon">_get<wbr>File<wbr>Info</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_getfileinfofromstorageprovider" class="tsd-kind-icon">_get<wbr>File<wbr>Info<wbr>From<wbr>Storage<wbr>Provider</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_handleevents" class="tsd-kind-icon">_handle<wbr>Events</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_initialize" class="tsd-kind-icon">_initialize</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_isfilepermanantlydeleted" class="tsd-kind-icon">_is<wbr>File<wbr>Permanantly<wbr>Deleted</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#_listfiles" class="tsd-kind-icon">_list<wbr>Files</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_refreshsettings" class="tsd-kind-icon">_refresh<wbr>Settings</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class tsd-is-private"><a href="_index_.datastore.html#_sendevent" class="tsd-kind-icon">_send<wbr>Event</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#addentitytogroup" class="tsd-kind-icon">add<wbr>Entity<wbr>ToGroup</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#addfile" class="tsd-kind-icon">add<wbr>File</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#addfolder" class="tsd-kind-icon">add<wbr>Folder</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#assignlabel" class="tsd-kind-icon">assign<wbr>Label</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#creategroup" class="tsd-kind-icon">create<wbr>Group</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#createlabel" class="tsd-kind-icon">create<wbr>Label</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#deletefile" class="tsd-kind-icon">delete<wbr>File</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#deletefilepermanently" class="tsd-kind-icon">delete<wbr>File<wbr>Permanently</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#deletefilespermanently" class="tsd-kind-icon">delete<wbr>Files<wbr>Permanently</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#deletegroup" class="tsd-kind-icon">delete<wbr>Group</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#deletelabel" class="tsd-kind-icon">delete<wbr>Label</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#events" class="tsd-kind-icon">events</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getallfiles" class="tsd-kind-icon">get<wbr>All<wbr>Files</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getfile" class="tsd-kind-icon">get<wbr>File</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getfilegrouppermissions" class="tsd-kind-icon">get<wbr>File<wbr>Group<wbr>Permissions</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getfileinfo" class="tsd-kind-icon">get<wbr>File<wbr>Info</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getfilelabellist" class="tsd-kind-icon">get<wbr>File<wbr>Label<wbr>List</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getfilepath" class="tsd-kind-icon">get<wbr>File<wbr>Path</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getfilepermissions" class="tsd-kind-icon">get<wbr>File<wbr>Permissions</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getfolder" class="tsd-kind-icon">get<wbr>Folder</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getgroup" class="tsd-kind-icon">get<wbr>Group</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getgroups" class="tsd-kind-icon">get<wbr>Groups</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getlabel" class="tsd-kind-icon">get<wbr>Label</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getlabels" class="tsd-kind-icon">get<wbr>Labels</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#getsettings" class="tsd-kind-icon">get<wbr>Settings</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#listfiles" class="tsd-kind-icon">list<wbr>Files</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#removeentityfromfile" class="tsd-kind-icon">remove<wbr>Entity<wbr>From<wbr>File</a></li>
@@ -122,14 +140,14 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#removegroupfromfile" class="tsd-kind-icon">remove<wbr>Group<wbr>From<wbr>File</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#renamegroup" class="tsd-kind-icon">rename<wbr>Group</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#restorefile" class="tsd-kind-icon">restore<wbr>File</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#setentitypermissions" class="tsd-kind-icon">set<wbr>Entity<wbr>Permissions</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#setfilecontent" class="tsd-kind-icon">set<wbr>File<wbr>Content</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#setfilename" class="tsd-kind-icon">set<wbr>File<wbr>Name</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#setfilenameandcontent" class="tsd-kind-icon">set<wbr>File<wbr>Name<wbr>And<wbr>Content</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#setgrouppermissions" class="tsd-kind-icon">set<wbr>Group<wbr>Permissions</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#setpermissions" class="tsd-kind-icon">set<wbr>Permissions</a></li>
-								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#setreadpermission" class="tsd-kind-icon">set<wbr>Read<wbr>Permission</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#setsettings" class="tsd-kind-icon">set<wbr>Settings</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#setwritepermission" class="tsd-kind-icon">set<wbr>Write<wbr>Permission</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#sortfilesbylabel" class="tsd-kind-icon">sort<wbr>Files<wbr>ByLabel</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="_index_.datastore.html#unassignlabel" class="tsd-kind-icon">unassign<wbr>Label</a></li>
 							</ul>
 						</section>
 					</div>
@@ -147,7 +165,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L25">index.ts:25</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L34">index.ts:34</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -171,20 +189,30 @@
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="_contract" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _contract</h3>
-					<div class="tsd-signature tsd-kind-icon">_contract<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_rpc_providers_rpc_provider_contract_.rpcprovidercontract.html" class="tsd-signature-type">RpcProviderContract</a></div>
+					<div class="tsd-signature tsd-kind-icon">_contract<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">RpcProviderContract</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L23">index.ts:23</a></li>
+							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L30">index.ts:30</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
-					<a name="_encryption" class="tsd-anchor"></a>
-					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _encryption</h3>
-					<div class="tsd-signature tsd-kind-icon">_encryption<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_encryption_providers_encryption_provider_.encryptionprovider.html" class="tsd-signature-type">EncryptionProvider</a></div>
+					<a name="_folderscache" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _folders<wbr>Cache</h3>
+					<div class="tsd-signature tsd-kind-icon">_folders<wbr>Cache<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">FileCache</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L21">index.ts:21</a></li>
+							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L34">index.ts:34</a></li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
+					<a name="_internalevents" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _internal<wbr>Events</h3>
+					<div class="tsd-signature tsd-kind-icon">_internal<wbr>Events<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">EventEmitter</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L33">index.ts:33</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -194,43 +222,144 @@
 					<div class="tsd-signature tsd-kind-icon">_is<wbr>Init<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L25">index.ts:25</a></li>
+							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L32">index.ts:32</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="_rpc" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _rpc</h3>
-					<div class="tsd-signature tsd-kind-icon">_rpc<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_rpc_providers_rpc_provider_.rpcprovider.html" class="tsd-signature-type">RpcProvider</a></div>
+					<div class="tsd-signature tsd-kind-icon">_rpc<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">RpcProvider</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L22">index.ts:22</a></li>
+							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L29">index.ts:29</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="_settings" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _settings</h3>
-					<div class="tsd-signature tsd-kind-icon">_settings<span class="tsd-signature-symbol">:</span> <a href="_datastore_settings_.datastoresettings.html" class="tsd-signature-type">DatastoreSettings</a></div>
+					<div class="tsd-signature tsd-kind-icon">_settings<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">DatastoreSettings</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L24">index.ts:24</a></li>
+							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L31">index.ts:31</a></li>
 						</ul>
 					</aside>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private">
 					<a name="_storage" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _storage</h3>
-					<div class="tsd-signature tsd-kind-icon">_storage<span class="tsd-signature-symbol">:</span> <a href="../interfaces/_storage_providers_storage_provider_.storageprovider.html" class="tsd-signature-type">StorageProvider</a></div>
+					<div class="tsd-signature tsd-kind-icon">_storage<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">StorageProvider</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L20">index.ts:20</a></li>
+							<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L28">index.ts:28</a></li>
 						</ul>
 					</aside>
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Methods</h2>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_getallfiles" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _get<wbr>All<wbr>Files</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_get<wbr>All<wbr>Files<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L692">index.ts:692</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Refresh the files cache for a specific folder</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_getfileinfo" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _get<wbr>File<wbr>Info</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_get<wbr>File<wbr>Info<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L721">index.ts:721</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the file information without the content</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fileId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_getfileinfofromstorageprovider" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _get<wbr>File<wbr>Info<wbr>From<wbr>Storage<wbr>Provider</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_get<wbr>File<wbr>Info<wbr>From<wbr>Storage<wbr>Provider<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, storageRef<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L697">index.ts:697</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fileId: <span class="tsd-signature-type">number</span></h5>
+								</li>
+								<li>
+									<h5>storageRef: <span class="tsd-signature-type">string</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_handleevents" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _handle<wbr>Events</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_handle<wbr>Events<span class="tsd-signature-symbol">(</span>event<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L65">index.ts:65</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>event: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
 					<a name="_initialize" class="tsd-anchor"></a>
 					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _initialize</h3>
@@ -241,10 +370,55 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L38">index.ts:38</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L48">index.ts:48</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_isfilepermanantlydeleted" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _is<wbr>File<wbr>Permanantly<wbr>Deleted</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_is<wbr>File<wbr>Permanantly<wbr>Deleted<span class="tsd-signature-symbol">(</span>file<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L713">index.ts:713</a></li>
+								</ul>
+							</aside>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>file: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="_listfiles" class="tsd-anchor"></a>
+					<h3>_list<wbr>Files</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">_list<wbr>Files<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L308">index.ts:308</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns files information</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -258,9 +432,42 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L48">index.ts:48</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L75">index.ts:75</a></li>
 								</ul>
 							</aside>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private">
+					<a name="_sendevent" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagPrivate">Private</span> _send<wbr>Event</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
+						<li class="tsd-signature tsd-kind-icon">_send<wbr>Event<span class="tsd-signature-symbol">(</span>eventName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, params<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L84">index.ts:84</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sends an event to the <code>events()</code> Observable</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>eventName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+								<li>
+									<h5>params: <span class="tsd-signature-type">any</span></h5>
+								</li>
+							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
@@ -275,7 +482,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L411">index.ts:411</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L513">index.ts:513</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -306,13 +513,13 @@
 					<a name="addfile" class="tsd-anchor"></a>
 					<h3>add<wbr>File</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">add<wbr>File<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, publicStatus<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, file<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">add<wbr>File<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, file<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span>, parentFolderId<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L59">index.ts:59</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L94">index.ts:94</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -329,12 +536,89 @@
 									</div>
 								</li>
 								<li>
-									<h5>publicStatus: <span class="tsd-signature-type">boolean</span></h5>
-								</li>
-								<li>
 									<h5>file: <span class="tsd-signature-type">ArrayBuffer</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>File content</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> parentFolderId: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Parent folder id</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="addfolder" class="tsd-anchor"></a>
+					<h3>add<wbr>Folder</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">add<wbr>Folder<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, parentFolderId<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L122">index.ts:122</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Add a new folder to the Datastore</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Folder name</p>
+									</div>
+								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> parentFolderId: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Parent folder id</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="assignlabel" class="tsd-anchor"></a>
+					<h3>assign<wbr>Label</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">assign<wbr>Label<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, labelId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L584">index.ts:584</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Assign a label to a file</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fileId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>File Id</p>
+									</div>
+								</li>
+								<li>
+									<h5>labelId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Label Id</p>
 									</div>
 								</li>
 							</ul>
@@ -352,7 +636,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L326">index.ts:326</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L421">index.ts:421</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -374,6 +658,43 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="createlabel" class="tsd-anchor"></a>
+					<h3>create<wbr>Label</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">create<wbr>Label<span class="tsd-signature-symbol">(</span>name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, color<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L558">index.ts:558</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Add a new label to the Datastore</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>name: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Label name</p>
+									</div>
+								</li>
+								<li>
+									<h5>color: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Label color</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="deletefile" class="tsd-anchor"></a>
 					<h3>delete<wbr>File</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -383,7 +704,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L116">index.ts:116</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L227">index.ts:227</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -413,7 +734,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L126">index.ts:126</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L237">index.ts:237</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -443,7 +764,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L136">index.ts:136</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L247">index.ts:247</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -473,7 +794,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L336">index.ts:336</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L431">index.ts:431</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -495,6 +816,37 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="deletelabel" class="tsd-anchor"></a>
+					<h3>delete<wbr>Label</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">delete<wbr>Label<span class="tsd-signature-symbol">(</span>labelId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L573">index.ts:573</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Delete a label from the Datastore</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>labelId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Label Id</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="events" class="tsd-anchor"></a>
 					<h3>events</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -504,7 +856,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L455">index.ts:455</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L680">index.ts:680</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -523,16 +875,38 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getfile" class="tsd-anchor"></a>
-					<h3>get<wbr>File</h3>
+					<a name="getallfiles" class="tsd-anchor"></a>
+					<h3>get<wbr>All<wbr>Files</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>File<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>All<wbr>Files<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L80">index.ts:80</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L172">index.ts:172</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns all files from all folders</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getfile" class="tsd-anchor"></a>
+					<h3>get<wbr>File</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>File<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L183">index.ts:183</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -546,7 +920,7 @@
 									<h5>fileId: <span class="tsd-signature-type">number</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -560,7 +934,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L379">index.ts:379</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L474">index.ts:474</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -584,13 +958,13 @@
 					<a name="getfileinfo" class="tsd-anchor"></a>
 					<h3>get<wbr>File<wbr>Info</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>File<wbr>Info<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>File<wbr>Info<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L102">index.ts:102</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L201">index.ts:201</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -606,7 +980,68 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getfilelabellist" class="tsd-anchor"></a>
+					<h3>get<wbr>File<wbr>Label<wbr>List</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>File<wbr>Label<wbr>List<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L651">index.ts:651</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the array of label&#39;s Ids on the requested file</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fileId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>File Id</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getfilepath" class="tsd-anchor"></a>
+					<h3>get<wbr>File<wbr>Path</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>File<wbr>Path<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L150">index.ts:150</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns an array parent folders for a specific file</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fileId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">Object</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -620,7 +1055,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L156">index.ts:156</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L267">index.ts:267</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -642,6 +1077,36 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getfolder" class="tsd-anchor"></a>
+					<h3>get<wbr>Folder</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Folder<span class="tsd-signature-symbol">(</span>folderId<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L140">index.ts:140</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns a folder</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> folderId: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="getgroup" class="tsd-anchor"></a>
 					<h3>get<wbr>Group</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -651,7 +1116,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L399">index.ts:399</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L501">index.ts:501</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -682,7 +1147,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L356">index.ts:356</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L451">index.ts:451</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -695,16 +1160,69 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="getsettings" class="tsd-anchor"></a>
-					<h3>get<wbr>Settings</h3>
+					<a name="getlabel" class="tsd-anchor"></a>
+					<h3>get<wbr>Label</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">get<wbr>Settings<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="_datastore_settings_.datastoresettings.html" class="tsd-signature-type">DatastoreSettings</a><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Label<span class="tsd-signature-symbol">(</span>labelId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L173">index.ts:173</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L616">index.ts:616</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the wanted label</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>labelId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Label Id</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">object</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getlabels" class="tsd-anchor"></a>
+					<h3>get<wbr>Labels</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Labels<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L634">index.ts:634</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns every label created in the Datastore</p>
+								</div>
+							</div>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="getsettings" class="tsd-anchor"></a>
+					<h3>get<wbr>Settings</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">get<wbr>Settings<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">DatastoreSettings</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L284">index.ts:284</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -712,7 +1230,7 @@
 									<p>Fetch the datastore settings</p>
 								</div>
 							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="_datastore_settings_.datastoresettings.html" class="tsd-signature-type">DatastoreSettings</a><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">DatastoreSettings</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -720,21 +1238,29 @@
 					<a name="listfiles" class="tsd-anchor"></a>
 					<h3>list<wbr>Files</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">list<wbr>Files<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">list<wbr>Files<span class="tsd-signature-symbol">(</span>folderId<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L197">index.ts:197</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L163">index.ts:163</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Returns files information</p>
+									<p>Returns a folder</p>
 								</div>
 							</div>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagDefault value">Default value</span> folderId: <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> =&nbsp;0</span></h5>
+									<div class="tsd-comment tsd-typography">
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -748,7 +1274,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L305">index.ts:305</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L366">index.ts:366</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -784,7 +1310,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L422">index.ts:422</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L524">index.ts:524</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -821,7 +1347,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L446">index.ts:446</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L547">index.ts:547</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -858,7 +1384,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L347">index.ts:347</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L442">index.ts:442</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -895,7 +1421,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L146">index.ts:146</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L257">index.ts:257</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -916,55 +1442,6 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="setentitypermissions" class="tsd-anchor"></a>
-					<h3>set<wbr>Entity<wbr>Permissions</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Entity<wbr>Permissions<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, entity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, read<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, write<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L255">index.ts:255</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Add/Remove permissions to an entity for a specific file</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>fileId: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>File Id</p>
-									</div>
-								</li>
-								<li>
-									<h5>entity: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Entity address</p>
-									</div>
-								</li>
-								<li>
-									<h5>read: <span class="tsd-signature-type">boolean</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>read permission</p>
-									</div>
-								</li>
-								<li>
-									<h5>write: <span class="tsd-signature-type">boolean</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>write permission</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="setfilecontent" class="tsd-anchor"></a>
 					<h3>set<wbr>File<wbr>Content</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -974,7 +1451,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L217">index.ts:217</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L328">index.ts:328</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1011,12 +1488,12 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L316">index.ts:316</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L377">index.ts:377</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Changes name of a file for <code>newName</code></p>
+									<p>Changes name of file with Id <code>fileId</code> for <code>newName</code></p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1039,21 +1516,61 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="setgrouppermissions" class="tsd-anchor"></a>
-					<h3>set<wbr>Group<wbr>Permissions</h3>
+					<a name="setfilenameandcontent" class="tsd-anchor"></a>
+					<h3>set<wbr>File<wbr>Name<wbr>And<wbr>Content</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Group<wbr>Permissions<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, groupId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, read<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span>, write<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>File<wbr>Name<wbr>And<wbr>Content<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, newName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, file<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ArrayBuffer</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L435">index.ts:435</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L395">index.ts:395</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Sets read and write permissions on a file for a group</p>
+									<p>Changes name of file with Id <code>fileId</code> for <code>newName</code> and changes the content to <code>newFile</code></p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fileId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>File Id</p>
+									</div>
+								</li>
+								<li>
+									<h5>newName: <span class="tsd-signature-type">string</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>New file name</p>
+									</div>
+								</li>
+								<li>
+									<h5>file: <span class="tsd-signature-type">ArrayBuffer</span></h5>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="setgrouppermissions" class="tsd-anchor"></a>
+					<h3>set<wbr>Group<wbr>Permissions</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Group<wbr>Permissions<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, groupId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, write<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L536">index.ts:536</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Sets write permissions on a file for a group</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -1071,95 +1588,7 @@
 									</div>
 								</li>
 								<li>
-									<h5>read: <span class="tsd-signature-type">boolean</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Read permission</p>
-									</div>
-								</li>
-								<li>
 									<h5>write: <span class="tsd-signature-type">boolean</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Write permission</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="setpermissions" class="tsd-anchor"></a>
-					<h3>set<wbr>Permissions</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Permissions<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, entityPermissions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span>, groupPermissions<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span>, isPublic<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L268">index.ts:268</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Sets multiple permissions on a file</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>fileId: <span class="tsd-signature-type">number</span></h5>
-								</li>
-								<li>
-									<h5>entityPermissions: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
-								</li>
-								<li>
-									<h5>groupPermissions: <span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span></h5>
-								</li>
-								<li>
-									<h5>isPublic: <span class="tsd-signature-type">boolean</span></h5>
-									<div class="tsd-comment tsd-typography">
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
-				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
-					<a name="setreadpermission" class="tsd-anchor"></a>
-					<h3>set<wbr>Read<wbr>Permission</h3>
-					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Read<wbr>Permission<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, entity<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, hasPermission<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L230">index.ts:230</a></li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Add/Remove read permission to an entity for a specific file</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>fileId: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>File Id</p>
-									</div>
-								</li>
-								<li>
-									<h5>entity: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Entity address</p>
-									</div>
-								</li>
-								<li>
-									<h5>hasPermission: <span class="tsd-signature-type">boolean</span></h5>
 									<div class="tsd-comment tsd-typography">
 										<p>Write permission</p>
 									</div>
@@ -1173,22 +1602,28 @@
 					<a name="setsettings" class="tsd-anchor"></a>
 					<h3>set<wbr>Settings</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
-						<li class="tsd-signature tsd-kind-icon">set<wbr>Settings<span class="tsd-signature-symbol">(</span>host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, protocol<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, length<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">set<wbr>Settings<span class="tsd-signature-symbol">(</span>storageProvider<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">StorageProvider</span>, host<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, port<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, protocol<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L187">index.ts:187</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L297">index.ts:297</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
 								<div class="lead">
-									<p>Sets the storage and encryption settings for the Datastore</p>
+									<p>Sets the storage settings for the Datastore</p>
 								</div>
 							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
+								<li>
+									<h5>storageProvider: <span class="tsd-signature-type">StorageProvider</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Storage provider</p>
+									</div>
+								</li>
 								<li>
 									<h5>host: <span class="tsd-signature-type">string</span></h5>
 									<div class="tsd-comment tsd-typography">
@@ -1207,18 +1642,6 @@
 										<p>HTTP protocol</p>
 									</div>
 								</li>
-								<li>
-									<h5>name: <span class="tsd-signature-type">string</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Name of the AES encryption algorithm</p>
-									</div>
-								</li>
-								<li>
-									<h5>length: <span class="tsd-signature-type">number</span></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>Length of the encryption key</p>
-									</div>
-								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
@@ -1234,7 +1657,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6f7704d/src/index.ts#L242">index.ts:242</a></li>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L355">index.ts:355</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1267,6 +1690,74 @@
 						</li>
 					</ul>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="sortfilesbylabel" class="tsd-anchor"></a>
+					<h3>sort<wbr>Files<wbr>ByLabel</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">sort<wbr>Files<wbr>ByLabel<span class="tsd-signature-symbol">(</span>labelId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L662">index.ts:662</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Returns the files tagged with the specified label</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>labelId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Label Id</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="unassignlabel" class="tsd-anchor"></a>
+					<h3>unassign<wbr>Label</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">unassign<wbr>Label<span class="tsd-signature-symbol">(</span>fileId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span>, labelId<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in <a href="https://github.com/espresso-org/aragon-datastore/blob/6219711/src/index.ts#L600">index.ts:600</a></li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Unassign a label from a file</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>fileId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>File Id</p>
+									</div>
+								</li>
+								<li>
+									<h5>labelId: <span class="tsd-signature-type">number</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Label Id</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
 			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
@@ -1275,50 +1766,8 @@
 					<li class="globals  ">
 						<a href="../globals.html"><em>Globals</em></a>
 					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_datastore_settings_.html">"datastore-<wbr>settings"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_encryption_providers_aes_.html">"encryption-<wbr>providers/aes"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_encryption_providers_encryption_provider_.html">"encryption-<wbr>providers/encryption-<wbr>provider"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_encryption_providers_index_.html">"encryption-<wbr>providers/index"</a>
-					</li>
 					<li class="current tsd-kind-external-module">
 						<a href="../modules/_index_.html">"index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_rpc_providers_aragon_.html">"rpc-<wbr>providers/aragon"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_rpc_providers_index_.html">"rpc-<wbr>providers/index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_rpc_providers_rpc_provider_.html">"rpc-<wbr>providers/rpc-<wbr>provider"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_rpc_providers_rpc_provider_contract_.html">"rpc-<wbr>providers/rpc-<wbr>provider-<wbr>contract"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_rpc_providers_web3_.html">"rpc-<wbr>providers/web3"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_storage_providers_index_.html">"storage-<wbr>providers/index"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_storage_providers_ipfs_.html">"storage-<wbr>providers/ipfs"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_storage_providers_storage_provider_.html">"storage-<wbr>providers/storage-<wbr>provider"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_utils_.html">"utils"</a>
-					</li>
-					<li class=" tsd-kind-external-module">
-						<a href="../modules/_utils_getweb3_.html">"utils/get<wbr>Web3"</a>
 					</li>
 				</ul>
 			</nav>
@@ -1336,7 +1785,10 @@
 								<a href="_index_.datastore.html#_contract" class="tsd-kind-icon">_contract</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
-								<a href="_index_.datastore.html#_encryption" class="tsd-kind-icon">_encryption</a>
+								<a href="_index_.datastore.html#_folderscache" class="tsd-kind-icon">_folders<wbr>Cache</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
+								<a href="_index_.datastore.html#_internalevents" class="tsd-kind-icon">_internal<wbr>Events</a>
 							</li>
 							<li class=" tsd-kind-property tsd-parent-kind-class tsd-is-private">
 								<a href="_index_.datastore.html#_isinit" class="tsd-kind-icon">_is<wbr>Init</a>
@@ -1351,10 +1803,31 @@
 								<a href="_index_.datastore.html#_storage" class="tsd-kind-icon">_storage</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_index_.datastore.html#_getallfiles" class="tsd-kind-icon">_get<wbr>All<wbr>Files</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_index_.datastore.html#_getfileinfo" class="tsd-kind-icon">_get<wbr>File<wbr>Info</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_index_.datastore.html#_getfileinfofromstorageprovider" class="tsd-kind-icon">_get<wbr>File<wbr>Info<wbr>From<wbr>Storage<wbr>Provider</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_index_.datastore.html#_handleevents" class="tsd-kind-icon">_handle<wbr>Events</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="_index_.datastore.html#_initialize" class="tsd-kind-icon">_initialize</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_index_.datastore.html#_isfilepermanantlydeleted" class="tsd-kind-icon">_is<wbr>File<wbr>Permanantly<wbr>Deleted</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#_listfiles" class="tsd-kind-icon">_list<wbr>Files</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
 								<a href="_index_.datastore.html#_refreshsettings" class="tsd-kind-icon">_refresh<wbr>Settings</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class tsd-is-private">
+								<a href="_index_.datastore.html#_sendevent" class="tsd-kind-icon">_send<wbr>Event</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#addentitytogroup" class="tsd-kind-icon">add<wbr>Entity<wbr>ToGroup</a>
@@ -1363,7 +1836,16 @@
 								<a href="_index_.datastore.html#addfile" class="tsd-kind-icon">add<wbr>File</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#addfolder" class="tsd-kind-icon">add<wbr>Folder</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#assignlabel" class="tsd-kind-icon">assign<wbr>Label</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#creategroup" class="tsd-kind-icon">create<wbr>Group</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#createlabel" class="tsd-kind-icon">create<wbr>Label</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#deletefile" class="tsd-kind-icon">delete<wbr>File</a>
@@ -1378,7 +1860,13 @@
 								<a href="_index_.datastore.html#deletegroup" class="tsd-kind-icon">delete<wbr>Group</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#deletelabel" class="tsd-kind-icon">delete<wbr>Label</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#events" class="tsd-kind-icon">events</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#getallfiles" class="tsd-kind-icon">get<wbr>All<wbr>Files</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#getfile" class="tsd-kind-icon">get<wbr>File</a>
@@ -1390,13 +1878,28 @@
 								<a href="_index_.datastore.html#getfileinfo" class="tsd-kind-icon">get<wbr>File<wbr>Info</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#getfilelabellist" class="tsd-kind-icon">get<wbr>File<wbr>Label<wbr>List</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#getfilepath" class="tsd-kind-icon">get<wbr>File<wbr>Path</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#getfilepermissions" class="tsd-kind-icon">get<wbr>File<wbr>Permissions</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#getfolder" class="tsd-kind-icon">get<wbr>Folder</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#getgroup" class="tsd-kind-icon">get<wbr>Group</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#getgroups" class="tsd-kind-icon">get<wbr>Groups</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#getlabel" class="tsd-kind-icon">get<wbr>Label</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#getlabels" class="tsd-kind-icon">get<wbr>Labels</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#getsettings" class="tsd-kind-icon">get<wbr>Settings</a>
@@ -1420,22 +1923,16 @@
 								<a href="_index_.datastore.html#restorefile" class="tsd-kind-icon">restore<wbr>File</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_index_.datastore.html#setentitypermissions" class="tsd-kind-icon">set<wbr>Entity<wbr>Permissions</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#setfilecontent" class="tsd-kind-icon">set<wbr>File<wbr>Content</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#setfilename" class="tsd-kind-icon">set<wbr>File<wbr>Name</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#setfilenameandcontent" class="tsd-kind-icon">set<wbr>File<wbr>Name<wbr>And<wbr>Content</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#setgrouppermissions" class="tsd-kind-icon">set<wbr>Group<wbr>Permissions</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_index_.datastore.html#setpermissions" class="tsd-kind-icon">set<wbr>Permissions</a>
-							</li>
-							<li class=" tsd-kind-method tsd-parent-kind-class">
-								<a href="_index_.datastore.html#setreadpermission" class="tsd-kind-icon">set<wbr>Read<wbr>Permission</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#setsettings" class="tsd-kind-icon">set<wbr>Settings</a>
@@ -1443,12 +1940,21 @@
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="_index_.datastore.html#setwritepermission" class="tsd-kind-icon">set<wbr>Write<wbr>Permission</a>
 							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#sortfilesbylabel" class="tsd-kind-icon">sort<wbr>Files<wbr>ByLabel</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="_index_.datastore.html#unassignlabel" class="tsd-kind-icon">unassign<wbr>Label</a>
+							</li>
 						</ul>
 					</li>
 				</ul>
 				<ul class="after-current">
 					<li class=" tsd-kind-class tsd-parent-kind-external-module">
 						<a href="_index_.datastoreoptions.html" class="tsd-kind-icon">Datastore<wbr>Options</a>
+					</li>
+					<li class=" tsd-kind-variable tsd-parent-kind-external-module tsd-is-not-exported">
+						<a href="../modules/_index_.html#web3" class="tsd-kind-icon">web3</a>
 					</li>
 					<li class=" tsd-kind-object-literal tsd-parent-kind-external-module">
 						<a href="../modules/_index_.html#providers" class="tsd-kind-icon">providers</a>
