@@ -172,7 +172,7 @@ export class Datastore {
     async getAllFiles() {
         await this._initialize()
 
-        return this._foldersCache.getAllFiles()
+        return (await this._foldersCache.getAllFiles()).filter(file => file)
     }
 
     /**
