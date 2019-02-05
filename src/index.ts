@@ -4,7 +4,7 @@ import * as storage from './storage-providers'
 import * as Color from 'color'
 import * as _ from 'lodash'
 import { FileCache } from './utils/file-cache'
-import { throttleTime } from 'rxjs/operators'
+import { throttleTime, delay, filter } from 'rxjs/operators'
 
 export { FileCache } from './utils/file-cache'
 import * as abBase64 from 'base64-arraybuffer'
@@ -32,6 +32,7 @@ export class Datastore {
     private _isInit
     private _internalEvents: EventEmitter
     private _foldersCache: FileCache
+    private _latestBlockNumber = 0
 
     /**
      * Creates a new Datastore instance
@@ -51,9 +52,11 @@ export class Datastore {
             this._contract = await this._rpc.getContract()
             await this._refreshSettings()
             this._foldersCache = new FileCache(await this._getAllFiles())
+            this._latestBlockNumber = await this._contract.getBlockNumber()
 
             this._contract
                 .events()
+                .pipe(filter<any>(e => e.blockNumber > this._latestBlockNumber))
                 .merge(this._internalEvents.events)
                 .pipe(throttleTime(100))
                 .subscribe(this._handleEvents.bind(this))
@@ -172,7 +175,7 @@ export class Datastore {
     async getAllFiles() {
         await this._initialize()
 
-        return this._foldersCache.getAllFiles()
+        return (await this._foldersCache.getAllFiles()).filter(file => file)
     }
 
     /**
@@ -678,12 +681,14 @@ export class Datastore {
      * Datastore events
      */
     async events(...args) {
-        // TODO: Return an Observable without async
         await this._initialize()
-        
+
+        // Add a 1ms delay to make sure _handleEvents() is called before
         return this._contract
             .events(...args)
+            .pipe(filter<any>(e => e.blockNumber > this._latestBlockNumber))
             .merge(this._internalEvents.events)
+            .pipe(delay(1))
     }
 
     /**
