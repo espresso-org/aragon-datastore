@@ -26,7 +26,7 @@
     "lint:fix": "tslint src/**/*.ts --fix",
     "release": "standard-version && npm pack",
     "truffle:copy-contracts": "copyfiles -f build/contracts/* src/build-contracts",
-    "doc": "typedoc --out doc src/index.ts --name AragonDatastore --resolveJsonModule --excludeExternals"
+    "doc": "typedoc --out doc src/index.ts --name AragonDatastore --resolveJsonModule --excludeExternals && bash doc-script.sh"
   },
   "keywords": [],
   "license": "MIT",
