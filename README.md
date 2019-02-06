@@ -30,7 +30,7 @@ const datastore = new Datastore({
 The code above would create a Datastore instance using [IPFS](https://ipfs.io) as storage and [aragon.js](https://github.com/aragon/aragon.js) to execute the smart contract methods and receive events. To use Swarm or Filecoin instead of IPFS, simply select the corresponding storage provider. In case the DApp is not using Aragon, a Web3 provider is also available: 
 
 ```javascript
-    rpcProvider: new providers.rpc.Web3(...)
+rpcProvider: new providers.rpc.Web3(...)
 ```
 
 Here's how you can upload a file:
