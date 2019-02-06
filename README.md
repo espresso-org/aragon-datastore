@@ -36,17 +36,17 @@ The code above would create a Datastore instance using [IPFS](https://ipfs.io) a
 Here's how you can upload a file:
 
 ```javascript
-    // Adding a file to the datastore.
-    // fileContent is an ArrayBuffer.
-    // parentFolderId is an integer. If not specified, it's 0 by default (Home folder)
-    await datastore.addFile('filename.pdf', fileContent, parentFolderId)
+// Adding a file to the datastore.
+// fileContent is an ArrayBuffer.
+// parentFolderId is an integer. If not specified, it's 0 by default (Home folder)
+await datastore.addFile('filename.pdf', fileContent, parentFolderId)
 ```
 
 Then, to give a write permission on this file:
 
 ```javascript
-    // Give the write permission to entity 0xb4124cEB3451635DAcedd11767f004d8a28c6eE7 on file 3.
-    await datastore.setWritePermission(3, '0xb4124cEB3451635DAcedd11767f004d8a28c6eE7', true)
+// Give the write permission to entity 0xb4124cEB3451635DAcedd11767f004d8a28c6eE7 on file 3.
+await datastore.setWritePermission(3, '0xb4124cEB3451635DAcedd11767f004d8a28c6eE7', true)
 ```
 
 This is just a short example, there is a ton more of functionnality in this library. If you wish to see the complete documentation, you can check it out in the [documentation folder](doc) of this project.
