@@ -484,7 +484,7 @@ contract('Datastore ', accounts => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", 0)
             await datastore.setGroupPermissions(1, 1, true)
             
-            assertThrow(async () => await datastore.removeGroupFromFile(1, 1, { from: accounts[1] }))
+            assertThrow(async () => await datastore.removeGroupFromFile(1, 1, { from: accounts[2] }))
         })
     })  
     
@@ -514,7 +514,7 @@ contract('Datastore ', accounts => {
         })
 
         it("throws if not called by DATASTORE_MANAGER", async () => {  
-            assertThrow(async () => await datastore.createLabel("Important", "0xff000000", { from: accounts[1] }))
+            assertThrow(async () => await datastore.createLabel("Important", "0xff000000", { from: accounts[2] }))
         })         
     })
 
