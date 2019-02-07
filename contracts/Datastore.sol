@@ -233,8 +233,6 @@ contract Datastore is AragonApp {
     
     /**
      * @notice Sets the storage provider for the datastore
-     * @dev Since switching between storage providers is not supported,
-     * the method can only be called if storage isn't set already.
      * @param _storageProvider Storage provider
      * @param _ipfsHost Host
      * @param _ipfsPort Port
