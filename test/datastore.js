@@ -519,7 +519,7 @@ contract('Datastore ', accounts => {
     })
 
     describe('deleteLabel', async () => {
-        xit('deletes an existing label', async () => {
+        it('deletes an existing label', async () => {
             await datastore.createLabel("Important", "0xff000000")
             await datastore.deleteLabel(1)
             let label = await datastore.getLabel(1)
@@ -528,7 +528,7 @@ contract('Datastore ', accounts => {
             //await assertEvent(datastore, { event: 'FileChange' })
             assert.equal(labelCount, 0)
             assert.equal(label[0], 0)
-            assert.equal(label[1], 0)
+            assert.equal(label[01], 0)
         })
     })
 })
