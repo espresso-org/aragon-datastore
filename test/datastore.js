@@ -60,8 +60,11 @@ contract('Datastore ', accounts => {
 
         await acl.createPermission(datastore.address, objectACL.address, await objectACL.OBJECTACL_ADMIN_ROLE(), root)
         await acl.createPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE(), root)
-        await acl.grantPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
+        await acl.createPermission(root, datastore.address, await datastore.EDIT_FILE_ROLE(), root)
+        await acl.createPermission(root, datastore.address, await datastore.DELETE_FILE_ROLE(), root)
+
         await acl.grantPermission(holder, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
+        await acl.grantPermission(holder, datastore.address, await datastore.EDIT_FILE_ROLE())
         
          
         await objectACL.initialize() 
@@ -445,7 +448,7 @@ contract('Datastore ', accounts => {
             await datastore.createGroup('My first group')
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", 0)
 
-            assertThrow(async () => await datastore.setGroupPermissions(1, 1, true, { from: accounts[1] }))
+            assertThrow(async () => await datastore.setGroupPermissions(1, 1, true, { from: accounts[2] }))
         })        
     })
 
