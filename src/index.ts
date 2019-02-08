@@ -68,6 +68,7 @@ export class Datastore {
     private async _handleEvents(event) {
         switch (event.event) {
             case 'FileChange':
+            case 'PermissionChange':
                 const returnedValues = event.returnValues || event.returnedValues
                 const fileId = parseInt(returnedValues.fileId)
                 this._foldersCache.lockAndUpdateFile(fileId, this._getFileInfo(fileId))
@@ -308,7 +309,7 @@ export class Datastore {
      * Returns files information
      * @param folderId
      */
-    async _listFiles() {
+    private async _listFiles() {
         await this._initialize()
 
         const lastFileId = (await this._contract.lastFileId()).toNumber()
