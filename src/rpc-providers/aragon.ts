@@ -168,6 +168,7 @@ export class AragonContract implements RpcProviderContract {
       this._aragonApp.web3Eth('getBlockNumber').subscribe(resolve)
     })    
   }
+
 }
 
 function convertCallToPromise(aragonApp, methodName, ...args): Promise<any> {

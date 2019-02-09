@@ -51,7 +51,7 @@ export class Datastore {
         if (!this._isInit) {
             this._contract = await this._rpc.getContract()
             await this._refreshSettings()
-            this._foldersCache = new FileCache(await this._getAllFiles())
+            await this._refreshCache()
             this._latestBlockNumber = await this._contract.getBlockNumber()
 
             this._contract
@@ -76,9 +76,34 @@ export class Datastore {
         }
     }
 
+    private async _refreshCache() {
+        this._foldersCache = new FileCache(await this._getAllFiles())
+    }
+
     private async _refreshSettings() {
-        this._settings = createSettingsFromTuple(await this._contract.settings())
+        this._settings = { 
+            ...createSettingsFromTuple(await this._contract.settings()),
+            ...(await this._getCachedSettings())
+        }
+
         this._storage = storage.getStorageProviderFromSettings(this._settings)
+    }
+
+    private async _getCachedSettings() {
+        return new Promise((res, rej) => {
+            (this._contract as any)
+            ._aragonApp
+            .rpc
+            .sendAndObserveResponses('cache', ['get', 'datastoreSettings'])
+            .pluck('result')
+            .subscribe(settings => res(settings || {
+                ipfs: {
+                    host: '',
+                    port: 0,
+                    protocol: 'http'
+                } 
+            }))
+        })
     }
 
     /**
@@ -301,8 +326,24 @@ export class Datastore {
     async setSettings(storageProvider: StorageProvider, host: string, port: number, protocol: string) {
         await this._initialize()
 
-        await this._contract.setSettings(storageProvider, host, port, protocol)
+        const hasNewStorageProvider = storageProvider !== this._settings.storageProvider
+
+        if (hasNewStorageProvider)
+            await this._contract.setSettings(storageProvider, '', 0, 'http')
+
+        ;(this._contract as any)._aragonApp.cache('datastoreSettings', {
+            ipfs: {
+                host,
+                port,
+                protocol
+            }
+        })
         await this._refreshSettings()
+
+        if (!hasNewStorageProvider) {
+            await this._refreshCache()
+            this._sendEvent('SettingsChange', {})
+        }
     }
 
     /**
