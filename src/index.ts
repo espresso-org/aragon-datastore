@@ -51,6 +51,15 @@ export class Datastore {
         if (!this._isInit) {
             this._contract = await this._rpc.getContract()
             await this._refreshSettings()
+
+            if (this._storage) {
+                try {
+                    await this._storage.validateServer()
+                } catch {
+                    return
+                }
+            }
+
             await this._refreshCache()
             this._latestBlockNumber = await this._contract.getBlockNumber()
 

@@ -35,4 +35,8 @@ export class Ipfs implements StorageProvider {
         else 
             throw new Error('Unable to add file to IPFS')
     }
+
+    async validateServer() {
+        await this._ipfs.version()
+    }
 }
