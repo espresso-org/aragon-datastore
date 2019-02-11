@@ -86,7 +86,11 @@ export class Datastore {
     }
 
     private async _refreshCache() {
-        this._foldersCache = new FileCache(await this._getAllFiles())
+        try {
+            this._foldersCache = new FileCache(await this._getAllFiles())
+        } catch(e) {
+            this._foldersCache = new FileCache([])
+        }
     }
 
     private async _refreshSettings() {
@@ -107,9 +111,9 @@ export class Datastore {
             .pluck('result')
             .subscribe(settings => res(settings || {
                 ipfs: {
-                    host: '',
-                    port: 0,
-                    protocol: 'http'
+                    host: 'localhost',
+                    port: 5001,
+                    protocol: 'HTTP'
                 } 
             }))
         })
@@ -139,7 +143,7 @@ export class Datastore {
         let zip = JSZip()
         await zip.file("content", file)
         file = await zip.generateAsync({type : "arraybuffer"})
-        
+
         let contentStorageRef = await this._storage.addFile(file)
         let jsonFileData = {
             "name": name,
@@ -331,7 +335,6 @@ export class Datastore {
      * @param protocol HTTP protocol
      */
     async setSettings(storageProvider: StorageProvider, host: string, port: number, protocol: string) {
-        await this._initialize()
 
         const hasNewStorageProvider = storageProvider !== this._settings.storageProvider
 
