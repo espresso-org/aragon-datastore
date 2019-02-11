@@ -5,16 +5,15 @@ import * as Color from 'color'
 import * as _ from 'lodash'
 import { FileCache } from './utils/file-cache'
 import { throttleTime, delay, filter } from 'rxjs/operators'
-
 export { FileCache } from './utils/file-cache'
 import * as abBase64 from 'base64-arraybuffer'
-
-
 import { createFileFromTuple, createPermissionFromTuple, createSettingsFromTuple } from './utils'
 import { DatastoreSettings, StorageProvider } from './datastore-settings'
 import { RpcProvider } from './rpc-providers/rpc-provider'
 import { EventEmitter } from './utils/event-emitter'
 import * as Web3 from 'web3'
+
+const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 const web3 = new Web3()
 
@@ -310,7 +309,7 @@ export class Datastore {
         const entitiesAddress = await this._contract.getEntitiesWithPermissionsOnFile(fileId)
         return Promise.all(
             entitiesAddress
-            .filter(entity => entity !== '0x0000000000000000000000000000000000000000')
+            .filter(entity => entity !== EMPTY_ADDRESS)
             .map(async entity => ({
                 entity,
                 ...createPermissionFromTuple(await this._contract.getEntityPermissionsOnFile(fileId, entity))
@@ -514,7 +513,7 @@ export class Datastore {
                 let group = {
                     id: groupsIds[i],
                     name: groupInfos[1],
-                    entities: groupInfos[0].filter(entity => entity !== '0x0000000000000000000000000000000000000000')
+                    entities: groupInfos[0].filter(entity => entity !== EMPTY_ADDRESS)
                 }
                 groups.push(group)
             }
@@ -557,7 +556,7 @@ export class Datastore {
         await this._initialize()
 
         return (await this._contract.getGroup(groupId))
-            .filter(entity => entity !== '0x0000000000000000000000000000000000000000')
+            .filter(entity => entity !== EMPTY_ADDRESS)
     }
 
     /**
@@ -727,6 +726,15 @@ export class Datastore {
             }
         }
         return sortedFiles
+    }
+
+    /**
+     * Returns true if user 
+     */
+    async hasDeleteRole() {
+        await this._initialize()
+
+        return this._contract.hasDeleteRole()
     }
 
     /**

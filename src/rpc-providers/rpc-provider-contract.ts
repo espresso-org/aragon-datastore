@@ -34,5 +34,6 @@ export interface RpcProviderContract {
     getLabel(labelId: number): Promise<any>
     getLabels(): Promise<any>
     getBlockNumber(): Promise<any>
+    hasDeleteRole(): Promise<any>
     events(...args): any
 }

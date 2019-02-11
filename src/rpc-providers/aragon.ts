@@ -70,6 +70,10 @@ export class AragonContract implements RpcProviderContract {
     return convertTransactionToPromise(this._aragonApp, 'setWritePermission', fileId, entity, hasWritePermission)
   }
 
+  async hasDeleteRole() {
+    return convertCallToPromise(this._aragonApp, 'hasDeleteRole', this._ethAccounts[0])
+  }
+
   events(...args) {
     return this._aragonApp.events(...args)
   }
