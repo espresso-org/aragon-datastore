@@ -139,7 +139,7 @@ export class Datastore {
         let zip = JSZip()
         await zip.file("content", file)
         file = await zip.generateAsync({type : "arraybuffer"})
-
+        
         let contentStorageRef = await this._storage.addFile(file)
         let jsonFileData = {
             "name": name,
@@ -240,22 +240,20 @@ export class Datastore {
         await this._initialize()
 
         const fileTuple = await this._contract.getFile(fileId)
-        let fileContent, fileInfo
-        if (!fileTuple[1]) {
-            fileContent = await this._storage.getFile(fileTuple[0])
-            const jsonFileData = JSON.parse(Buffer.from(abBase64.encode(fileContent), 'base64').toString('ascii'))
-            fileInfo = {
-                id: fileId, 
-                name: jsonFileData.name,
-                contentStorageRef: jsonFileData.contentStorageRef,
-                fileSize: jsonFileData.fileSize,
-                lastModification: new Date(jsonFileData.lastModification),
-                labels: jsonFileData.labels,
-                ...createFileFromTuple(fileTuple)
-            }
+
+        if (this._isFilePermanantlyDeleted({ id: fileId, ...fileTuple }))
+            return undefined
+
+        const jsonFileData = await this._getFileInfoFromStorageProvider(fileId, fileTuple[0])
+        return {
+            id: fileId, 
+            name: jsonFileData.name,
+            contentStorageRef: jsonFileData.contentStorageRef,
+            fileSize: jsonFileData.fileSize,
+            lastModification: new Date(jsonFileData.lastModification),
+            labels: jsonFileData.labels,
+            ...createFileFromTuple(fileTuple)
         }
-        // If storageRef is '' and file is not the root folder, the file has been permanently deleted
-        return fileInfo.storageRef !== '' || fileId === 0 ? fileInfo : undefined
     }
 
     /**
