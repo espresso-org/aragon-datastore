@@ -16,9 +16,13 @@ export class Ipfs implements StorageProvider {
     }
 
     async getFile(fileId: string): Promise<ArrayBuffer> {
-        const result = await this._ipfs.get(fileId)
+        try {
+            const result = await this._ipfs.get(fileId)
 
-        return result.length && result[0].content.buffer
+            return result.length && result[0].content.buffer
+        } catch(e) {
+            console.log('IPFS connexion error')
+        }
     }
 
     async addFile(file: ArrayBuffer) {
@@ -30,5 +34,9 @@ export class Ipfs implements StorageProvider {
         }
         else 
             throw new Error('Unable to add file to IPFS')
+    }
+
+    async validateServer() {
+        await this._ipfs.version()
     }
 }

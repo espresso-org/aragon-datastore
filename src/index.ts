@@ -5,16 +5,15 @@ import * as Color from 'color'
 import * as _ from 'lodash'
 import { FileCache } from './utils/file-cache'
 import { throttleTime, delay, filter } from 'rxjs/operators'
-
 export { FileCache } from './utils/file-cache'
 import * as abBase64 from 'base64-arraybuffer'
-
-
 import { createFileFromTuple, createPermissionFromTuple, createSettingsFromTuple } from './utils'
 import { DatastoreSettings, StorageProvider } from './datastore-settings'
 import { RpcProvider } from './rpc-providers/rpc-provider'
 import { EventEmitter } from './utils/event-emitter'
 import * as Web3 from 'web3'
+
+const EMPTY_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 const web3 = new Web3()
 
@@ -51,7 +50,16 @@ export class Datastore {
         if (!this._isInit) {
             this._contract = await this._rpc.getContract()
             await this._refreshSettings()
-            this._foldersCache = new FileCache(await this._getAllFiles())
+
+            if (this._storage) {
+                try {
+                    await this._storage.validateServer()
+                } catch {
+                    return
+                }
+            }
+
+            await this._refreshCache()
             this._latestBlockNumber = await this._contract.getBlockNumber()
 
             this._contract
@@ -68,6 +76,7 @@ export class Datastore {
     private async _handleEvents(event) {
         switch (event.event) {
             case 'FileChange':
+            case 'PermissionChange':
                 const returnedValues = event.returnValues || event.returnedValues
                 const fileId = parseInt(returnedValues.fileId)
                 this._foldersCache.lockAndUpdateFile(fileId, this._getFileInfo(fileId))
@@ -75,9 +84,38 @@ export class Datastore {
         }
     }
 
+    private async _refreshCache() {
+        try {
+            this._foldersCache = new FileCache(await this._getAllFiles())
+        } catch(e) {
+            this._foldersCache = new FileCache([])
+        }
+    }
+
     private async _refreshSettings() {
-        this._settings = createSettingsFromTuple(await this._contract.settings())
+        this._settings = { 
+            ...createSettingsFromTuple(await this._contract.settings()),
+            ...(await this._getCachedSettings())
+        }
+
         this._storage = storage.getStorageProviderFromSettings(this._settings)
+    }
+
+    private async _getCachedSettings() {
+        return new Promise((res, rej) => {
+            (this._contract as any)
+            ._aragonApp
+            .rpc
+            .sendAndObserveResponses('cache', ['get', 'datastoreSettings'])
+            .pluck('result')
+            .subscribe(settings => res(settings || {
+                ipfs: {
+                    host: 'localhost',
+                    port: 5001,
+                    protocol: 'HTTP'
+                } 
+            }))
+        })
     }
 
     /**
@@ -205,22 +243,20 @@ export class Datastore {
         await this._initialize()
 
         const fileTuple = await this._contract.getFile(fileId)
-        let fileContent, fileInfo
-        if (!fileTuple[1]) {
-            fileContent = await this._storage.getFile(fileTuple[0])
-            const jsonFileData = JSON.parse(Buffer.from(abBase64.encode(fileContent), 'base64').toString('ascii'))
-            fileInfo = {
-                id: fileId, 
-                name: jsonFileData.name,
-                contentStorageRef: jsonFileData.contentStorageRef,
-                fileSize: jsonFileData.fileSize,
-                lastModification: new Date(jsonFileData.lastModification),
-                labels: jsonFileData.labels,
-                ...createFileFromTuple(fileTuple)
-            }
+
+        if (this._isFilePermanantlyDeleted({ id: fileId, ...fileTuple }))
+            return undefined
+
+        const jsonFileData = await this._getFileInfoFromStorageProvider(fileId, fileTuple[0])
+        return {
+            id: fileId, 
+            name: jsonFileData.name,
+            contentStorageRef: jsonFileData.contentStorageRef,
+            fileSize: jsonFileData.fileSize,
+            lastModification: new Date(jsonFileData.lastModification),
+            labels: jsonFileData.labels,
+            ...createFileFromTuple(fileTuple)
         }
-        // If storageRef is '' and file is not the root folder, the file has been permanently deleted
-        return fileInfo.storageRef !== '' || fileId === 0 ? fileInfo : undefined
     }
 
     /**
@@ -273,7 +309,7 @@ export class Datastore {
         const entitiesAddress = await this._contract.getEntitiesWithPermissionsOnFile(fileId)
         return Promise.all(
             entitiesAddress
-            .filter(entity => entity !== '0x0000000000000000000000000000000000000000')
+            .filter(entity => entity !== EMPTY_ADDRESS)
             .map(async entity => ({
                 entity,
                 ...createPermissionFromTuple(await this._contract.getEntityPermissionsOnFile(fileId, entity))
@@ -298,17 +334,32 @@ export class Datastore {
      * @param protocol HTTP protocol
      */
     async setSettings(storageProvider: StorageProvider, host: string, port: number, protocol: string) {
-        await this._initialize()
 
-        await this._contract.setSettings(storageProvider, host, port, protocol)
+        const hasNewStorageProvider = storageProvider !== this._settings.storageProvider
+
+        if (hasNewStorageProvider)
+            await this._contract.setSettings(storageProvider, '', 0, 'http')
+
+        ;(this._contract as any)._aragonApp.cache('datastoreSettings', {
+            ipfs: {
+                host,
+                port,
+                protocol
+            }
+        })
         await this._refreshSettings()
+
+        if (!hasNewStorageProvider) {
+            await this._refreshCache()
+            this._sendEvent('SettingsChange', {})
+        }
     }
 
     /**
      * Returns files information
      * @param folderId
      */
-    async _listFiles() {
+    private async _listFiles() {
         await this._initialize()
 
         const lastFileId = (await this._contract.lastFileId()).toNumber()
@@ -462,7 +513,7 @@ export class Datastore {
                 let group = {
                     id: groupsIds[i],
                     name: groupInfos[1],
-                    entities: groupInfos[0].filter(entity => entity !== '0x0000000000000000000000000000000000000000')
+                    entities: groupInfos[0].filter(entity => entity !== EMPTY_ADDRESS)
                 }
                 groups.push(group)
             }
@@ -505,7 +556,7 @@ export class Datastore {
         await this._initialize()
 
         return (await this._contract.getGroup(groupId))
-            .filter(entity => entity !== '0x0000000000000000000000000000000000000000')
+            .filter(entity => entity !== EMPTY_ADDRESS)
     }
 
     /**
@@ -675,6 +726,15 @@ export class Datastore {
             }
         }
         return sortedFiles
+    }
+
+    /**
+     * Returns true if user 
+     */
+    async hasDeleteRole() {
+        await this._initialize()
+
+        return this._contract.hasDeleteRole()
     }
 
     /**

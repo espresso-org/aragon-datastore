@@ -60,8 +60,11 @@ contract('Datastore ', accounts => {
 
         await acl.createPermission(datastore.address, objectACL.address, await objectACL.OBJECTACL_ADMIN_ROLE(), root)
         await acl.createPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE(), root)
-        await acl.grantPermission(root, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
+        await acl.createPermission(root, datastore.address, await datastore.EDIT_FILE_ROLE(), root)
+        await acl.createPermission(root, datastore.address, await datastore.DELETE_FILE_ROLE(), root)
+
         await acl.grantPermission(holder, datastore.address, await datastore.DATASTORE_MANAGER_ROLE())
+        await acl.grantPermission(holder, datastore.address, await datastore.EDIT_FILE_ROLE())
         
          
         await objectACL.initialize() 
@@ -445,7 +448,7 @@ contract('Datastore ', accounts => {
             await datastore.createGroup('My first group')
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", 0)
 
-            assertThrow(async () => await datastore.setGroupPermissions(1, 1, true, { from: accounts[1] }))
+            assertThrow(async () => await datastore.setGroupPermissions(1, 1, true, { from: accounts[2] }))
         })        
     })
 
@@ -481,7 +484,7 @@ contract('Datastore ', accounts => {
             await datastore.addFile("QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t", 0)
             await datastore.setGroupPermissions(1, 1, true)
             
-            assertThrow(async () => await datastore.removeGroupFromFile(1, 1, { from: accounts[1] }))
+            assertThrow(async () => await datastore.removeGroupFromFile(1, 1, { from: accounts[2] }))
         })
     })  
     
@@ -511,12 +514,12 @@ contract('Datastore ', accounts => {
         })
 
         it("throws if not called by DATASTORE_MANAGER", async () => {  
-            assertThrow(async () => await datastore.createLabel("Important", "0xff000000", { from: accounts[1] }))
+            assertThrow(async () => await datastore.createLabel("Important", "0xff000000", { from: accounts[2] }))
         })         
     })
 
     describe('deleteLabel', async () => {
-        xit('deletes an existing label', async () => {
+        it('deletes an existing label', async () => {
             await datastore.createLabel("Important", "0xff000000")
             await datastore.deleteLabel(1)
             let label = await datastore.getLabel(1)
@@ -525,7 +528,7 @@ contract('Datastore ', accounts => {
             //await assertEvent(datastore, { event: 'FileChange' })
             assert.equal(labelCount, 0)
             assert.equal(label[0], 0)
-            assert.equal(label[1], 0)
+            assert.equal(label[01], 0)
         })
     })
 })

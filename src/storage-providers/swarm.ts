@@ -16,4 +16,8 @@ export class Swarm implements StorageProvider {
         const fileAsString = abBase64.encode(file)
         return await put(fileAsString)
     }
+
+    async validateServer() {
+        
+    }
 }

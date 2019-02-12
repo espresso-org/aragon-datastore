@@ -14,6 +14,9 @@ contract Datastore is AragonApp {
     using GroupLibrary for GroupLibrary.GroupData;
 
     bytes32 constant public DATASTORE_MANAGER_ROLE = keccak256(abi.encodePacked("DATASTORE_MANAGER_ROLE"));
+    bytes32 constant public EDIT_FILE_ROLE = keccak256(abi.encodePacked("EDIT_FILE_ROLE"));
+    bytes32 constant public DELETE_FILE_ROLE = keccak256(abi.encodePacked("DELETE_FILE_ROLE"));
+
     
     event NewFile(uint256 fileId);
     event FileChange(uint256 fileId);
@@ -29,10 +32,6 @@ contract Datastore is AragonApp {
 
     struct Settings {
         StorageProvider storageProvider;
-
-        string ipfsHost;
-        uint16 ipfsPort;
-        string ipfsProtocol;
     }
 
     ACL private acl;
@@ -43,11 +42,17 @@ contract Datastore is AragonApp {
     Settings public settings;
     ObjectACL private objectACL;
 
-    modifier onlyFileOwner(uint256 _fileId) {
-        require(acl.getPermissionManager(this, DATASTORE_MANAGER_ROLE) == msg.sender 
+    modifier fileEditPermission(uint256 _fileId) {
+        require(acl.hasPermission(msg.sender, this, EDIT_FILE_ROLE)
             || permissions.isOwner(_fileId, msg.sender), "You must be the file owner.");
         _;
-    }    
+    }     
+
+    modifier fileDeletePermission(uint256 _fileId) {
+        require(acl.hasPermission(msg.sender, this, DELETE_FILE_ROLE)
+            || permissions.isOwner(_fileId, msg.sender), "You must be the file owner.");
+        _;
+    }          
 
     function initialize(ObjectACL _objectACL) onlyInit public {
         initialized();
@@ -67,7 +72,7 @@ contract Datastore is AragonApp {
         external 
         returns (uint256 fileId) 
     {
-        require(hasWriteAccessInFoldersPath(_parentFolderId, msg.sender));
+        require(hasWriteAccess(_parentFolderId, msg.sender));
 
         uint256 fId = fileList.addFile(_storageRef, _parentFolderId, false);
         
@@ -77,7 +82,8 @@ contract Datastore is AragonApp {
     }
 
     /**
-     * @notice Changes the storage reference of file `_fileId` to `_newStorageRef`
+     * @notice Changes the file information
+     * @dev Changes the storage reference of file `_fileId` to `_newStorageRef`
      * @param _fileId File Id
      * @param _newStorageRef New storage reference
      */
@@ -120,12 +126,15 @@ contract Datastore is AragonApp {
     }
 
     /**
-     * @notice Set file `_fileId` as deleted or not.
+     * @notice Set file `_fileId` as `_isDeleted ? "deleted" : "undeleted"`
      * @param _fileId File Id
      * @param _isDeleted Is file deleted or not
      * @param _deletePermanently If true, will delete file permanently
      */
-    function deleteFile(uint256 _fileId, bool _isDeleted, bool _deletePermanently) public onlyFileOwner(_fileId) {
+    function deleteFile(uint256 _fileId, bool _isDeleted, bool _deletePermanently) 
+        public 
+        fileDeletePermission(_fileId) 
+    {
         if (_isDeleted && _deletePermanently) {
             fileList.permanentlyDeleteFile(_fileId);
             emit FileChange(_fileId);            
@@ -208,14 +217,14 @@ contract Datastore is AragonApp {
     } 
 
     /**
-     * @notice Add/Remove permissions to an entity for a specific file
+     * @notice `_write ? "Add" : "Remove"` write permission
      * @param _fileId File Id
      * @param _entity Entity address
      * @param _write Write permission     
      */
     function setWritePermission(uint256 _fileId, address _entity, bool _write) 
         external 
-        onlyFileOwner(_fileId) 
+        fileEditPermission(_fileId) 
     {        
         permissions.setEntityPermissions(_fileId, _entity, _write);
         emit PermissionChange(_fileId);
@@ -226,62 +235,28 @@ contract Datastore is AragonApp {
      * @param _fileId Id of the file
      * @param _entity Entity address
      */
-    function removeEntityFromFile(uint256 _fileId, address _entity) external onlyFileOwner(_fileId) {
+    function removeEntityFromFile(uint256 _fileId, address _entity) 
+        external 
+        fileDeletePermission(_fileId) 
+    {
         permissions.removeEntityFromFile(_fileId, _entity);
         emit PermissionChange(_fileId);       
     }
     
     /**
      * @notice Sets the storage provider for the datastore
-     * @dev Since switching between storage providers is not supported,
-     * the method can only be called if storage isn't set already.
      * @param _storageProvider Storage provider
-     * @param _ipfsHost Host
-     * @param _ipfsPort Port
-     * @param _ipfsProtocol HTTP protocol
      */
     function setSettings(
-        StorageProvider _storageProvider,
-        string _ipfsHost, 
-        uint16 _ipfsPort, 
-        string _ipfsProtocol
-    ) public {
+        StorageProvider _storageProvider
+    ) public auth(DATASTORE_MANAGER_ROLE) {
         require(settings.storageProvider == StorageProvider.None, "Settings already set");
 
-        // Storage provider
         settings.storageProvider = _storageProvider;
-        if (settings.storageProvider == StorageProvider.Ipfs) {
-            settings.ipfsHost = _ipfsHost;
-            settings.ipfsPort = _ipfsPort;
-            settings.ipfsProtocol = _ipfsProtocol;
-        }
+
         emit SettingsChange();
     }
     
-    function hasWriteAccessInFoldersPath(uint256 _fileId, address _entity) 
-        internal 
-        view 
-        returns (bool) 
-    {
-        if (acl.getPermissionManager(this, DATASTORE_MANAGER_ROLE) == _entity
-            || permissions.hasWriteAccess(_fileId, _entity))
-            return true;
-
-        // Lookup parent folders up to 3 levels for write access
-        uint256 level = 0;
-        uint256 currentFileId = _fileId;
-
-        while (level < 8 && currentFileId != 0) {
-            FileLibrary.File folder = fileList.files[currentFileId];
-
-            if (permissions.hasWriteAccess(folder.parentFolderId, _entity))
-                return true;
-            
-            currentFileId = folder.parentFolderId;
-            level++;
-        }
-        return false;
-    }
 
     /**
      * @notice Returns true if `_entity` has write access on file `_fileId`
@@ -289,9 +264,31 @@ contract Datastore is AragonApp {
      * @param _entity Entity address     
      */
     function hasWriteAccess(uint256 _fileId, address _entity) public view returns (bool) {
-        if (hasWriteAccessInFoldersPath(_fileId, _entity))
-            return true;        
+        if (acl.hasPermission(_entity, this, EDIT_FILE_ROLE)
+            || permissions.hasWriteAccess(_fileId, _entity)
+            || hasGroupWriteAccess(_fileId, _entity))
+            return true;
 
+        // Lookup parent folders up to 8 levels for write access
+        uint256 folderLevel = 0;
+        uint256 currentFileId = _fileId;
+
+        while (folderLevel < 8 && currentFileId != 0) {
+            FileLibrary.File file = fileList.files[currentFileId];
+
+            if (permissions.hasWriteAccess(file.parentFolderId, _entity)
+                || hasGroupWriteAccess(file.parentFolderId, _entity))
+                return true;
+            
+            currentFileId = file.parentFolderId;
+            folderLevel++;
+        }
+
+        return false;
+
+    }
+
+    function hasGroupWriteAccess(uint256 _fileId, address _entity) internal view returns (bool) {
         for (uint256 i = 0; i < groups.groupList.length; i++) {
             if (groups.groups[groups.groupList[i]].exists) {
                 if (permissions.groupPermissions[_fileId][groups.groupList[i]].exists) {
@@ -302,15 +299,26 @@ contract Datastore is AragonApp {
                     }
                 }
             }
-        }
-        return false;
+        }        
     }
+
+    /**
+     * @notice Returns whether an entity has the DELETE_FILE_ROLE
+     * @param _entity File id
+     */
+    function hasDeleteRole(address _entity) 
+        external
+        view 
+        returns (bool)
+    {
+        return acl.hasPermission(_entity, this, DELETE_FILE_ROLE);
+    }    
 
     /**
      * @notice Add a group to the datastore
      * @param _groupName Name of the group
      */
-    function createGroup(string _groupName) external {
+    function createGroup(string _groupName) external auth(DATASTORE_MANAGER_ROLE) {
         uint256 groupId = groups.createGroup(_groupName);
         emit GroupChange(groupId);
     }
@@ -357,7 +365,10 @@ contract Datastore is AragonApp {
      * @param _groupId Id of the group to add the entity in
      * @param _entity Address of the entity
      */
-    function addEntityToGroup(uint256 _groupId, address _entity) public {
+    function addEntityToGroup(uint256 _groupId, address _entity) 
+        auth(DATASTORE_MANAGER_ROLE)
+        external 
+    {
         require(groups.groups[_groupId].exists);
         groups.addEntityToGroup(_groupId, _entity);
         emit GroupChange(_groupId);
@@ -368,7 +379,10 @@ contract Datastore is AragonApp {
      * @param _groupId Id of the group to remove the entity from 
      * @param _entity Address of the entity
      */
-    function removeEntityFromGroup(uint256 _groupId, address _entity) public {
+    function removeEntityFromGroup(uint256 _groupId, address _entity) 
+        auth(DATASTORE_MANAGER_ROLE)
+        external 
+    {
         require(groups.groups[_groupId].exists);
         groups.removeEntityFromGroup(_groupId, _entity);
         emit GroupChange(_groupId);
@@ -380,7 +394,10 @@ contract Datastore is AragonApp {
      * @param _groupId Id of the group
      * @param _write Write permission
      */
-    function setGroupPermissions(uint256 _fileId, uint256 _groupId, bool _write) public onlyFileOwner(_fileId) {
+    function setGroupPermissions(uint256 _fileId, uint256 _groupId, bool _write) 
+        external 
+        fileEditPermission(_fileId) 
+    {
         permissions.setGroupPermissions(_fileId, _groupId, _write);
         emit PermissionChange(_fileId);
     }
@@ -390,7 +407,7 @@ contract Datastore is AragonApp {
      * @param _fileId Id of the file
      * @param _groupId Id of the group
      */
-    function removeGroupFromFile(uint256 _fileId, uint256 _groupId) public onlyFileOwner(_fileId) {
+    function removeGroupFromFile(uint256 _fileId, uint256 _groupId) external fileEditPermission(_fileId) {
         permissions.removeGroupFromFile(_fileId, _groupId);
         emit PermissionChange(_fileId);
     }
@@ -409,7 +426,7 @@ contract Datastore is AragonApp {
      * @notice Delete a label from the datastore
      * @param _labelId Id of the label
      */
-    function deleteLabel(uint _labelId) external {
+    function deleteLabel(uint _labelId) external auth(DATASTORE_MANAGER_ROLE) {
         labelList.deleteLabel(_labelId);
         emit LabelChange(_labelId);
     }
@@ -440,7 +457,7 @@ contract Datastore is AragonApp {
         external 
         returns (uint256 fileId) 
     {
-        require(hasWriteAccessInFoldersPath(_parentFolderId, msg.sender), "You must have write permission.");
+        require(hasWriteAccess(_parentFolderId, msg.sender), "You must have write permission.");
 
         uint256 fId = fileList.addFile(_storageRef, _parentFolderId, true);
         permissions.addOwner(fId, msg.sender);
