@@ -26,6 +26,9 @@ export class AragonContract implements RpcProviderContract {
   constructor(aragonApp, accounts) {
     this._aragonApp = aragonApp
     this._ethAccounts = accounts
+
+    aragonApp.accounts()
+      .subscribe(accounts => this._ethAccounts = accounts)
   }
 
   async lastFileId() {

@@ -32,6 +32,7 @@ export class Datastore {
     private _internalEvents: EventEmitter
     private _foldersCache: FileCache
     private _latestBlockNumber = 0
+    private _currentAccount
 
     /**
      * Creates a new Datastore instance
@@ -51,6 +52,7 @@ export class Datastore {
             this._contract = await this._rpc.getContract()
             await this._refreshSettings()
 
+            // If storage server is invalid, stop initialization
             if (this._storage) {
                 try {
                     await this._storage.validateServer()
@@ -58,6 +60,21 @@ export class Datastore {
                     return
                 }
             }
+
+            (this._contract as any)._aragonApp
+                .accounts()
+                .pipe(delay(100))
+                .subscribe(async accounts => {
+                    if (accounts[0] !== this._currentAccount) {
+                        // Skip refresh the first time
+                        if (this._currentAccount) {
+                            await this._refreshCache()
+                            this._sendEvent('FileChange', { fileId: 1 })
+                        }
+
+                        this._currentAccount = accounts[0]
+                    }
+                })
 
             await this._refreshCache()
             this._latestBlockNumber = await this._contract.getBlockNumber()
@@ -68,6 +85,8 @@ export class Datastore {
                 .merge(this._internalEvents.events)
                 .pipe(throttleTime(100))
                 .subscribe(this._handleEvents.bind(this))
+
+            
         }
         else 
             return this._isInit
@@ -365,7 +384,6 @@ export class Datastore {
         const lastFileId = (await this._contract.lastFileId()).toNumber()
         let files = []
         
-        // TODO: Optimize this code
         for (let i = 1; i <= lastFileId; i++) {
             const file = await this.getFileInfo(i)
             if (file)
