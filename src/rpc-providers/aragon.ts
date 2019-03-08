@@ -77,6 +77,10 @@ export class AragonContract implements RpcProviderContract {
     return convertCallToPromise(this._aragonApp, 'hasDeleteRole', this._ethAccounts[0])
   }
 
+  async hasCreateFileRole() {
+    return convertCallToPromise(this._aragonApp, 'hasCreateFileRole', this._ethAccounts[0])
+  }  
+
   events(...args) {
     return this._aragonApp.events(...args)
   }

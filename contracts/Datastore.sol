@@ -7,6 +7,7 @@ import "./libraries/PermissionLibrary.sol";
 import "./libraries/GroupLibrary.sol";
 import "./libraries/FileLibrary.sol";
 
+
 contract Datastore is AragonApp {
     using PermissionLibrary for PermissionLibrary.PermissionData;
     using FileLibrary for FileLibrary.FileList;
@@ -14,6 +15,7 @@ contract Datastore is AragonApp {
     using GroupLibrary for GroupLibrary.GroupData;
 
     bytes32 constant public DATASTORE_MANAGER_ROLE = keccak256(abi.encodePacked("DATASTORE_MANAGER_ROLE"));
+    bytes32 constant public CREATE_FILE_ROLE = keccak256(abi.encodePacked("CREATE_FILE_ROLE"));
     bytes32 constant public EDIT_FILE_ROLE = keccak256(abi.encodePacked("EDIT_FILE_ROLE"));
     bytes32 constant public DELETE_FILE_ROLE = keccak256(abi.encodePacked("DELETE_FILE_ROLE"));
 
@@ -72,6 +74,10 @@ contract Datastore is AragonApp {
         external 
         returns (uint256 fileId) 
     {
+        if (_parentFolderId == 0 && !acl.hasPermission(msg.sender, this, DATASTORE_MANAGER_ROLE)) {
+            return addFileToRootFolder(_storageRef);
+        }
+
         require(hasWriteAccess(_parentFolderId, msg.sender));
 
         uint256 fId = fileList.addFile(_storageRef, _parentFolderId, false);
@@ -81,6 +87,22 @@ contract Datastore is AragonApp {
         return fId;
     }
 
+    /**
+     * @dev Add a file to the datastore root folder
+     * @param _storageRef Storage Id of the file 
+     */
+    function addFileToRootFolder(string _storageRef)
+        internal
+        auth(CREATE_FILE_ROLE)
+        returns (uint256 fileId)
+    {
+
+        uint256 fId = fileList.addFile(_storageRef, 0, false);
+        
+        permissions.addOwner(fId, msg.sender);
+        emit FileChange(fId);
+        return fId;        
+    }
     /**
      * @notice Changes the file information
      * @dev Changes the storage reference of file `_fileId` to `_newStorageRef`
@@ -303,8 +325,16 @@ contract Datastore is AragonApp {
     }
 
     /**
-     * @notice Returns whether an entity has the DELETE_FILE_ROLE
-     * @param _entity File id
+     * @dev Returns whether an entity has the CREATE_FILE_ROLE 
+     * @param _entity Entity address
+     */
+    function hasCreateFileRole(address _entity) external view returns (bool) {
+        return acl.hasPermission(_entity, this, CREATE_FILE_ROLE);
+    }    
+
+    /**
+     * @dev Returns whether an entity has the DELETE_FILE_ROLE
+     * @param _entity Entity address
      */
     function hasDeleteRole(address _entity) 
         external

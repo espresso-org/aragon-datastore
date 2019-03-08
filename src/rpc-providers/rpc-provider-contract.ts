@@ -35,5 +35,6 @@ export interface RpcProviderContract {
     getLabels(): Promise<any>
     getBlockNumber(): Promise<any>
     hasDeleteRole(): Promise<any>
+    hasCreateFileRole(): Promise<any>
     events(...args): any
 }

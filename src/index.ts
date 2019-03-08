@@ -278,6 +278,8 @@ export class Datastore {
         }
     }
 
+
+
     /**
      * Delete the specified file. File can be restored
      * @param {number} fileId 
@@ -747,7 +749,16 @@ export class Datastore {
     }
 
     /**
-     * Returns true if user 
+     * Returns whether the user has the CREATE_FILE_ROLE 
+     */
+    async hasCreateFileRole() {
+        await this._initialize()
+
+        return this._contract.hasCreateFileRole()
+    }
+
+    /**
+     * Returns whether the user has the DELETE_FILE_ROLE 
      */
     async hasDeleteRole() {
         await this._initialize()
